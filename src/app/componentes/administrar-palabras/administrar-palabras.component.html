@@ -25,10 +25,10 @@
         <input id="left" type="text" formControlName="left" placeholder="Ej. Think" />
 
         <div class="no-results" *ngIf="leftControl?.touched && leftControl?.hasError('required')">
-          El verbo es obligatorio.
+          ⚠️ El verbo es obligatorio.
         </div>
         <div class="no-results" *ngIf="leftControl?.touched && leftControl?.hasError('minlength')">
-          El verbo debe tener mínimo 2 caracteres.
+          ⚠️ El verbo debe tener mínimo 2 caracteres.
         </div>
       </div>
 
@@ -41,11 +41,11 @@
         <input id="right" type="text" formControlName="right" placeholder="Ej. Thought" />
 
         <div class="no-results" *ngIf="rightControl?.touched && rightControl?.hasError('required')">
-          La pareja es obligatoria.
+          ⚠️ La pareja es obligatoria.
         </div>
 
         <div class="no-results" *ngIf="rightControl?.touched && rightControl?.hasError('minlength')">
-          La pareja debe tener mínimo 2 caracteres.
+          ⚠️ La pareja debe tener mínimo 2 caracteres.
         </div>
       </div>
     </div>
@@ -60,11 +60,11 @@
         <input id="meaning" type="text" formControlName="meaning" placeholder="Ej. Pensar" />
 
         <div class="no-results" *ngIf="meaningControl?.touched && meaningControl?.hasError('required')">
-          El significado es obligatorio.
+          ⚠️ El significado es obligatorio.
         </div>
 
         <div class="no-results" *ngIf="meaningControl?.touched && meaningControl?.hasError('minlength')">
-          El significado debe tener mínimo 2 caracteres.
+          ⚠️ El significado debe tener mínimo 2 caracteres.
         </div>
       </div>
 
@@ -74,11 +74,11 @@
         <input id="categoriaPalabra" type="text" formControlName="categoriaPalabra" placeholder="Ej. Verbo Irregular" />
 
         <div class="no-results" *ngIf="categoriaControl?.touched && categoriaControl?.hasError('required')">
-          La categoría es obligatoria.
+          ⚠️ La categoría es obligatoria.
         </div>
 
         <div class="no-results" *ngIf="categoriaControl?.touched && categoriaControl?.hasError('minlength')">
-          La categoría debe tener mínimo 2 caracteres.
+          ⚠️ La categoría debe tener mínimo 2 caracteres.
         </div>
       </div>
     </div>
@@ -92,7 +92,7 @@
       <input id="image" type="url" formControlName="image" placeholder="URL de imagen" autocomplete="off" />
 
       <div class="no-results" *ngIf="imageControl?.touched && imageControl?.hasError('required')">
-        La URL de la imagen es obligatoria.
+        ⚠️ La URL de la imagen es obligatoria.
       </div>
     </div>
 
@@ -133,7 +133,7 @@
           )
         " />
 
-      <small class="image-preview-help">
+      <small class="winner">
         Haz clic en la imagen para ampliarla
       </small>
     </div>
@@ -143,7 +143,7 @@
     ==================================================== -->
     <div *ngIf="message" class="no-results" [class.success-message]="messageType === 'success'"
       [class.delete-button]="messageType === 'error'">
-      {{ message }}
+      ⚠️ {{ message }}
     </div>
   </form>
 
@@ -156,7 +156,6 @@
 
       <input type="text" [(ngModel)]="searchTerm" (ngModelChange)="onSearchChange()"
         placeholder="Buscar por verbo, pareja, significado o categoría..." autocomplete="off" />
-
 
     </div>
     <!-- =====================================================
@@ -264,7 +263,7 @@
          SIN RESULTADOS
     ==================================================== -->
     <div class="no-results" *ngIf="searchTerm.trim().length > 0 && sortedPairs.length === 0">
-      No se encontraron palabras.
+      ⚠️ No se encontraron palabras.
     </div>
 
     <!-- ===================================================
@@ -289,8 +288,7 @@
       <div class="pair-content">
         <!-- CATEGORÍA -->
         <div class="category">
-          🏷️
-          {{ pair.categoriaPalabra }}
+          🏷️ {{ pair.categoriaPalabra }}
         </div>
 
         <!-- SIGNIFICADO -->

@@ -32,7 +32,7 @@
       </div>
 
       <!-- CONTINUAR -->
-      <button type="button" class="new-game-button" (click)="selectCategoryAndStart()">
+      <button type="button" class="new-game-button" (click)="selectCategoryAndStart()" *ngIf="!categorySelected">
         ▶ Continuar
       </button>
     </div>
@@ -407,7 +407,7 @@
             </button>
           </div>
 
-          <p class="remaining-attempts-final">
+          <p class="winner">
             ❤️ Intentos restantes:
             {{ remainingAttempts }}
           </p>
@@ -502,7 +502,7 @@
         <!-- ===================================================
            CORRECTAS
       ==================================================== -->
-        <div class="correct-results" *ngIf="showingCorrectWords">
+        <div class="winner" *ngIf="showingCorrectWords">
           <h2>✅ Palabras correctas</h2>
 
           <p class="results-summary">
@@ -515,7 +515,7 @@
 
           <div class="result-word-list" *ngIf="correctWords.length > 0">
             <div class="result-word-card correct-word-card" *ngFor="let exercise of correctWords">
-              <div class="result-word-content">
+              <div class="winner">
                 <div class="error-word-main">
                   <span class="result-status-icon"> ✅ </span>
 
@@ -546,7 +546,7 @@
         <!-- ===================================================
            ERRORES
       ==================================================== -->
-        <div class="correct-results" *ngIf="showingErrorWords">
+        <div class="winner" *ngIf="showingErrorWords">
           <h2>❌ Palabras para practicar</h2>
 
           <p class="results-summary">
@@ -562,7 +562,7 @@
 
           <div class="result-word-list" *ngIf="wordsWithErrors.length > 0">
             <div class="result-word-card error-word-card" *ngFor="let exercise of wordsWithErrors">
-              <div class="result-word-content">
+              <div class="winner">
                 <!-- PALABRA Y PAREJA -->
                 <div class="error-word-main">
                   <span class="result-status-icon"> ❌ </span>

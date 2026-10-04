@@ -30,7 +30,7 @@
         ⚠️ {{ categoryMessage }}
       </div>
 
-      <button type="button" class="new-game-button" (click)="selectCategoryAndStart()">
+      <button type="button" class="new-game-button" (click)="selectCategoryAndStart()" *ngIf="!categorySelected">
         ▶ Continuar
       </button>
     </div>
@@ -219,7 +219,7 @@
       <!-- ===================================================
            COLUMNA IZQUIERDA
       ==================================================== -->
-      <div class="column left-column">
+      <div class="column">
         <button #leftButton *ngFor="let word of leftWords[currentPage]" type="button" class="word-card left-card"
           [attr.data-id]="word.id" [class.selected]="isSelected(word.id)" [class.connected]="isLeftConnected(word.id)"
           [disabled]="
@@ -248,7 +248,7 @@
       <!-- ===================================================
            COLUMNA DERECHA
       ==================================================== -->
-      <div class="column right-column">
+      <div class="column">
         <button #rightButton *ngFor="let word of rightWords[currentPage]" type="button" class="word-card right-card"
           [attr.data-id]="word.id" [class.connected]="isRightConnected(word.id)" [disabled]="
             finished || changingPage || showHints || isRightConnected(word.id)
@@ -379,7 +379,7 @@
           <!-- =================================================
             INTENTOS RESTANTES
           ================================================== -->
-          <p class="remaining-attempts-final">
+          <p class="winner">
             ❤️ Intentos restantes:
 
             <strong>
@@ -390,11 +390,9 @@
           <!-- =========================================================
             GUARDAR PUNTAJE
           ========================================================== -->
-          <div class="save-score-container">
-            <button *ngIf="puedeGuardarPuntaje" type="button" class="save-score-button" (click)="guardarPuntaje()">
-              🏆 Guardar puntaje
-            </button>
-          </div>
+          <button *ngIf="puedeGuardarPuntaje" type="button" class="save-score-button" (click)="guardarPuntaje()">
+            🏆 Guardar puntaje
+          </button>
 
           <!-- =================================================
               BOTONES
@@ -488,7 +486,7 @@
         <!-- =================================================
              PALABRAS CORRECTAS
         ================================================== -->
-        <div class="correct-results" *ngIf="showingCorrectWords">
+        <div class="winner" *ngIf="showingCorrectWords">
           <h2>✅ Palabras correctas</h2>
 
           <p class="results-summary">
@@ -519,7 +517,7 @@
           ================================================== -->
           <div class="result-word-list" *ngIf="correctWords.length > 0">
             <div class="result-word-card correct-word-card" *ngFor="let pair of correctWords">
-              <div class="result-word-content">
+              <div class="winner">
                 <!-- PALABRA Y PAREJA -->
                 <div class="error-word-main">
                   <span class="result-status-icon"> ✅ </span>
@@ -551,7 +549,7 @@
         <!-- =================================================
              PALABRAS CON ERRORES
         ================================================== -->
-        <div class="correct-results" *ngIf="showingErrorWords">
+        <div class="winner" *ngIf="showingErrorWords">
           <h2>❌ Palabras con errores</h2>
 
           <p class="results-summary">
@@ -574,7 +572,7 @@
           ================================================== -->
           <div class="result-word-list" *ngIf="wordsWithErrors.length > 0">
             <div class="result-word-card error-word-card" *ngFor="let pair of wordsWithErrors">
-              <div class="result-word-content">
+              <div class="winner">
                 <!-- PALABRA Y PAREJA -->
                 <div class="error-word-main">
                   <span class="result-status-icon"> ❌ </span>

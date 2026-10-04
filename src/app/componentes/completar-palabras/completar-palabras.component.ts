@@ -71,7 +71,7 @@ export class CompletarPalabrasComponent {
   // Dashboard de configuración
   gameStarted = false;
   reviewType: 'right' | 'meaning' = 'right';
-  wordOrder: 'random' | 'original' = 'original';
+  wordOrder: 'random' | 'original' = 'random';
 
   // =========================================================
   // MENSAJE DE VALIDACIÓN DE CATEGORÍA

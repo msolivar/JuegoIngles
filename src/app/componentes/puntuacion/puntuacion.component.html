@@ -204,19 +204,19 @@
               <!-- ===========================================
                    JUGADOR
               ============================================ -->
-              <td class="player-name">
+              <td class="position">
                 {{ jugador.jugador }}
               </td>
               <!-- ===========================================
                    ACIERTOS
               ============================================ -->
-              <td class="ranking-correct">
+              <td class="position">
                 <strong> {{ jugador.correctas }}/{{ jugador.total }} </strong>
               </td>
               <!-- ===========================================
                    PUNTUACIÓN
               ============================================ -->
-              <td class="ranking-points">
+              <td class="position">
                 <strong>
                   {{ jugador.puntuacion }}
                 </strong>
@@ -224,7 +224,7 @@
               <!-- ===========================================
                    TIEMPO
               ============================================ -->
-              <td class="ranking-time">
+              <td class="position">
                 <span *ngIf="jugador.tiempoSegundos > 0">
                   ⏱️
                   {{ formatearTiempo(jugador.tiempoSegundos) }}
@@ -234,7 +234,7 @@
               <!-- ===========================================
                    FECHA
               ============================================ -->
-              <td class="ranking-date">
+              <td class="position">
                 {{ jugador.fecha || "-" }}
               </td>
             </tr>
@@ -293,7 +293,7 @@
           {{ nombreJuego }}.
         </p>
       </div>
-      <div class="chart-badge">
+      <div class="edit-button">
         Top
         {{ cantidadJugadoresGrafica }}
       </div>

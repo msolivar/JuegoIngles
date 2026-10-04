@@ -398,11 +398,11 @@ export class RelationGameComponent implements AfterViewInit {
     // =========================================================
     this.categorySelected = true;
 
-    this.selectedPairCount = Math.min(6, this.pairs.length);
+    this.selectedPairCount = Math.min(12, this.pairs.length);
 
     this.reviewType = 'right';
 
-    this.wordOrder = 'original';
+    this.wordOrder = 'random';
 
     this.searchTerm = '';
 
@@ -472,7 +472,7 @@ export class RelationGameComponent implements AfterViewInit {
     }
 
     this.categorySelected = true;
-    this.selectedPairCount = Math.min(6, this.pairs.length);
+    this.selectedPairCount = Math.min(12, this.pairs.length);
     this.searchTerm = '';
   }
 
