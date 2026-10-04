@@ -560,6 +560,13 @@
             🎉 ¡No cometiste ningún error!
           </div>
 
+          <div class="results-detail-actions">
+            <button *ngIf="showingErrorWords && wordsWithErrors.length > 0" type="button"
+              class="result-detail-button practice-errors-button" (click)="practiceErrorWords()">
+              🎯 Practicar mis errores
+            </button>
+          </div>
+
           <div class="result-word-list" *ngIf="wordsWithErrors.length > 0">
             <div class="result-word-card error-word-card" *ngFor="let exercise of wordsWithErrors">
               <div class="winner">

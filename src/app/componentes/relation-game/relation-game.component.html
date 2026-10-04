@@ -567,6 +567,16 @@
             🎉 ¡No cometiste ningún error!
           </div>
 
+          <div class="results-detail-actions">
+            <!-- =================================================
+               PRACTICAR SOLO LOS ERRORES
+            ================================================== -->
+            <button *ngIf="showingErrorWords && wordsWithErrors.length > 0" type="button"
+              class="result-detail-button practice-errors-button" (click)="practiceErrorWords()">
+              🔄 Practicar estos errores
+            </button>
+          </div>
+
           <!-- =================================================
                LISTA DE PALABRAS CON ERRORES
           ================================================== -->
