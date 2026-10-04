@@ -1,0 +1,673 @@
+<header class="top">
+  <div class="wrap">
+    <img src="assets/logo_uq.png" alt="Logo Universidad del Quindío" class="logo-uq" />
+    <span class="tag">Parcial 1, opción A</span>
+    <h1 style="margin-top: 10px">
+      Servicio digital de medicamentos en tiempo real para La Nueva EPS
+    </h1>
+    <p class="meta">
+      Aplicación práctica de ITIL 4 en proyectos TIC. Formulación y Evaluación
+      de Proyectos, Ingeniería de Sistemas y Computación, Universidad del
+      Quindío, Armenia 2026.
+    </p>
+    <nav class="tabs" role="tablist" aria-label="Fases del informe">
+      <button role="tab" data-view="resumen" aria-selected="true">
+        Resumen
+      </button>
+      <button role="tab" data-view="f1" aria-selected="false">
+        <span class="n">1</span>Las 4 dimensiones
+      </button>
+      <button role="tab" data-view="f2" aria-selected="false">
+        <span class="n">2</span>Los 7 principios guía
+      </button>
+      <button role="tab" data-view="f3" aria-selected="false">
+        <span class="n">3</span>SLAs y KPIs
+      </button>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <!-- ================= RESUMEN ================= -->
+  <section class="view stack" id="resumen">
+    <div class="hero">
+
+      <div>
+        <h2>
+          Hoy el paciente hace fila sin saber si su medicamento está disponible
+        </h2>
+        <p class="lead">
+          El proceso es manual, está repartido por farmacias y nadie ve el
+          inventario en tiempo real. El proyecto aplica las 4 dimensiones y los
+          7 principios guía de ITIL 4 para diseñar un servicio de consulta
+          disponible 24/7.
+        </p>
+        <div class="queue-section">
+
+          <!-- BOTONES -->
+          <div class="queue-buttons">
+
+            <button type="button" class="queue-btn active" id="btnActual" (click)="cambiarProceso('actual')">
+              Proceso actual
+            </button>
+
+            <button type="button" class="queue-btn" id="btnPlataforma" (click)="cambiarProceso('plataforma')">
+              Con la plataforma
+            </button>
+
+          </div>
+
+
+          <!-- PERSONAS -->
+          <div class="patients-row">
+
+            <div *ngFor="let persona of personas; let i = index" class="patient"
+              [class.patient-home]="proceso === 'plataforma' && i >= 4">
+
+              <!-- CABEZA -->
+              <div class="patient-head"></div>
+
+              <!-- CUERPO -->
+              <div class="patient-body"></div>
+
+            </div>
+
+          </div>
+
+
+          <!-- TEXTO -->
+          <p class="queue-description" *ngIf="proceso === 'actual'">
+            Diez pacientes en fila. Confirman disponibilidad por llamada o revisión
+            física de estantería, y algunos viajan a sedes sin stock.
+          </p>
+
+          <p class="queue-description" *ngIf="proceso === 'plataforma'">
+            Seis de cada diez ya no hacen fila: consultan en la app o por WhatsApp,
+            reservan y llegan solo con turno QR. Los contornos azules esperan en casa
+            la notificación.
+          </p>
+
+        </div>
+      </div>
+      <div class="panel">
+        <div class="big" id="bigNum">≥ 60%</div>
+        <p style="margin-top: 8px">
+          <b>Meta de reducción de filas y tiempos de espera presenciales.</b> El
+          paciente solo se desplaza cuando la plataforma confirma que el
+          medicamento está en la farmacia y le asigna un turno QR.
+        </p>
+        <div class="grid small" style="margin-top: 14px; gap: 12px; grid-template-columns: 1fr 1fr">
+          <div>
+            <b style="font-size: 1.25rem; font-family: var(--display)">99.9%</b><br /><span class="muted">disponibilidad
+              de la plataforma</span>
+          </div>
+          <div>
+            <b style="font-size: 1.25rem; font-family: var(--display)">&lt; 2 s</b><br /><span class="muted">respuesta
+              P95 en web y app</span>
+          </div>
+          <div>
+            <b style="font-size: 1.25rem; font-family: var(--display)">&lt; 60 s</b><br /><span
+              class="muted">sincronización de inventario</span>
+          </div>
+          <div>
+            <b style="font-size: 1.25rem; font-family: var(--display)">≥ 85%</b><br /><span class="muted">CSAT
+              positivo</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid g2">
+      <div class="panel">
+        <h3>Desafíos del negocio y dónde se resuelven</h3>
+        <ol class="challenges" style="margin-top: 10px">
+          <li>
+            <span>Servicio digital escalable, de alta disponibilidad 24/7, para
+              consultar medicamentos en tiempo real.</span><button data-go="f1:tec">Fase 1</button>
+          </li>
+          <li>
+            <span>Integrar los inventarios de las farmacias aliadas en una sola
+              plataforma.</span><button data-go="f1:soc">Fase 1</button>
+          </li>
+          <li>
+            <span>Reducir filas y tiempos de espera presenciales en al menos
+              60%.</span><button data-go="f1:val">Fase 1</button>
+          </li>
+          <li>
+            <span>Garantizar la continuidad del servicio en picos de alta
+              demanda.</span><button data-go="f2">Fase 2</button>
+          </li>
+          <li>
+            <span>Definir SLAs y KPIs claros de disponibilidad y
+              satisfacción.</span><button data-go="f3">Fase 3</button>
+          </li>
+        </ol>
+      </div>
+      <div class="panel">
+        <h3>Equipo</h3>
+        <p style="margin-top: 8px">
+          Maria Luisa Alonso Giraldo<br />Jhon Stivenson Mendez Alvarez<br />Michael
+          Steven Oliva Robi
+        </p>
+        <h3 style="margin-top: 18px">Presentado a</h3>
+        <p style="margin-top: 8px">Fernando Jaime Escobar Botero</p>
+        <h3 style="margin-top: 18px">Objetivo del parcial</h3>
+        <p class="small" style="margin-top: 8px">
+          Aplicar las Cuatro Dimensiones de la Gestión de Servicios y los Siete
+          Principios Guía de ITIL 4 para formular un servicio de TI de alto
+          impacto que resuelva un problema real de disponibilidad, tiempos de
+          espera y experiencia del usuario en Colombia.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= FASE 1 ================= -->
+  <section class="view" id="f1" hidden>
+    <h2>Fase 1. Diagnóstico y diseño holístico</h2>
+    <p class="lead">
+      Cómo la solución aborda cada una de las 4 dimensiones de ITIL 4 para
+      evitar el fracaso del proyecto.
+    </p>
+    <div class="subtabs" role="tablist" aria-label="Dimensiones">
+      <button role="tab" data-sub="per" aria-selected="true">
+        <b>Organizaciones y personas</b><span>Roles y gestión del cambio</span>
+      </button>
+      <button role="tab" data-sub="tec" aria-selected="false">
+        <b>Información y tecnología</b><span>Arquitectura y seguridad</span>
+      </button>
+      <button role="tab" data-sub="soc" aria-selected="false">
+        <b>Socios y proveedores</b><span>Proveedores y soporte</span>
+      </button>
+      <button role="tab" data-sub="val" aria-selected="false">
+        <b>Flujos de valor y procesos</b><span>As-Is frente a To-Be</span>
+      </button>
+    </div>
+
+    <!-- Personas -->
+    <div class="sub stack" id="sub-per">
+      <div class="panel">
+        <h3>Roles del proyecto</h3>
+        <div class="roles" id="roles" style="margin-top: 12px"></div>
+      </div>
+
+      <div class="panel">
+        <h3>Plan de gestión del cambio (modelo ADKAR + principios ITIL 4)</h3>
+        <p class="small muted">
+          Dirigido a regentes y auxiliares de farmacia, personal de
+          dispensación, agentes de línea de atención y coordinadores de sede.
+          Corresponde a la práctica de Gestión del Cambio Organizacional.
+          Seleccione una fase para ver sus actividades.
+        </p>
+        <div class="gantt">
+          <div class="gantt-grid" id="gantt"></div>
+        </div>
+        <div class="detail" id="ganttDetail"></div>
+      </div>
+
+      <div class="panel">
+        <h3>Resistencias esperadas</h3>
+        <p class="small muted">
+          Diagnóstico de la situación actual ("comenzar donde estás").
+          Seleccione una resistencia para ver su causa y la respuesta del plan.
+        </p>
+        <div class="picker" style="margin-top: 12px">
+          <div class="opts" id="resOpts"></div>
+          <dl class="out" id="resOut" style="margin: 0"></dl>
+        </div>
+      </div>
+
+      <div class="grid g2">
+        <div class="panel">
+          <h3>Mapa de interesados</h3>
+          <div class="tscroll">
+            <table style="margin-top: 10px">
+              <thead>
+                <tr>
+                  <th>Interesado</th>
+                  <th>Papel en el cambio</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <b>Regentes y auxiliares de farmacia</b><br /><span class="tag red">Alto impacto, alta
+                      influencia</span>
+                  </td>
+                  <td>
+                    Usuarios críticos: su adopción determina la exactitud del
+                    inventario. Se gestionan de cerca como co-diseñadores.
+                  </td>
+                </tr>
+                <tr>
+                  <td><b>Coordinadores de sede y jefes regionales</b></td>
+                  <td>
+                    Patrocinadores locales que legitiman el cambio frente a los
+                    equipos.
+                  </td>
+                </tr>
+                <tr>
+                  <td><b>Farmacias aliadas y operadores logísticos</b></td>
+                  <td>
+                    Se alinean por contrato con cláusulas de inventario en
+                    tiempo real y OLA sobre calidad del dato.
+                  </td>
+                </tr>
+                <tr>
+                  <td><b>Línea de atención y Service Desk</b></td>
+                  <td>
+                    Primer punto de contacto para usuarios y para el personal
+                    con dudas del sistema.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="panel">
+          <h3>Indicadores de adopción del cambio</h3>
+          <div id="adopt" style="margin-top: 8px"></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3>Plan de comunicación</h3>
+        <div class="tscroll">
+          <table style="margin-top: 10px">
+            <thead>
+              <tr>
+                <th>Mensaje</th>
+                <th>Emisor</th>
+                <th>Canal</th>
+                <th>Frecuencia</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Visión y razones del cambio</td>
+                <td>Presidencia / Dirección</td>
+                <td>Video corto y reunión virtual</td>
+                <td>Lanzamiento y cada hito</td>
+              </tr>
+              <tr>
+                <td>Avances del piloto y resultados</td>
+                <td>Líder del proyecto</td>
+                <td>Boletín y grupo de WhatsApp institucional</td>
+                <td>Quincenal</td>
+              </tr>
+              <tr>
+                <td>Instrucciones operativas</td>
+                <td>Agentes de cambio regionales</td>
+                <td>Reunión de inicio de turno (10 min)</td>
+                <td>Semanal durante el despliegue</td>
+              </tr>
+              <tr>
+                <td>Canal de dudas y quejas</td>
+                <td>Service Desk</td>
+                <td>Línea, chat y formulario</td>
+                <td>Permanente</td>
+              </tr>
+              <tr>
+                <td>Historias de éxito</td>
+                <td>Comunicaciones internas</td>
+                <td>Intranet y carteleras</td>
+                <td>Mensual</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="grid g2">
+        <div class="panel">
+          <h3>Transición operativa</h3>
+          <p class="small">
+            <b>Operación en paralelo limitada.</b> Máximo dos semanas por sede
+            con el registro manual solo como respaldo; después se retira para
+            evitar doble trabajo.
+          </p>
+          <p class="small">
+            <b>Carga inicial acompañada.</b> Conteo físico validado por el
+            equipo del proyecto para que la plataforma arranque con datos
+            confiables.
+          </p>
+          <p class="small">
+            <b>Contingencia.</b> Registro offline y sincronización automática al
+            volver la conexión, para proteger la continuidad del servicio.
+          </p>
+        </div>
+        <div class="panel">
+          <h3>Riesgos del cambio y mitigación</h3>
+          <div class="tscroll">
+            <table class="small" style="margin-top: 6px">
+              <tbody>
+                <tr>
+                  <td><b>Alta rotación en farmacias</b></td>
+                  <td>
+                    Inducción obligatoria para todo ingreso nuevo, incluida en
+                    la contratación del aliado.
+                  </td>
+                </tr>
+                <tr>
+                  <td><b>Brecha de conectividad rural</b></td>
+                  <td>
+                    Modo offline, conectividad priorizada en sedes críticas y
+                    despliegue más tardío con más acompañamiento.
+                  </td>
+                </tr>
+                <tr>
+                  <td><b>Fatiga del cambio</b></td>
+                  <td>
+                    Oleadas cortas, metas alcanzables y celebración de logros
+                    visibles.
+                  </td>
+                </tr>
+                <tr>
+                  <td><b>Baja calidad del dato de aliados</b></td>
+                  <td>
+                    OLA contractuales, auditorías aleatorias y reportes de
+                    exactitud por aliado.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tecnología -->
+    <!-- ================= TECNOLOGÍA ================= -->
+
+<div class="sub stack" id="sub-tec" hidden>
+
+  <!-- ARQUITECTURA -->
+  <div class="panel architecture-panel">
+
+    <h3 class="architecture-title">
+      Arquitectura cloud-native del servicio
+    </h3>
+
+    <p class="small muted architecture-subtitle">
+      Seleccione un componente para ver su función en la solución.
+    </p>
+
+    <!--
+      El TypeScript genera aquí:
+      USUARIOS
+      MIDDLEWARE
+      BACK-END CLOUD
+      y sus respectivas tarjetas
+    -->
+    <div
+      class="arch architecture-layers"
+      id="arch">
+    </div>
+
+    <!--
+      El TypeScript coloca aquí la explicación
+      del componente seleccionado
+    -->
+    <div
+      class="out architecture-detail"
+      id="archOut">
+    </div>
+
+  </div>
+
+
+  <!-- SEGURIDAD -->
+  <div class="panel">
+
+    <h3>
+      Seguridad y privacidad de la información médica
+      (Security by Design)
+    </h3>
+
+    <div class="grid g2" style="margin-top: 12px">
+
+      <div>
+        <span class="tag">
+          Cumplimiento normativo
+        </span>
+
+        <p class="small">
+          Ley 1581 de 2012 (Hábeas Data) y normatividad de
+          reserva de la historia clínica.
+        </p>
+      </div>
+
+      <div>
+        <span class="tag">
+          Cifrado
+        </span>
+
+        <p class="small">
+          TLS 1.3 / HTTPS en tránsito y AES-256 en reposo
+          para fórmulas e información médica.
+        </p>
+      </div>
+
+      <div>
+        <span class="tag">
+          Acceso y autenticación
+        </span>
+
+        <p class="small">
+          Validación por SMS o correo, biometría en la app,
+          tokens JWT u OAuth 2.0 y RBAC con menor privilegio
+          para operarios de farmacia.
+        </p>
+      </div>
+
+      <div>
+        <span class="tag">
+          Trazabilidad
+        </span>
+
+        <p class="small">
+          SIEM / CloudTrail registra de forma inmutable quién,
+          cuándo y desde dónde accedió a cada fórmula, y bloquea
+          accesos no autorizados en tiempo real.
+        </p>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+    <!-- Socios -->
+    <div class="sub stack" id="sub-soc" hidden>
+      <div class="panel">
+        <h3>Proveedores externos requeridos</h3>
+        <div class="picker" style="margin-top: 12px">
+          <div class="opts" id="provOpts"></div>
+          <dl class="out" id="provOut" style="margin: 0"></dl>
+        </div>
+      </div>
+      <div class="panel">
+        <h3>Otros socios del ecosistema</h3>
+        <div class="grid g2 small" style="margin-top: 10px">
+          <p>
+            <b>Farmacias aliadas y operadores logísticos.</b> Dueños del
+            inventario físico; exponen su stock por API o integración.
+          </p>
+          <p>
+            <b>Plataforma de integración.</b> Unifica los inventarios
+            heterogéneos de cada aliado en un solo formato.
+          </p>
+          <p>
+            <b>Seguridad perimetral (CDN y WAF, como Cloudflare o Akamai).</b>
+            Protege el portal y absorbe picos de tráfico.
+          </p>
+          <p>
+            <b>Mesa de servicio tercerizada.</b> Atiende en primer nivel al
+            usuario y al personal de farmacia.
+          </p>
+        </div>
+      </div>
+      <div class="panel">
+        <h3>Esquema de soporte técnico: outsourcing frente a in house</h3>
+        <p class="small muted">
+          Cada criterio favorece a una opción según la tabla comparativa del
+          informe. Ajuste la importancia de cada criterio (1 a 5) para ver qué
+          esquema conviene más.
+        </p>
+        <div id="weights" style="margin-top: 10px"></div>
+        <div class="verdict" id="verdict"></div>
+      </div>
+    </div>
+
+    <!-- Flujos de valor -->
+    <div class="sub stack" id="sub-val" hidden>
+      <div class="panel">
+        <div style="
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+          ">
+          <h3>Mapeo del flujo de valor</h3>
+          <div class="seg" role="group" aria-label="Escenario del flujo">
+            <button aria-pressed="false" data-vs="asis">As-Is</button>
+            <button aria-pressed="true" data-vs="tobe">To-Be</button>
+          </div>
+        </div>
+        <p class="small muted" id="vsNote" style="margin-top: 8px"></p>
+        <div class="steps" id="steps" style="margin-top: 12px"></div>
+      </div>
+      <div class="panel">
+        <h3>Actividades sin valor eliminadas</h3>
+        <div class="grid g3" style="margin-top: 12px">
+          <div>
+            <div class="big" style="font-size: 2.6rem">15 min</div>
+            <p class="small">
+              ahorrados por usuario al eliminar la verificación manual de la
+              fórmula en ventanilla.
+            </p>
+          </div>
+          <div>
+            <div class="big" style="font-size: 2.6rem">0%</div>
+            <p class="small">
+              de viajes infructuosos: se acaba el desplazamiento "a ciegas" a
+              sedes sin stock garantizado.
+            </p>
+          </div>
+          <div>
+            <div class="big" style="font-size: 2.6rem">Auto</div>
+            <p class="small">
+              control de duplicidad y vencimiento de fórmulas médicas.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= FASE 2 ================= -->
+  <section class="view stack" id="f2" hidden>
+    <div>
+      <h2>Fase 2. Despliegue de los 7 principios guía</h2>
+      <p class="lead">
+        Matriz de decisiones técnicas aplicada al caso. Seleccione un principio
+        en el diagrama o use las flechas.
+      </p>
+    </div>
+    <div class="panel pwrap">
+      <svg class="hept" viewBox="0 0 380 380" id="hept" role="group" aria-label="Siete principios guía"></svg>
+      <div class="pdetail" id="pdetail" aria-live="polite"></div>
+    </div>
+    <div class="panel">
+      <h3>Matriz completa</h3>
+      <div class="tscroll">
+        <table style="margin-top: 10px" id="ptable">
+          <thead>
+            <tr>
+              <th>Principio</th>
+              <th>Decisión tecnológica o estratégica</th>
+              <th>Impacto esperado</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= FASE 3 ================= -->
+  <section class="view stack" id="f3" hidden>
+    <div>
+      <h2>Fase 3. Acuerdos de nivel de servicio e indicadores</h2>
+      <p class="lead">
+        Cada KPI incluye su fórmula como calculadora. Los valores iniciales son
+        de ejemplo; cámbielos para evaluar si se cumple la meta.
+      </p>
+    </div>
+    <h3>Indicadores KPI</h3>
+    <div class="grid" id="kpis" style="
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 400px), 1fr));
+      "></div>
+
+    <h3 style="margin-top: 30px">Métricas de SLA</h3>
+    <div class="grid g3">
+      <div class="panel sla">
+        <span class="tag blue">Disponibilidad (uptime)</span>
+        <p class="small muted" style="margin-top: 8px">
+          Meta 99.9%: máximo 43.8 min de parada no programada al mes. Monitoreo
+          sintético con Datadog / CloudWatch 24/7 y conmutación automática
+          Multi-AZ.
+        </p>
+        <div class="ctrl">
+          <label class="small" for="down">Minutos de caída en el mes: <b id="downV"></b></label>
+          <input type="range" id="down" min="0" max="180" step="1" value="25" />
+        </div>
+        <div class="readout">
+          <span class="small muted">Disponibilidad</span><b id="upV"></b>
+        </div>
+        <div class="status" id="upS"></div>
+      </div>
+      <div class="panel sla">
+        <span class="tag blue">Tiempo de respuesta</span>
+        <p class="small muted" style="margin-top: 8px">
+          Meta &lt; 2.0 s (P95) en web y app; &lt; 50 ms en caché Redis.
+          Medición APM en el API Gateway; escalado horizontal (HPA) al superar
+          1.5 s.
+        </p>
+        <div class="ctrl">
+          <label class="small" for="rt">P95 observado: <b id="rtV"></b></label>
+          <input type="range" id="rt" min="0.2" max="4" step="0.1" value="1.2" />
+        </div>
+        <div class="scale" style="--a: 37.5%; --b: 50%">
+          <i id="rtMark"></i>
+        </div>
+        <div class="status" id="rtS"></div>
+      </div>
+      <div class="panel sla">
+        <span class="tag blue">Sincronización de inventario</span>
+        <p class="small muted" style="margin-top: 8px">
+          Meta &lt; 60 s entre la farmacia aliada y la plataforma central.
+          Monitoreo del lag de consumidores en Apache Kafka; alerta si supera 2
+          min.
+        </p>
+        <div class="ctrl">
+          <label class="small" for="lag">Retraso observado: <b id="lagV"></b></label>
+          <input type="range" id="lag" min="0" max="240" step="5" value="35" />
+        </div>
+        <div class="scale" style="--a: 25%; --b: 50%"><i id="lagMark"></i></div>
+        <div class="status" id="lagS"></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    Parcial 1, Formulación y Evaluación de Proyectos.<br />
+    Universidad del Quindío, Facultad de Ingeniería, 2026.<br />
+    Dashboard basado en el informe del equipo.
+  </div>
+  <img src="assets/footer.png" alt="UNIQUINDÍO, en conexión territorial" class="footer-uq" />
+</footer>

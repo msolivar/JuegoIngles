@@ -1,0 +1,398 @@
+/* ======================================================
+   ENCABEZADO DE COLUMNAS
+====================================================== */
+.exercise-header {
+  display: grid;
+  grid-template-columns: 55px minmax(0, 1fr) 70px minmax(0, 1fr) 55px;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 12px;
+  padding: 12px 20px;
+  font-weight: bold;
+  font-size: 20px;
+}
+
+.column-header {
+  text-align: center;
+  color: #4f8d00;
+}
+
+.exercise-list {
+  width: 100%;
+}
+
+/* ======================================================
+   CADA FILA
+====================================================== */
+.exercise-pair {
+  display: grid;
+  grid-template-columns: 55px minmax(0, 1fr) 70px minmax(0, 1fr) 55px;
+  align-items: center;
+  gap: 15px;
+  min-height: 85px;
+  margin-bottom: 12px;
+  padding: 12px 20px;
+  border: 2px solid #dce8d0;
+  border-radius: 18px;
+  background: white;
+}
+
+/* ======================================================
+   NÚMERO
+====================================================== */
+.exercise-number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #67b70f;
+  color: black;
+  font-weight: bold;
+}
+
+/* ======================================================
+   COLUMNA DE PALABRA
+====================================================== */
+.word-section {
+  display: flex;
+  justify-content: center;
+  min-width: 0;
+}
+
+.letter-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: nowrap;
+}
+
+/* ======================================================
+   LETRAS VISIBLES
+====================================================== */
+.visible-letter {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 38px;
+  height: 45px;
+  font-size: 24px;
+  font-weight: bold;
+  text-transform: lowercase;
+}
+
+/* ======================================================
+   ESPACIOS PARA ESCRIBIR
+====================================================== */
+.letter-input {
+  width: 60px;
+  height: 45px;
+  padding: 0;
+  text-align: center;
+  font-size: 23px;
+  font-weight: bold;
+  border: none;
+  border-bottom: 3px solid #555;
+  outline: none;
+  background: #f5f5f5;
+  border-radius: 5px 5px 0 0;
+}
+
+/* ======================================================
+   FLECHA CENTRAL
+====================================================== */
+.pair-arrow {
+  text-align: center;
+  font-size: 30px;
+  font-weight: bold;
+  color: #67b70f;
+}
+
+/* ======================================================
+   RESPUESTAS
+====================================================== */
+.letter-input.correct-letter {
+  background: #e8f5e9;
+  border-bottom-color: #4caf50;
+  color: #2e7d32;
+}
+
+.letter-input.wrong-letter {
+  background: #ffebee;
+  border-bottom-color: #e53935;
+  color: #c62828;
+}
+
+/* ======================================================
+   PAREJA COMPLETADA
+====================================================== */
+.completed-pair {
+  background: #f1f8e9;
+  border-color: #67b70f;
+}
+
+.completed-icon {
+  text-align: center;
+  font-size: 25px;
+}
+
+/* ======================================================
+   PANTALLAS PEQUEÑAS
+====================================================== */
+@media (max-width: 700px) {
+  .exercise-header,
+  .exercise-pair {
+    grid-template-columns: 35px minmax(0, 1fr) 35px minmax(0, 1fr) 30px;
+    gap: 5px;
+    padding-left: 5px;
+    padding-right: 5px;
+  }
+
+  .visible-letter,
+  .letter-input {
+    width: 60px;
+    font-size: 18px;
+  }
+
+  .letter-input {
+    height: 38px;
+  }
+
+  .visible-letter {
+    height: 38px;
+  }
+
+  .letter-row {
+    gap: 1px;
+  }
+
+  .pair-arrow {
+    font-size: 20px;
+  }
+
+  .column-header {
+    font-size: 14px;
+  }
+}
+
+/* =========================================================
+   RESPONSIVE - TABLET
+   ========================================================= */
+@media (max-width: 900px) {
+  .exercise-header,
+  .exercise-pair {
+    grid-template-columns: 40px minmax(0, 1fr) 45px minmax(0, 1fr) 40px;
+    gap: 8px;
+  }
+
+  .exercise-pair {
+    padding: 12px 10px;
+  }
+
+  .letter-row {
+    gap: 3px;
+  }
+
+  .visible-letter,
+  .letter-input {
+    width: 60px;
+    height: 42px;
+    font-size: 21px;
+  }
+
+  .pair-arrow {
+    font-size: 25px;
+  }
+}
+
+/* =========================================================
+   RESPONSIVE - CELULAR
+   ========================================================= */
+@media (max-width: 600px) {
+  /* ---------------------------------------------------------
+     OCULTAR CABECERA VERBO / PAREJA
+     En móvil usamos cada tarjeta individual
+     --------------------------------------------------------- */
+  .exercise-header {
+    display: none;
+  }
+
+  /* ---------------------------------------------------------
+     CADA PAREJA SE ORGANIZA VERTICALMENTE
+     --------------------------------------------------------- */
+  .exercise-pair {
+    display: grid;
+    grid-template-columns: 35px minmax(0, 1fr) 35px;
+    grid-template-areas:
+      "number left status"
+      ". arrow ."
+      ". right .";
+    width: 100%;
+    min-height: auto;
+    padding: 14px 8px;
+    margin-bottom: 14px;
+    gap: 7px;
+    border-radius: 18px;
+  }
+
+  /* Número */
+  .pair-number {
+    grid-area: number;
+    align-self: start;
+    text-align: center;
+    font-size: 16px;
+    font-weight: bold;
+  }
+
+  /* VERBO */
+  .left-word {
+    grid-area: left;
+  }
+
+  /* FLECHA */
+  .pair-arrow {
+    grid-area: arrow;
+    text-align: center;
+    font-size: 24px;
+    line-height: 24px;
+    transform: rotate(90deg);
+    margin: 2px 0;
+  }
+
+  /* PAREJA */
+  .right-word {
+    grid-area: right;
+  }
+
+  /* Estado correcto */
+  .pair-status {
+    grid-area: status;
+    align-self: start;
+    text-align: center;
+  }
+
+  /* ---------------------------------------------------------
+     PALABRAS
+     --------------------------------------------------------- */
+  .word-section {
+    width: 100%;
+    min-width: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .letter-row {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 3px;
+    flex-wrap: nowrap;
+  }
+
+  /* ---------------------------------------------------------
+     LETRAS
+     --------------------------------------------------------- */
+  .visible-letter,
+  .letter-input {
+    width: 60px;
+    /* min-width: 60px; */
+    height: 40px;
+    font-size: 20px;
+  }
+
+  .letter-input {
+    padding: 0;
+    text-align: center;
+  }
+}
+
+/* =========================================================
+   CELULARES MUY PEQUEÑOS
+   ========================================================= */
+@media (max-width: 390px) {
+  .exercise-pair {
+    grid-template-columns: 28px minmax(0, 1fr) 28px;
+    padding: 12px 4px;
+  }
+
+  .letter-row {
+    gap: 2px;
+  }
+
+  .visible-letter,
+  .letter-input {
+    width: 60px;
+    /* min-width: 60px; */
+    height: 38px;
+    font-size: 18px;
+  }
+}
+
+/* =========================================================
+   FILA CANTIDAD + ORDEN
+========================================================= */
+
+.playing-category-text {
+  min-width: 0;
+  color: #222;
+  font-size: 20px;
+  line-height: 1.3;
+}
+
+.playing-category-text strong {
+  color: #398900;
+  font-weight: 800;
+  overflow-wrap: anywhere;
+}
+
+/* =========================================================
+   ESTADO / ESTADÍSTICAS DEL JUEGO
+========================================================= */
+
+/* =========================================================
+   MENSAJE CAMBIO DE PANTALLA
+========================================================= */
+.changing-page-message {
+  width: fit-content;
+  margin: 15px auto;
+  padding: 10px 18px;
+  background: #f1f8e9;
+  border: 1px solid #cde5ba;
+  border-radius: 20px;
+  color: #438b0b;
+  font-size: 15px;
+  font-weight: 600;
+  text-align: center;
+}
+
+/* =========================================================
+   ESTADÍSTICAS DEL RESULTADO
+========================================================= */
+.result-statistics {
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin: 22px 0;
+}
+
+/* =========================================================
+   RESPONSIVE DEL NUEVO DASHBOARD Y RESULTADOS
+========================================================= */
+@media (max-width: 700px) {
+
+  .playing-category-text {
+    width: 100%;
+    font-size: 17px;
+    text-align: center;
+  }
+
+  .result-statistics {
+    flex-direction: column;
+  }
+}

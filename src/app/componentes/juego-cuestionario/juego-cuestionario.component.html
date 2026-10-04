@@ -1,0 +1,791 @@
+<!-- =========================================================
+     CONTENEDOR PRINCIPAL
+========================================================== -->
+<div class="quiz-container">
+
+  <div class="category-selector" *ngIf="this.cuestionarios.length === 0">
+    <div class="no-results" *ngIf="loading">
+      ⏳ Cargando cuestionarios...
+    </div>
+    <div class="no-results" *ngIf="!loading && loadError && !gameStarted && !gameFinished">
+      ⚠️ {{ loadError }}
+    </div>
+  </div>
+
+  <!-- =======================================================
+       SELECCIÓN DEL CUESTIONARIO
+  ======================================================== -->
+  <section class="category-selector" *ngIf="!loading && !gameStarted && !gameFinished">
+    <h1><b>Cuestionario de Ingles</b></h1>
+    <h2>📝 Selecciona una categoría y comienza tu práctica.</h2>
+
+    <!-- =====================================================
+         TARJETA DE SELECCIÓN
+    ====================================================== -->
+    <div class="category-selection-content">
+
+      <!-- ===================================================
+           CATEGORÍA
+      ==================================================== -->
+      <label for="categorySelect"> 🏷️ Categoría </label>
+
+      <select id="categorySelect" [(ngModel)]="selectedCategory" (ngModelChange)="onCategoryChange()">
+        <option value="" disabled>Selecciona una categoría</option>
+
+        <option *ngFor="let categoria of categorias" [value]="categoria">
+          {{ categoria }}
+        </option>
+      </select>
+
+      <!-- ===================================================
+        ERROR DE VALIDACIÓN
+      ==================================================== -->
+      <div class="no-results" *ngIf="selectionMessage">
+        ⚠️ {{ selectionMessage }}
+      </div>
+
+    </div>
+
+    <!-- ===================================================
+           CUESTIONARIO
+      ==================================================== -->
+    <div class="game-setup-dashboard" *ngIf="selectedCategory && cuestionariosCategoria.length > 0">
+      <div class="setup-field full-width">
+        <label for="reviewType"> 📚 Cuestionario </label>
+
+        <select id="reviewType" [(ngModel)]="selectedQuestionnaireId" (ngModelChange)="onQuestionnaireChange()">
+          <option value="" disabled>Selecciona un cuestionario</option>
+
+          <option *ngFor="let cuestionario of cuestionariosCategoria" [value]="cuestionario.id">
+            {{ getQuestionnaireLabel(cuestionario) }}
+          </option>
+        </select>
+      </div>
+
+      <div class="no-results" *ngIf="selectedCategory && cuestionariosCategoria.length === 0">
+        No existen cuestionarios disponibles en esta categoría.
+      </div>
+
+      <!-- ===================================================
+           CONFIGURACIÓN DE LA PRÁCTICA
+      ==================================================== -->
+      <div class="setup-row" *ngIf="cuestionarioActual">
+        <!-- =================================================
+             NÚMERO DE PREGUNTAS
+        ================================================== -->
+        <div class="setup-field">
+          <label for="questionCount"> 🔢 Numero de preguntas</label>
+
+          <input id="questionCount" type="number" [(ngModel)]="selectedQuestionCount" [min]="1" [max]="maxQuestionCount"
+            (change)="validateQuestionCount()" (blur)="validateQuestionCount()" />
+
+          <small>
+            Disponible: {{ maxQuestionCount }} pregunta(s)
+          </small>
+        </div>
+
+        <!-- =================================================
+             ORDEN DE LAS PREGUNTAS
+        ================================================== -->
+        <div class="setup-field">
+          <label for="questionOrder"> 🔀 Orden de las preguntas </label>
+
+          <select id="questionOrder" [(ngModel)]="questionOrder">
+            <option value="random">Aleatorio</option>
+
+            <option value="ordered">En orden</option>
+          </select>
+
+          <small>
+            {{
+            questionOrder === "random"
+            ? "Las preguntas aparecerán mezcladas."
+            : "Las preguntas aparecerán en su orden original."
+            }}
+          </small>
+
+        </div>
+      </div>
+
+
+    </div>
+
+
+
+    <button *ngIf="selectedCategory && cuestionariosCategoria.length > 0" type="button" class="print-vocabulary-button"
+      (click)="imprimirPreguntas()" [disabled]="!selectedQuestionnaireId">
+      🖨 Imprimir preguntas
+    </button>
+
+    <!-- ===================================================
+           EMPEZAR
+      ==================================================== -->
+    <button type="button" class="new-game-button" (click)="startGame()">
+      ▶ Empezar cuestionario
+    </button>
+
+  </section>
+
+  <!-- =======================================================
+       JUEGO EN CURSO
+  ======================================================== -->
+  <section class="quiz-game" *ngIf="gameStarted && !gameFinished && currentQuestion">
+    <!-- =====================================================
+         ENCABEZADO SUPERIOR
+    ====================================================== -->
+    <div class="quiz-topbar">
+      <!-- ===================================================
+           NÚMERO DE PREGUNTA
+      ==================================================== -->
+      <div class="question-position">
+        <span class="question-position-label"> Pregunta </span>
+
+        <strong>
+          {{ currentQuestionNumber }}
+          de
+          {{ totalQuestions }}
+        </strong>
+      </div>
+
+      <!-- ===================================================
+           CATEGORÍA
+      ==================================================== -->
+      <div class="correct-word-card">
+        🏷️
+
+        <span>
+          {{ cuestionarioActual?.categoria }}
+        </span>
+      </div>
+
+      <!-- ===================================================
+           TIEMPO
+      ==================================================== -->
+      <div class="timer" [class.low-time]="lowTime">
+        <span class="timer-label"> ⏱️ Tiempo restante </span>
+
+        <strong class="timer-value">
+          {{ formattedTime }}
+        </strong>
+      </div>
+    </div>
+
+    <!-- =====================================================
+         BARRA DEL TIEMPO
+    ====================================================== -->
+    <div class="time-progress">
+      <div class="time-progress-bar" [class.low-time-bar]="lowTime" [style.width.%]="remainingTimePercentage"></div>
+    </div>
+
+    <!-- =====================================================
+         PROGRESO DE RESPUESTAS
+    ====================================================== -->
+    <div class="answer-progress-container">
+      <div class="answer-progress-info">
+        <span> Progreso </span>
+
+        <strong>
+          {{ answeredQuestions }} / {{ totalQuestions }} respondidas
+        </strong>
+      </div>
+
+      <div class="answer-progress">
+        <div class="answer-progress-bar" [style.width.%]="progressPercentage"></div>
+      </div>
+    </div>
+
+    <!-- =====================================================
+         NAVEGADOR DE PREGUNTAS
+    ====================================================== -->
+    <div class="question-navigation">
+      <button type="button" class="question-navigation-button" *ngFor="let pregunta of preguntas; let i = index"
+        [class.current-question]="i === currentQuestionIndex" [class.answered-question]="isQuestionAnswered(i)"
+        (click)="goToQuestion(i)">
+        {{ i + 1 }}
+
+        <span class="answered-dot" *ngIf="isQuestionAnswered(i) && i !== currentQuestionIndex">
+          ✓
+        </span>
+      </button>
+    </div>
+
+    <!-- =====================================================
+         TARJETA DE LA PREGUNTA
+    ====================================================== -->
+    <article class="question-card">
+      <!-- ===================================================
+           ENCABEZADO
+      ==================================================== -->
+      <div class="question-card-header">
+        <span class="correct-word-card">
+          Question
+          {{ currentQuestionNumber }}
+        </span>
+
+        <span class="question-time-mobile"> ⏱️ {{ formattedTime }} </span>
+      </div>
+
+      <!-- ===================================================
+           PREGUNTA
+      ==================================================== -->
+      <h2 class="question-text">
+        {{ currentQuestion.pregunta }}
+      </h2>
+
+      <!-- ===================================================
+           IMAGEN OPCIONAL
+      ==================================================== -->
+      <div class="question-image-container" *ngIf="currentQuestion.image">
+        <img [src]="currentQuestion.image" [alt]="currentQuestion.pregunta" class="question-image"
+          title="Haz clic para ampliar" (click)="openImage(currentQuestion.image, currentQuestion.pregunta)" />
+
+        <small> Haz clic en la imagen para ampliarla </small>
+      </div>
+
+      <!-- ===================================================
+           INSTRUCCIÓN
+      ==================================================== -->
+      <div class="select-instruction">
+        <strong> Select one: </strong>
+      </div>
+
+      <!-- ===================================================
+           OPCIONES
+      ==================================================== -->
+      <div class="hint-list">
+        <label class="answer-option" *ngFor="let opcion of currentOptions"
+          [class.selected-option]="isOptionSelected(opcion.id)">
+          <input type="radio" [name]="'pregunta-' + currentQuestionId" [value]="opcion.id"
+            [checked]="isOptionSelected(opcion.id)" (change)="selectAnswer(opcion.id)" />
+
+          <span class="option-radio"></span>
+
+          <span class="option-text">
+            {{ opcion.texto }}
+          </span>
+        </label>
+      </div>
+
+      <!-- ===================================================
+           ESTADO DE RESPUESTA
+      ==================================================== -->
+      <div class="answer-status answered" *ngIf="currentQuestionAnswered">
+        ✓ Respuesta seleccionada
+      </div>
+
+      <div class="answer-status unanswered" *ngIf="!currentQuestionAnswered">
+        Selecciona una respuesta antes de continuar.
+      </div>
+
+      <!-- ===================================================
+           NAVEGACIÓN INFERIOR
+      ==================================================== -->
+      <div class="question-actions">
+        <!-- =================================================
+             ANTERIOR
+        ================================================== -->
+        <button type="button" class="previous-button" (click)="previousQuestion()" [disabled]="isFirstQuestion">
+          ← Anterior
+        </button>
+
+        <!-- =================================================
+             SIGUIENTE
+        ================================================== -->
+        <button *ngIf="!isLastQuestion" type="button" class="results-back-button" (click)="nextQuestion()">
+          Siguiente →
+        </button>
+
+        <!-- =================================================
+             ENTREGAR
+        ================================================== -->
+        <button *ngIf="isLastQuestion" type="button" class="save-button" (click)="submitQuestionnaire()">
+          ✓ Entregar cuestionario
+        </button>
+      </div>
+    </article>
+
+    <!-- =====================================================
+         INFORMACIÓN INFERIOR
+    ====================================================== -->
+    <div class="quiz-footer-info">
+      <span>
+        ✅ Respondidas:
+
+        <strong>
+          {{ answeredQuestions }}
+        </strong>
+      </span>
+
+      <span>
+        ⭕ Pendientes:
+
+        <strong>
+          {{ unansweredQuestions }}
+        </strong>
+      </span>
+
+      <button type="button" class="change-category-button" (click)="changeCategory()">
+        🏷️ Otra categoría
+      </button>
+
+      <button type="button" class="results-back-button" (click)="submitQuestionnaire()">
+        🎮 Entregar ahora
+      </button>
+    </div>
+  </section>
+
+  <!-- =======================================================
+       RESULTADO FINAL
+  ======================================================== -->
+
+  <section class="results-container" *ngIf="gameFinished">
+    <!-- =====================================================
+         ENCABEZADO
+    ====================================================== -->
+
+    <div class="results-header">
+      <div class="result-icon">
+        {{ scorePercentage >= 60 ? "🎉" : "📚" }}
+      </div>
+
+      <h1>Resultado del cuestionario</h1>
+
+      <p>
+        {{ cuestionarioActual?.categoria }}
+      </p>
+    </div>
+
+    <!-- =====================================================
+         TIEMPO TERMINADO
+    ====================================================== -->
+    <div class="time-expired-message" *ngIf="timeExpired">
+      ⏰ El tiempo terminó y el cuestionario fue entregado automáticamente.
+    </div>
+
+    <!-- =====================================================
+         PUNTAJE
+    ====================================================== -->
+    <div class="score-card">
+      <!-- ===================================================
+           CÍRCULO DEL PUNTAJE
+      ==================================================== -->
+      <div class="score-circle">
+        <span class="score-number"> {{ scorePercentage }}% </span>
+
+        <span class="score-label"> Puntaje </span>
+      </div>
+
+      <!-- ===================================================
+           ESTADÍSTICAS
+      ==================================================== -->
+      <div class="score-statistics">
+        <!-- =================================================
+             CORRECTAS
+        ================================================== -->
+        <div class="score-stat correct-stat">
+          <span class="stat-icon"> ✓ </span>
+
+          <div>
+            <strong>
+              {{ totalCorrectAnswers }}
+            </strong>
+
+            <span> Correctas </span>
+          </div>
+        </div>
+
+        <!-- =================================================
+             INCORRECTAS
+        ================================================== -->
+        <div class="score-stat incorrect-stat">
+          <span class="stat-icon"> ✕ </span>
+
+          <div>
+            <strong>
+              {{ totalIncorrectAnswers }}
+            </strong>
+
+            <span> Incorrectas </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- =====================================================
+         VER RESULTADOS
+    ====================================================== -->
+    <div class="final-actions">
+
+      <button type="button" class="result-detail-button correct-detail-button" (click)="showCorrectResults()">
+        ✓ Correctas ({{ totalCorrectAnswers }})
+      </button>
+
+      <button type="button" class="result-detail-button error-detail-button" (click)="showIncorrectResults()">
+        ✕ Incorrectas ({{ totalIncorrectAnswers }})
+      </button>
+
+      <button type="button" class="change-category-button" (click)="showAllResults()">
+        📋 Ver Respuestas
+      </button>
+    </div>
+
+    <!-- =====================================================
+         GUARDAR PUNTAJE / PRACTICAR ERRORES
+    ====================================================== -->
+    <div class="score-practice-actions">
+      <!-- ===================================================
+           GUARDAR PUNTAJE
+           SOLO APARECE SI ACERTÓ AL MENOS LA MITAD
+      ==================================================== -->
+      <button *ngIf="puedeGuardarPuntaje" type="button" class="save-score-button" (click)="guardarPuntaje()">
+        🏆 Guardar puntaje
+      </button>
+
+      <!-- ===================================================
+           PRACTICAR ERRORES
+      ==================================================== -->
+      <button *ngIf="totalIncorrectAnswers > 0" type="button" class="result-detail-button practice-errors-button"
+        (click)="startErrorPractice()">
+        🎯 Practicar mis errores
+      </button>
+    </div>
+
+    <!-- =====================================================
+         ACCIONES FINALES
+    ====================================================== -->
+    <div class="final-actions">
+      <button type="button" class="play-again-button" (click)="retryQuestionnaire()">
+        🔄 Intentar nuevamente
+      </button>
+
+      <button type="button" class="results-back-button" (click)="changeQuestionnaire()">
+        📚 Otro cuestionario
+      </button>
+
+      <button type="button" class="change-category-button" (click)="changeCategory()">
+        🏷️ Otra categoría
+      </button>
+    </div>
+  </section>
+
+  <!-- =======================================================
+       MODAL DETALLE DE RESULTADOS
+  ======================================================== -->
+  <div class="results-modal" *ngIf="showResultsDetail" (click)="closeResultsDetail()">
+    <div class="results-modal-content" (click)="$event.stopPropagation()">
+      <!-- ===================================================
+           CERRAR
+      ==================================================== -->
+      <button type="button" class="modal-close" (click)="closeResultsDetail()" aria-label="Cerrar">
+        ✕
+      </button>
+
+      <!-- ===================================================
+           ENCABEZADO
+      ==================================================== -->
+      <div class="results-modal-header">
+        <h2>
+          {{ resultsDetailTitle }}
+        </h2>
+
+        <p>
+          {{ filteredResults.length }}
+          resultado(s)
+        </p>
+      </div>
+
+      <!-- ===================================================
+           SIN RESULTADOS
+      ==================================================== -->
+      <div class="result-word-card error-word-card" *ngIf="filteredResults.length === 0">
+        No hay respuestas en esta categoría.
+      </div>
+
+      <!-- ===================================================
+           ACCIONES DEL DETALLE ARRIBA
+      ==================================================== -->
+      <div class="results-modal-actions">
+        <!-- =================================================
+             PRACTICAR ERRORES
+        ================================================== -->
+        <button *ngIf="resultsView === 'incorrect' && totalIncorrectAnswers > 0" type="button"
+          class="result-detail-button practice-errors-button" (click)="startErrorPractice()">
+          🎯 Practicar mis errores
+        </button>
+
+        <!-- =================================================
+             VOLVER
+        ================================================== -->
+        <button *ngIf="resultsView === 'incorrect' && totalIncorrectAnswers > 0" type="button"
+          class="back-results-button" (click)="closeResultsDetail()">
+          ← Volver al resultado
+        </button>
+      </div>
+
+      <!-- ===================================================
+           LISTA DE RESULTADOS
+      ==================================================== -->
+      <div class="result-detail-list">
+        <article class="result-detail-card" *ngFor="let resultado of filteredResults; let i = index"
+          [class.correct-result-card]="resultado.correcta" [class.incorrect-result-card]="!resultado.correcta">
+          <!-- =================================================
+               ESTADO
+          ================================================== -->
+          <div class="result-detail-status">
+            <span class="result-status-icon" *ngIf="resultado.correcta">
+              ✓
+            </span>
+
+            <span class="result-status-icon" *ngIf="!resultado.correcta">
+              ✕
+            </span>
+          </div>
+
+          <!-- =================================================
+               INFORMACIÓN
+          ================================================== -->
+          <div class="result-detail-body">
+            <!-- ===============================================
+                 PREGUNTA
+            ================================================ -->
+            <h3>
+              {{ resultado.pregunta.pregunta }}
+            </h3>
+
+            <!-- ===============================================
+                 IMAGEN
+            ================================================ -->
+            <img *ngIf="resultado.pregunta.image" [src]="resultado.pregunta.image" [alt]="resultado.pregunta.pregunta"
+              class="result-detail-image" title="Haz clic para ampliar" (click)="
+                openImage(resultado.pregunta.image, resultado.pregunta.pregunta)
+              " />
+
+            <!-- ===============================================
+                 RESPUESTA DEL ESTUDIANTE
+            ================================================ -->
+            <div class="student-answer">
+              <strong> Tu respuesta: </strong>
+
+              <span [class.correct-answer-text]="resultado.correcta" [class.wrong-answer-text]="!resultado.correcta">
+                <ng-container *ngIf="resultado.respuestaEstudiante; else unansweredResult">
+                  {{ getStudentAnswerText(resultado) }}
+                </ng-container>
+
+                <ng-template #unansweredResult>
+                  No alcanzaste a responder esta pregunta
+                </ng-template>
+              </span>
+            </div>
+
+            <!-- ===============================================
+                 RESPUESTA CORRECTA
+            ================================================ -->
+            <div class="correct-answer-detail" *ngIf="!resultado.correcta">
+              <strong> Respuesta correcta: </strong>
+
+              <span>
+                {{ getCorrectAnswerText(resultado.pregunta) }}
+              </span>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <!-- ===================================================
+           ACCIONES DEL DETALLE
+      ==================================================== -->
+      <div class="results-modal-actions">
+        <!-- =================================================
+             PRACTICAR ERRORES
+        ================================================== -->
+        <button *ngIf="resultsView === 'incorrect' && totalIncorrectAnswers > 0" type="button"
+          class="result-detail-button practice-errors-button" (click)="startErrorPractice()">
+          🎯 Practicar mis errores
+        </button>
+
+        <!-- =================================================
+             VOLVER
+        ================================================== -->
+        <button type="button" class="back-results-button" (click)="closeResultsDetail()">
+          ← Volver al resultado
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =======================================================
+       MODAL PARA PRACTICAR LOS ERRORES
+  ======================================================== -->
+  <div class="error-practice-modal" *ngIf="practicingErrors">
+    <div class="error-practice-content">
+      <!-- ===================================================
+           CERRAR
+      ==================================================== -->
+      <button type="button" class="error-practice-close" (click)="closeErrorPractice()" aria-label="Cerrar práctica">
+        ✕
+      </button>
+
+      <!-- ===================================================
+           PRÁCTICA EN CURSO
+      ==================================================== -->
+      <ng-container *ngIf="!errorPracticeFinished && currentErrorPracticeQuestion">
+        <!-- =================================================
+             ENCABEZADO
+        ================================================== -->
+        <div class="no-results">
+
+          <h2>🎯 Vuelve a intentarlo</h2>
+
+          <p>
+            Error {{ errorPracticeIndex + 1 }} de {{ errorPracticeQuestions.length }}
+          </p>
+        </div>
+
+        <!-- =================================================
+             BARRA DE PROGRESO
+        ================================================== -->
+        <div class="practice-progress">
+          <div class="practice-progress-bar" [style.width.%]="errorPracticeProgress"></div>
+        </div>
+
+        <!-- =================================================
+             PREGUNTA
+        ================================================== -->
+        <div class="practice-question">
+          <h3>
+            {{ currentErrorPracticeQuestion.pregunta }}
+          </h3>
+
+          <!-- ===============================================
+               IMAGEN
+          ================================================ -->
+          <div class="practice-image-container" *ngIf="currentErrorPracticeQuestion.image">
+            <img [src]="currentErrorPracticeQuestion.image" [alt]="currentErrorPracticeQuestion.pregunta"
+              title="Haz clic para ampliar" (click)="
+                openImage(
+                  currentErrorPracticeQuestion.image,
+                  currentErrorPracticeQuestion.pregunta
+                )
+              " />
+          </div>
+
+          <!-- ===============================================
+               INSTRUCCIÓN
+          ================================================ -->
+          <p class="practice-instruction">
+            Selecciona nuevamente la respuesta correcta:
+          </p>
+
+
+
+
+
+          <!-- ===============================================
+               OPCIONES
+          ================================================ -->
+          <div class="practice-options">
+            <label *ngFor="let opcion of currentErrorPracticeQuestion.opciones" class="practice-option"
+              [class.practice-option-selected]="
+                isErrorPracticeOptionSelected(opcion.id)
+              " [class.practice-option-correct]="
+                errorPracticeCorrect &&
+                opcion.id === currentErrorPracticeQuestion.respuestaCorrecta
+              ">
+              <!-- ===========================================
+                   RADIO
+              ============================================ -->
+              <input type="radio" name="errorPracticeAnswer" [value]="opcion.id"
+                [checked]="isErrorPracticeOptionSelected(opcion.id)" [disabled]="errorPracticeCorrect"
+                (change)="selectErrorPracticeAnswer(opcion.id)" />
+
+              <!-- ===========================================
+                   RADIO VISUAL
+              ============================================ -->
+              <span class="practice-radio"></span>
+
+              <!-- ===========================================
+                   TEXTO
+              ============================================ -->
+              <span class="practice-option-text">
+                {{ opcion.texto }}
+              </span>
+            </label>
+          </div>
+
+          <!-- ===============================================
+               RETROALIMENTACIÓN AUTOMÁTICA
+          ================================================ -->
+          <div *ngIf="errorPracticeMessage" class="practice-feedback"
+            [class.practice-feedback-correct]="errorPracticeCorrect"
+            [class.practice-feedback-error]="!errorPracticeCorrect">
+            {{ errorPracticeMessage }}
+          </div>
+        </div>
+      </ng-container>
+
+      <!-- ===================================================
+           TODOS LOS ERRORES CORREGIDOS
+      ==================================================== -->
+      <div class="practice-completed" *ngIf="errorPracticeFinished">
+        <div class="practice-completed-icon">🎉</div>
+
+        <h2>¡Excelente!</h2>
+
+        <h3>Has corregido todos tus errores.</h3>
+
+        <p>
+          Corregiste correctamente
+
+          <strong>
+            {{ correctedErrors }}
+          </strong>
+          de
+          <strong>
+            {{ errorPracticeQuestions.length }}
+          </strong>
+
+          preguntas.
+        </p>
+
+        <!-- =================================================
+             BOTONES FINALES
+        ================================================== -->
+        <div class="results-detail-actions">
+          <button type="button" class="result-detail-button practice-errors-button" (click)="restartErrorPractice()">
+            🔄 Practicar otra vez
+          </button>
+
+          <button type="button" class="results-back-button" (click)="closeErrorPractice()">
+            ✓ Terminar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =======================================================
+       MODAL DE IMAGEN AMPLIADA
+  ======================================================== -->
+  <div class="image-modal-overlay" *ngIf="selectedImage" (click)="closeImage()">
+    <div class="image-modal-content">
+      <!-- ===================================================
+           CERRAR IMAGEN
+      ==================================================== -->
+      <button type="button" class="image-modal-close" (click)="closeImage()" aria-label="Cerrar imagen">
+        ✕
+      </button>
+
+      <!-- ===================================================
+           PREGUNTA
+      ==================================================== -->
+      <div class="image-modal-question" *ngIf="selectedImageQuestion">
+        {{ selectedImageQuestion }}
+      </div>
+
+      <!-- ===================================================
+           IMAGEN
+      ==================================================== -->
+      <img [src]="selectedImage" [alt]="selectedImageQuestion || 'Imagen ampliada'" />
+    </div>
+  </div>
+</div>

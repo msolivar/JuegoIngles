@@ -1,0 +1,240 @@
+/* CONTENEDOR PRINCIPAL */
+.contenedor {
+  max-width: 1100px;
+  margin: 40px auto;
+  padding: 20px;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* TARJETAS */
+.tarjeta {
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 30px;
+  margin-bottom: 30px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* TÍTULOS */
+h2 {
+  text-align: center;
+  margin-bottom: 25px;
+  color: #333333;
+}
+
+/* FORMULARIO */
+form {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* CAMPOS */
+.campo {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 20px;
+}
+
+.campo label {
+  margin-bottom: 7px;
+  font-weight: bold;
+  color: #333333;
+}
+
+.campo input {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  border: 1px solid #cccccc;
+  border-radius: 6px;
+  box-sizing: border-box;
+  outline: none;
+  transition:
+    border-color 0.3s,
+    box-shadow 0.3s;
+}
+
+/* INPUT CUANDO RECIBE FOCO */
+.campo input:focus {
+  border-color: #1976d2;
+  box-shadow: 0 0 5px rgba(25, 118, 210, 0.3);
+}
+
+/* INPUT CON ERROR */
+.campo input.input-error {
+  border-color: #d32f2f;
+  background-color: #fff8f8;
+}
+
+/* MENSAJES DE ERROR */
+.mensaje-error {
+  margin-top: 5px;
+}
+
+.mensaje-error small {
+  display: block;
+  color: #d32f2f;
+  font-size: 13px;
+  margin-top: 3px;
+}
+
+/* BOTONES DEL FORMULARIO */
+.botones {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 25px;
+}
+
+.btn {
+  padding: 12px 22px;
+  border: none;
+  border-radius: 6px;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+  transition:
+    transform 0.2s,
+    opacity 0.2s;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+  opacity: 0.9;
+}
+
+/* BOTÓN REGISTRAR */
+.btn-guardar {
+  background-color: #1976d2;
+  color: white;
+}
+
+/* BOTÓN CANCELAR */
+.btn-cancelar {
+  background-color: #757575;
+  color: white;
+}
+
+/* MENSAJE GENERAL */
+.mensaje-general {
+  max-width: 600px;
+  margin: 20px auto 0;
+  padding: 12px;
+  text-align: center;
+  border-radius: 6px;
+  background-color: #e8f5e9;
+  color: #2e7d32;
+  font-weight: bold;
+}
+
+/* LISTADO */
+.lista-usuarios {
+  margin-top: 30px;
+}
+
+/* MENSAJE SIN REGISTROS */
+.sin-registros {
+  text-align: center;
+  padding: 25px;
+  color: #666666;
+  font-size: 16px;
+}
+
+/* CONTENEDOR TABLA */
+.tabla-contenedor {
+  width: 100%;
+  overflow-x: auto;
+}
+
+/* TABLA */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+  background-color: #ffffff;
+}
+
+thead {
+  background-color: #1976d2;
+  color: white;
+}
+
+th, td {
+  padding: 12px;
+  text-align: center;
+  border-bottom: 1px solid #dddddd;
+}
+
+th {
+  font-weight: bold;
+}
+
+tbody tr:hover {
+  background-color: #f5f5f5;
+}
+
+/* ACCIONES */
+.acciones {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+/* BOTÓN EDITAR */
+.btn-editar {
+  padding: 8px 14px;
+  border: none;
+  border-radius: 5px;
+  background-color: #ffb300;
+  color: #ffffff;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.btn-editar:hover {
+  opacity: 0.85;
+}
+
+/* BOTÓN ELIMINAR */
+.btn-eliminar {
+  padding: 8px 14px;
+  border: none;
+  border-radius: 5px;
+  background-color: #d32f2f;
+  color: white;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.btn-eliminar:hover {
+  opacity: 0.85;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .contenedor {
+    margin: 15px auto;
+    padding: 10px;
+  }
+
+  .tarjeta {
+    padding: 20px;
+  }
+
+  .botones {
+    flex-direction: column;
+  }
+
+  .btn {
+    width: 100%;
+  }
+
+  .acciones {
+    flex-direction: column;
+  }
+
+  th,td {
+    padding: 9px;
+    font-size: 14px;
+  }
+}

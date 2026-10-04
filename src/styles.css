@@ -1,1 +1,1931 @@
-/* You can add global styles to this file, and also import other style files */
+.form-control.ng-invalid.ng-dirty {
+  border-color: var(--bs-form-invalid-border-color);
+  padding-right: calc(1.5em + 0.75rem);
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right calc(0.375em + 0.1875rem) center;
+  background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+}
+
+.form-control.ng-valid.ng-dirty {
+  border-color: var(--bs-form-valid-border-color);
+  padding-right: calc(1.5em + 0.75rem);
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23198754' d='M2.3 6.73.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right calc(0.375em + 0.1875rem) center;
+  background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+}
+
+/* ======================================================
+   CONFIGURACIÓN GENERAL
+====================================================== */
+* {
+  box-sizing: border-box;
+}
+
+.save-button,
+.cancel-button {
+  min-height: 50px;
+  padding: 11px 20px;
+  border: none;
+  border-radius: 28px;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.save-button {
+  color: black;
+  background: #1976d2;
+  border: 1px solid #1976d2;
+}
+
+.save-button:hover:not(:disabled) {
+  background: #1565c0;
+}
+
+.cancel-button {
+  background: #777;
+  color: black;
+  border: 1px solid #b0bec5;
+}
+
+.cancel-button:hover:not(:disabled) {
+  background: #eceff1;
+}
+
+.save-button:disabled,
+.cancel-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.edit-button,
+.delete-button {
+  min-height: 50px;
+  padding: 10px 15px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 800;
+  border-radius: 30px;
+  cursor: pointer;
+}
+
+.edit-button {
+  color: #0d47a1;
+  background: #e3f2fd;
+  border: 1px solid #64b5f6;
+}
+
+.edit-button:hover {
+  background: #bbdefb;
+}
+
+.delete-button {
+  color: #c62828;
+  background: #ffebee;
+  border: 1px solid #ef9a9a;
+}
+
+.delete-button:hover {
+  background: #ffcdd2;
+}
+
+.change-category-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border: none;
+  border-radius: 30px;
+  background: #1976d2;
+  color: black;
+  font-size: 20px;
+  font-weight: 700;
+  white-space: nowrap;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+  height: 65px;
+}
+
+.change-category-button:hover {
+  background: #6f42c1;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.22);
+}
+
+.change-category-button:active {
+  transform: translateY(0);
+}
+
+.change-category-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.correct-stat .stat-icon {
+  border: 2px solid #59b929;
+  background: #e9f8df;
+  color: #167b09;
+}
+
+.correct-stat strong {
+  color: #2e7d32;
+}
+
+.incorrect-stat .stat-icon {
+  color: #ffffff;
+  background: #e53935;
+}
+
+.incorrect-stat strong {
+  color: #c62828;
+}
+
+/* =========================================================
+   BOTONES FORMULARIO
+========================================================= */
+
+.success-message {
+  color: #226600;
+  background: #edf9e8;
+}
+
+.error-message {
+  color: #c62828;
+  background: #ffebee;
+  border: 1px solid #ef9a9a;
+}
+
+.game-container {
+  width: 100%;
+  max-width: 1500px;
+  margin: 0 auto;
+  padding: 10px;
+  font-family: Arial, Helvetica, sans-serif;
+  background: #f2f2f2;
+  color: #222;
+}
+
+.setup-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+  width: 100%;
+}
+
+/* =========================================================
+   BOTÓN SELECIONAR CATEGORIA JUEGO
+\========================================================= */
+.category-selector .new-game-button {
+  width: 100%;
+  margin-top: 10px;
+  padding: 14px 20px;
+  border: none;
+  border-radius: 28px;
+  background: blanchedalmond;
+  color: black;
+  font-size: 17px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease;
+}
+
+.category-selector .new-game-button:hover:not(:disabled) {
+  background: #eceff1;
+  transform: translateY(-2px);
+}
+
+.category-selector .new-game-button:disabled {
+  background: blanchedalmond;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* =========================================================
+   BOTÓN EMPEZAR JUEGO DEl FORMULARIO 
+========================================================= */
+.game-setup-dashboard .new-game-button {
+  width: 100%;
+  box-sizing: border-box;
+  margin: 5px 0 0;
+  padding: 15px 20px;
+  border: none;
+  border-radius: 28px;
+  background: blanchedalmond;
+  color: #000;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.14);
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.game-setup-dashboard .new-game-button:hover:not(:disabled) {
+  background: #ffe1b3;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 13px rgba(0, 0, 0, 0.16);
+}
+
+.game-setup-dashboard .new-game-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* ======================================================
+   BOTÓN INICIAR
+====================================================== */
+.new-game-button {
+  width: 100%;
+  height: 45px;
+  padding: 0 25px;
+  border: none;
+  border-radius: 28px;
+  background: blanchedalmond;
+  color: black;
+  font-weight: bold;
+  font-size: 16px;
+  cursor: pointer;
+  transition:
+    background 0.2s,
+    transform 0.2s,
+    box-shadow 0.2s;
+}
+
+.new-game-button:hover {
+  background: #4e9400;
+  transform: scale(1.02);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* ======================================================
+   BOTÓN DE PISTAS
+====================================================== */
+.hint-button-container {
+  position: fixed;
+  right: 25px;
+  bottom: 25px;
+  z-index: 9999;
+  margin: 0;
+}
+
+.hint-button {
+  border: none;
+  padding: 14px 32px;
+  border-radius: 30px;
+  background: #ffca28;
+  color: #222;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+}
+
+.hint-button:hover:not(:disabled) {
+  transform: scale(1.04);
+  background: #ffbd00;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+}
+
+.hint-button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* ======================================================
+   FONDO DE LA VENTANA DE PISTAS
+====================================================== */
+.hint-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+/* ======================================================
+   PANEL DE PISTAS
+====================================================== */
+.hint-panel {
+  position: relative;
+  width: 90%;
+  max-width: 650px;
+  max-height: 85vh;
+  overflow-y: auto;
+  background: white;
+  padding: 30px;
+  border-radius: 30px;
+  text-align: center;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
+  animation: hintAppear 0.25s ease;
+}
+
+@keyframes hintAppear {
+  from {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* ======================================================
+   BOTÓN CERRAR PISTAS
+====================================================== */
+.hint-close {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  width: 35px;
+  height: 35px;
+  border: none;
+  border-radius: 50%;
+  background: #ef5350;
+  color: black;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+/* ======================================================
+   TÍTULO DE PISTAS
+====================================================== */
+.hint-panel h2 {
+  margin-top: 0;
+  font-size: 28px;
+  color: #4f8d00;
+}
+
+/* ======================================================
+   DESCRIPCIÓN DE PISTAS
+====================================================== */
+
+.hint-description {
+  margin-bottom: 20px;
+  color: #666;
+  line-height: 1.5;
+}
+
+/* ======================================================
+   LISTA DE PISTAS
+====================================================== */
+.hint-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: large;
+}
+
+.hint-item {
+  display: grid;
+  grid-template-columns: 1fr 50px 1fr;
+  align-items: center;
+  /* padding: 12px 18px; */
+  border-radius: 28px;
+  background: #f1f8e9;
+  border: 2px solid #8bc34a;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.hint-left {
+  text-align: right;
+  color: #333;
+}
+
+.hint-arrow {
+  text-align: center;
+  color: #66a800;
+  font-size: 25px;
+}
+
+.hint-right {
+  text-align: left;
+  color: #4f8d00;
+}
+
+.contenido-completo {
+  width: 100%;
+  grid-column: 1 / -1;
+  display: block;
+  margin: 0;
+}
+
+/* ======================================================
+   TEMPORIZADOR PISTAS
+====================================================== */
+.hint-time {
+  margin-top: 18px;
+  font-size: 15px;
+  color: #777;
+}
+
+/* ======================================================
+   ERRORES / INTENTOS / PANTALLA ACTUAL
+====================================================== */
+.attempts {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+  width: 100%;
+  margin: 10px auto 12px;
+  font-size: 18px;
+}
+
+.attempts span {
+  white-space: nowrap;
+}
+
+.attempts strong {
+  font-weight: 700;
+}
+
+/* ======================================================
+   LISTA DE PALABRAS DEL BUSCADOR
+====================================================== */
+.word-list-container {
+  margin-bottom: 25px;
+  width: 60%;
+}
+
+.word-list-container h3 {
+  margin-bottom: 12px;
+  color: #244600;
+}
+
+.word-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 10px;
+  margin-bottom: 15px;
+  background: white;
+  min-width: 500px;
+}
+
+.word-original {
+  font-weight: bold;
+}
+
+.word-arrow {
+  text-align: center;
+  color: #67b70f;
+  font-weight: bold;
+}
+
+.word-answer {
+  color: #4f7f10;
+  font-weight: bold;
+}
+
+/* =========================================================
+   SIN RESULTADOS
+========================================================= */
+.no-results {
+  padding: 20px;
+  text-align: center;
+  border-radius: 7px;
+  background: #fff4f4;
+  color: #a50000;
+}
+
+/* ======================================================
+   RESULTADO FINAL
+====================================================== */
+.result-box {
+  width: 100%;
+  max-width: 700px;
+  margin: 30px auto;
+  padding: 25px;
+  text-align: center;
+  border-radius: 18px;
+  background: #f2f2f2;
+  font-size: 20px;
+}
+
+.winner {
+  color: black;
+  font-size: 25px;
+  font-weight: bold;
+}
+
+/* =========================================================
+   BOTONES DE DETALLE DEL RESULTADO
+========================================================= */
+.result-detail-buttons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin: 22px 0 26px;
+}
+
+/* =========================================================
+   BOTÓN GENERAL
+========================================================= */
+.result-detail-button {
+  min-width: 245px;
+  min-height: 58px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 18px;
+  font-size: 17px;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.result-detail-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
+}
+
+.result-detail-button strong {
+  font-size: 21px;
+}
+
+/* =========================================================
+   BOTÓN ERRORES
+========================================================= */
+.error-detail-button {
+  background: #ffe5e5;
+  color: #b71c1c;
+  border: 2px solid #ef5350;
+}
+
+/* =========================================================
+   BOTÓN PRACTICAR ERRORES
+\========================================================= */
+.practice-errors-button {
+  margin: 0;
+  padding: 12px 22px;
+  border: none;
+  border-radius: 22px;
+  background: #f57c00;
+  color: black;
+  font-size: 20px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.16);
+}
+
+.practice-errors-button:hover {
+  background: #ef6c00;
+  box-shadow: 0 4px 12px rgba(245, 124, 0, 0.2);
+}
+
+/* =========================================================
+   BOTÓN CORRECTAS / INTENTOS
+========================================================= */
+.correct-detail-button {
+  background: #e9f8df;
+  color: #286900;
+  border: 2px solid #66bb2e;
+}
+
+/* =========================================================
+   ACCIONES FINALES
+========================================================= */
+.final-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+  border-top: 1px solid #eceff1;
+}
+
+/* =========================================================
+   FONDO DE LA PANTALLA DE RESULTADOS
+========================================================= */
+.results-detail-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 25px;
+  background: rgba(0, 0, 0, 0.72);
+}
+
+/* =========================================================
+   PANEL
+========================================================= */
+.results-detail-panel {
+  position: relative;
+  width: 100%;
+  max-width: 650px;
+  max-height: 88vh;
+  overflow-y: auto;
+  padding: 32px;
+  background: #ffffff;
+  border-radius: 24px;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
+}
+
+/* =========================================================
+   TÍTULO
+========================================================= */
+.results-detail-panel h2 {
+  margin: 0 0 12px;
+  text-align: center;
+  font-size: 27px;
+}
+
+/* =========================================================
+   RESUMEN
+========================================================= */
+.results-summary {
+  margin-bottom: 22px;
+  text-align: center;
+  font-size: 17px;
+}
+
+/* =========================================================
+   BOTÓN CERRAR
+========================================================= */
+.results-detail-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: #ef3b36;
+  color: white;
+  font-size: 19px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.results-detail-close:hover {
+  background: #c62828;
+}
+
+/* =========================================================
+   TARJETA DE PALABRA
+========================================================= */
+.result-word-card {
+  width: 100%;
+  min-height: 58px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-radius: 14px;
+  font-size: large;
+}
+
+/* =========================================================
+   CORRECTA
+========================================================= */
+.correct-word-card {
+  padding: 8px 14px;
+  color: black;
+  background: #e3f2fd;
+  border: 1px solid #1565c0;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 700;
+  justify-content: space-between;
+  display: inline-block;
+}
+
+/* =========================================================
+   LISTA DE PALABRAS DEL RESULTADO
+========================================================= */
+.result-word-list {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+/* =========================================================
+   ERROR
+========================================================= */
+.error-word-card {
+  justify-content: space-between;
+  background: #fff0f0;
+  border: 1px solid #f2aaaa;
+}
+
+/* =========================================================
+   PARTE PRINCIPAL DEL ERROR
+========================================================= */
+.error-word-main {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex-wrap: wrap;
+}
+
+/* =========================================================
+   PALABRAS
+========================================================= */
+.result-word-left,
+.result-word-right {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.result-word-arrow {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.result-status-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  color: #ffffff;
+  border-radius: 50%;
+  font-size: 24px;
+  font-weight: 900;
+}
+
+.correct-result-card {
+  background: #f8fff9;
+  border: 1px solid #81c784;
+}
+
+.incorrect-result-card {
+  background: #fffafa;
+  border: 1px solid #ef9a9a;
+}
+
+/* =========================================================
+   CONTADOR DE ERRORES
+========================================================= */
+.word-error-count {
+  flex-shrink: 0;
+  padding: 6px 10px;
+  border-radius: 12px;
+  background: #ef5350;
+  color: white;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+/* =========================================================
+   MENSAJE SIN RESULTADOS
+========================================================= */
+.empty-result-message {
+  padding: 18px;
+  margin-bottom: 15px;
+  text-align: center;
+  border-radius: 14px;
+  background: #f4f4f4;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.success-empty {
+  background: #edf9e8;
+  color: #286900;
+  font-size: 20px;
+}
+
+/* =========================================================
+   BOTÓN VOLVER
+========================================================= */
+.results-back-button {
+  display: block;
+  min-width: 245px;
+  /* margin: 25px auto 0; */
+  padding: 12px 20px;
+  border: none;
+  border-radius: 22px;
+  background: #1565c0;
+  color: black;
+  font-size: 20px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.16);
+  height: 64px;
+}
+
+.results-back-button:hover {
+  background: #1976d2;
+}
+
+/* =========================================================
+   GUARDAR PUNTAJE / PRACTICAR ERRORES
+========================================================= */
+.score-practice-actions {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 18px;
+  margin-bottom: 26px;
+}
+
+/* =========================================================
+   BOTÓN GUARDAR PUNTAJE
+========================================================= */
+.save-score-button {
+  padding: 13px 24px;
+  border: none;
+  border-radius: 22px;
+  background: #ffc107;
+  color: #222;
+  font-size: 22px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.16);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.save-score-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 13px rgba(0, 0, 0, 0.18);
+}
+
+.save-score-button:active {
+  transform: translateY(0);
+}
+
+/* =========================================================
+  BARRA "JUGANDO CON"
+========================================================= */
+.selected-category-box {
+  width: calc(100% - 30px);
+  max-width: 900px;
+  margin: 18px auto 12px;
+  padding: 17px 25px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  background: #ffffff;
+  border: 1px solid #e0e6ea;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  font-size: 18px;
+  color: #333;
+}
+
+/* =========================================================
+   NOMBRE DE LA CATEGORÍA
+========================================================= */
+.selected-category-box strong {
+  color: black;
+  font-weight: 800;
+}
+
+/* BOTÓN CAMBIAR CATEGORÍA */
+.selected-category-box .change-category-button {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 24px;
+  border: none;
+  border-radius: 14px;
+  background: #1976d2;
+  color: #000;
+  font-size: 20px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.18);
+}
+
+/* EFECTO DEL BOTÓN */
+.selected-category-box .change-category-button:hover {
+  background: #5b34a5;
+  transform: translateY(-2px);
+}
+
+/* JUGAR NUEVAMENTE */
+.play-again-button {
+  min-width: 273px;
+  height: 69px;
+  padding: 0 25px;
+  border: none;
+  border-radius: 30px;
+  background: #59c400;
+  color: #000;
+  font-size: 20px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+  white-space: nowrap;
+}
+
+.play-again-button:hover {
+  background: #4f72b8;
+  transform: translateY(-2px);
+}
+
+/* imprimir vocabulario */
+.print-vocabulary-button {
+  width: 100%;
+  padding: 14px 20px;
+  border: none;
+  border-radius: 12px;
+  background: #4f72b8;
+  color: black;
+  font-size: 17px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.print-vocabulary-button:hover:not(:disabled) {
+  background: #4163a5;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.18);
+}
+
+.print-vocabulary-button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.print-vocabulary-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* LABEL */
+.category-selector label {
+  display: block;
+  font-size: 17px;
+  font-weight: 600;
+  color: #444;
+  text-align: left;
+}
+
+/* =========================================================
+   ERROR
+\========================================================= */
+.category-selector .no-results {
+  padding: 12px;
+  border-radius: 10px;
+  background: #ffe9e9;
+  color: #b3261e;
+  font-weight: 600;
+}
+
+/* =========================================================
+   SELECCIÓN DE CATEGORÍA
+\========================================================= */
+.category-selector {
+  width: 90%;
+  max-width: 720px;
+  margin: 40px auto;
+  padding: 30px 35px;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  text-align: center;
+  font-size: 20px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+
+
+/* TÍTULO */
+.category-selector h2 {
+  margin: 0 0 25px;
+  font-size: 26px;
+  font-weight: 700;
+  color: #333;
+}
+
+/* CONTENEDOR DEL SELECT */
+.category-selection-content {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 12px;
+}
+
+/* SELECT */
+.category-selector select {
+  width: 100%;
+  height: 50px;
+  padding: 0 15px;
+  border: 2px solid #b0bec5;
+  border-radius: 12px;
+  background: white;
+  font-size: 16px;
+  color: #333;
+  cursor: pointer;
+  outline: none;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+/* SELECT AL HACER CLIC */
+.category-selector select:focus {
+  border-color: #1976d2;
+  box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.12);
+}
+
+/* ===== AJUSTES FINALES DASHBOARD ===== */
+.game-setup-dashboard {
+  width: 100%;
+  /* max-width: 760px; */
+  margin: 28px auto 32px;
+  padding: 28px 32px;
+  box-sizing: border-box;
+  background: #f8fafc;
+  border: 2px solid #d9e2ec;
+  border-radius: 20px;
+  box-shadow: 0 5px 18px rgba(0, 0, 0, 0.08);
+  text-align: left;
+}
+
+/* =========================================================
+  CAMPOS
+\========================================================= */
+.setup-field {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
+  min-width: 0;
+  margin-bottom: 20px;
+}
+
+.setup-field label {
+  font-weight: bold;
+}
+
+/* =========================================================
+   SELECTS E INPUTS
+   IMPORTANTE:
+   CONSERVA EL ANCHO COMPLETO
+\========================================================= */
+.setup-field select {
+  display: block;
+  width: 100%;
+  height: 58px;
+  box-sizing: border-box;
+  padding: 0 18px;
+  border: 1px solid #b0bec5;
+  border-radius: 14px;
+  background: #ffffff;
+  color: #222222;
+  font-family: inherit;
+  font-size: 18px;
+  outline: none;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+/* =========================================================
+  FOCUS
+\========================================================= */
+.setup-field select:focus {
+  border-color: #1976d2;
+  box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.12);
+}
+
+/* =========================================================
+   BUSCADOR
+   CONSERVA EL CAMPO ANCHO
+\========================================================= */
+.setup-field.full-width,
+.search-setup {
+  width: 100%;
+}
+
+.setup-field input {
+  font-size: 18px;
+}
+
+.game-setup-dashboard .setup-field input,
+.game-setup-dashboard .setup-field select {
+  display: block;
+  width: 100% !important;
+  min-width: 0;
+  height: 52px !important;
+  padding: 0 15px !important;
+  box-sizing: border-box;
+  border: 1px solid #b0bec5;
+  border-radius: 12px !important;
+  background: #fff !important;
+  color: #333;
+  font-family: inherit;
+  font-size: 16px !important;
+  outline: none;
+  box-shadow: none;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.game-setup-dashboard .setup-field input:focus,
+.game-setup-dashboard .setup-field select:focus {
+  border-color: #1976d2;
+  box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.12);
+}
+
+.game-setup-dashboard .setup-field small {
+  display: block;
+  min-height: 18px;
+  margin-top: 7px;
+  color: #5f6b58;
+  font-size: 13px;
+}
+
+/* ***ocultar modal */
+.image-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  box-sizing: border-box;
+  background: rgba(0, 0, 0, 0.75);
+  cursor: pointer;
+}
+
+/* =========================================================
+  * CONTENEDOR BLANCO
+========================================================= */
+.image-modal-content {
+  position: relative;
+  width: fit-content;
+  min-width: 320px;
+  max-width: 90vw;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin: 0;
+  padding: 55px 30px 30px;
+  box-sizing: border-box;
+  background: #ffffff;
+  border-radius: 18px;
+  text-align: center;
+  overflow-y: auto;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+}
+
+/* =========================================================
+  * BOTÓN CERRAR
+========================================================= */
+.image-modal-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 10;
+  width: 42px;
+  height: 42px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: #ef3535;
+  color: #ffffff;
+  font-size: 25px;
+  font-weight: bold;
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+/* =========================================================
+  * BOTÓN CERRAR
+========================================================= */
+.image-modal-close:hover {
+  background: #c92727;
+  transform: scale(1.08);
+}
+
+/* =========================================================
+  *1 PALABRA Y SIGNIFICADO
+   GET - OBTENER
+========================================================= */
+image-modal-caption {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 0 15px;
+  text-align: center;
+}
+
+/* =========================================================
+  *2 PALABRA Y SIGNIFICADO
+   GET - OBTENER
+========================================================= */
+.image-modal-word {
+  margin: 0 0 8px 0;
+  font-size: 20px;
+  font-weight: 800;
+  text-align: center;
+  color: #222222;
+  text-transform: capitalize;
+}
+
+/* =========================================================
+  * PREGUNTA
+========================================================= */
+.image-modal-question {
+  width: 100%;
+  max-width: 750px;
+  margin: 0 0 16px;
+  padding: 0 30px;
+  box-sizing: border-box;
+  color: #263238;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.5;
+  text-align: justify;
+  white-space: pre-line;
+}
+
+/* =========================================================
+  * IMAGEN
+========================================================= */
+.image-modal-content>img {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 600px;
+  max-height: 60vh;
+  margin: 0 auto;
+  object-fit: contain;
+  border-radius: 12px;
+}
+
+/* =========================================================
+  * TÍTULO
+========================================================= */
+.image-modal-content h2 {
+  width: 100%;
+  margin: 0 0 15px;
+  color: #222222;
+  font-size: 28px;
+  font-weight: 800;
+  text-align: center;
+}
+
+/* =========================================================
+  * PÁRRAFOS
+========================================================= */
+.image-modal-content p {
+  width: 100%;
+  margin: 15px 0 0;
+  color: #333333;
+  font-size: 18px;
+  text-align: center;
+}
+
+.image-modal-content img {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 82vw;
+  max-height: 230px;
+  border-radius: 12px;
+  margin: 0 auto;
+  object-fit: contain;
+}
+
+/* =========================================================
+   HOST Y CONFIGURACIÓN GENERAL
+========================================================= */
+:host {
+  display: block;
+  width: 100%;
+  min-height: 100vh;
+  font-family: Arial, Helvetica, sans-serif;
+  color: #263238;
+  background: #f5f7fa;
+}
+
+button,
+input,
+textarea,
+select {
+  font-family: inherit;
+}
+
+button {
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.15s ease;
+}
+
+button:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+/* =========================================================
+   REDUCIR ANIMACIONES SI EL SISTEMA LO SOLICITA
+========================================================= */
+@media (prefers-reduced-motion: reduce) {
+
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* =========================================================
+   IMAGEN CLICABLE
+========================================================= */
+.clickable-image {
+  cursor: zoom-in;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.clickable-image:hover {
+  transform: scale(1.08);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.image-preview {
+  display: block;
+  max-width: 100%;
+  width: auto;
+  max-height: 200px;
+  object-fit: contain;
+  background: #ffffff;
+  border: 1px dashed #b0bec5;
+  text-align: center;
+  border-radius: 10px;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.image-preview img {
+  display: block;
+  max-width: 350px;
+  max-height: 200px;
+  margin: 0 auto;
+  object-fit: contain;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.image-preview:hover {
+  transform: scale(1.02);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+}
+
+.image-preview-container {
+  grid-column: 1 / -1;
+  width: 100%;
+  margin-top: 14px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed #b0bec5;
+  border-radius: 12px;
+  background-color: #ffffff;
+  box-sizing: border-box;
+}
+
+.image-preview-title {
+  display: block;
+  margin-bottom: 14px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #78909c;
+}
+
+/* =========================================================
+   LETRA DE OPCIÓN
+========================================================= */
+.option-letter {
+  min-width: 26px;
+  color: #455a64;
+  font-size: 15px;
+  font-weight: 800;
+  text-align: center;
+}
+
+.selected-option .option-letter {
+  color: #1565c0;
+}
+
+/* =========================================================
+   PAGINACIÓN
+========================================================= */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 24px 0 10px;
+}
+
+/* =========================================================
+   ACCIONES DEL RESULTADO
+========================================================= */
+.result-actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 22px;
+}
+
+/* =========================================================
+   CONTENEDOR DE BOTONES DEL DETALLE
+========================================================= */
+.results-detail-actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 24px;
+}
+
+.result-actions,
+.results-detail-actions {
+  flex-direction: column;
+}
+
+.result-actions {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.score-number {
+  color: #1565c0;
+  font-size: 46px;
+  font-weight: bold;
+  line-height: 1;
+}
+
+/* =========================================================
+   BOTONES DE PAGINACIÓN
+========================================================= */
+.pagination-button,
+.page-number {
+  min-width: 42px;
+  height: 42px;
+  padding: 0 13px;
+  border: none;
+  border-radius: 20px;
+  background: #eeeeee;
+  color: black;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease;
+}
+
+
+/* =========================================================
+   HOVER PAGINACIÓN
+========================================================= */
+.pagination-button:hover:not(:disabled),
+.page-number:hover {
+  background: #dddddd;
+  transform: translateY(-2px);
+}
+
+/* =========================================================
+   PAGINACIÓN DESHABILITADA
+========================================================= */
+.pagination-button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.pagination button {
+  padding: 10px 16px;
+  border: 1px solid #cccccc;
+  border-radius: 7px;
+  background: white;
+  cursor: pointer;
+}
+
+.pagination button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.pagination button,
+.pagination>span {
+  font-size: 21px;
+}
+
+/* =========================================================
+   INFORMACIÓN DE PÁGINA
+========================================================= */
+.pagination-info {
+  margin: 10px 0 20px;
+  text-align: center;
+  font-size: 15px;
+  color: #444444;
+}
+
+/* =========================================================
+  * 1 TABLET
+========================================================= */
+@media (max-width: 900px) {
+
+  .image-modal-overlay {
+    padding: 15px;
+  }
+
+  .image-modal-content {
+    max-width: 92vw;
+    max-height: 90vh;
+
+    padding: 55px 25px 25px;
+  }
+
+  .image-modal-content>img {
+    max-width: 100%;
+    max-height: 60vh;
+  }
+}
+
+/* =========================================================
+  * 2 TABLET
+========================================================= */
+@media (max-width: 600px) {
+
+  .pagination {
+    gap: 6px;
+  }
+
+  .pagination-button,
+  .page-number {
+    min-width: 38px;
+    height: 38px;
+    padding: 0 10px;
+    font-size: 14px;
+  }
+
+  .image-modal-overlay {
+    padding: 12px;
+  }
+
+  .image-modal-content {
+    width: 95%;
+    min-width: 0;
+    max-width: 95%;
+    max-height: 90vh;
+
+    padding: 55px 15px 20px;
+  }
+
+  .image-modal-caption {
+    margin-bottom: 12px;
+  }
+
+  .image-modal-word {
+    font-size: 21px;
+  }
+
+  .image-modal-question {
+    padding: 0 5px;
+
+    font-size: 15px;
+
+    text-align: left;
+  }
+
+  .image-modal-content>img {
+    width: auto;
+    height: auto;
+
+    max-width: 100%;
+    max-height: 55vh;
+
+    object-fit: contain;
+  }
+
+  .image-modal-content h2 {
+    font-size: 23px;
+  }
+
+  .image-modal-content p {
+    font-size: 16px;
+  }
+
+  .image-modal-close {
+    top: 10px;
+    right: 10px;
+
+    width: 40px;
+    height: 40px;
+
+    font-size: 23px;
+  }
+}
+
+@media (max-width: 700px) {
+  .setup-row {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .correct-word-card {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+
+  .game-setup-dashboard {
+    width: calc(100% - 20px);
+    margin: 15px auto;
+    padding: 22px 18px;
+    gap: 20px;
+    border-radius: 20px;
+  }
+
+  .attempts {
+    gap: 8px 14px;
+    font-size: 15px;
+  }
+
+  .image-modal-content img {
+    max-width: 90vw;
+    max-height: 80vh;
+  }
+
+  .score-practice-actions {
+    flex-direction: column;
+  }
+
+  .save-score-button,
+  .score-practice-actions .practice-errors-button {
+    width: 100%;
+    box-sizing: border-box;
+    text-align: center;
+  }
+
+  .edit-button,
+  .delete-button {
+    width: 100%;
+  }
+
+}
+
+@media (max-width: 600px) {
+  .game-container {
+    padding: 5px;
+  }
+
+  .new-game-button {
+    width: 100%;
+  }
+
+  /* PISTAS */
+  .hint-panel {
+    padding: 24px 15px;
+  }
+
+  /* PISTAS */
+  .hint-button {
+    min-width: 180px;
+    min-height: 52px;
+    font-size: 17px;
+  }
+
+  .edit-button,
+  .delete-button {
+    flex: 1;
+  }
+
+  .result-detail-buttons {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .result-detail-button {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .results-detail-overlay {
+    padding: 12px;
+  }
+
+  .results-detail-panel {
+    padding: 26px 16px 20px;
+    border-radius: 18px;
+  }
+
+  .error-word-card,
+  final-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .word-error-count {
+    align-self: flex-start;
+  }
+
+  .result-word-left,
+  .result-word-right {
+    font-size: 16px;
+  }
+
+  /* INTENTOS */
+  .attempts {
+    /* flex-direction: column; */
+    gap: 8px;
+    text-align: center;
+    /* font-size: 15px; */
+  }
+
+  .hint-item {
+    grid-template-columns: 1fr 35px 1fr;
+    /* padding: 10px; */
+    font-size: 16px;
+  }
+
+  .selected-category-box {
+    width: calc(100% - 24px);
+    padding: 15px 16px;
+    gap: 12px;
+    flex-direction: column;
+  }
+
+  .play-again-button,
+  .selected-category-box,
+  .results-back-button,
+  .change-category-button {
+    width: 100%;
+    font-size: 16px;
+    padding: 12px 16px;
+  }
+
+  .category-selector {
+    width: calc(100% - 30px);
+    margin: 25px auto;
+    padding: 24px 18px;
+    box-sizing: border-box;
+    font-size: 18px;
+  }
+
+  .category-selector h2 {
+    font-size: 22px;
+  }
+
+  .category-selector label {
+    font-size: 16px;
+  }
+
+  .category-selector select {
+    font-size: 15px;
+  }
+
+  .save-button,
+  .cancel-button {
+    width: 100%;
+  }
+
+  .print-vocabulary-button {
+    width: 100%;
+    padding: 13px 16px;
+    font-size: 16px;
+  }
+
+  .image-modal-content img {
+    max-width: 100%;
+    max-height: 55vh;
+  }
+
+  .image-modal-content>img {
+    max-width: 100%;
+    max-height: 55vh;
+  }
+}
+
+/* =========================================================
+   *3 CELULARES MUY PEQUEÑOS
+========================================================= */
+@media (max-width: 390px) {
+
+  .score-number {
+    font-size: 28px;
+  }
+
+  .pagination button,
+  .pagination>span {
+    font-size: 21px;
+  }
+
+  .pagination-button {
+    font-size: 13px;
+    padding: 0 8px;
+  }
+
+  .image-modal-overlay {
+    padding: 8px;
+  }
+
+  .image-modal-content {
+    width: 100%;
+    max-width: 100%;
+
+    padding: 52px 10px 15px;
+  }
+
+  .image-modal-word {
+    font-size: 19px;
+  }
+
+  .image-modal-content>img {
+    max-width: 100%;
+    max-height: 50vh;
+  }
+
+  .image-modal-close {
+    width: 38px;
+    height: 38px;
+
+    font-size: 21px;
+  }
+
+  .hint-overlay {
+    padding: 8px;
+  }
+
+  .game-setup-dashboard {
+    width: calc(100% - 12px);
+    padding: 18px 12px;
+  }
+}

@@ -1,0 +1,351 @@
+<div class="score-page">
+  <header class="score-header">
+    <div class="trophy">🏆</div>
+
+    <div>
+      <h1>
+        {{ nombreJuego }}
+      </h1>
+
+      <p>Tabla de posiciones</p>
+    </div>
+  </header>
+  <!-- =======================================================
+       NAVEGACIÓN ENTRE JUEGOS
+  ======================================================== -->
+  <nav class="game-navigation">
+    <button type="button" [class.active]="juego === 'unir-palabra'" (click)="seleccionarJuego('unir-palabra')"
+      [disabled]="cargandoRanking">
+      🔗 Unir palabra
+    </button>
+    <button type="button" [class.active]="juego === 'completar-palabra'" (click)="seleccionarJuego('completar-palabra')"
+      [disabled]="cargandoRanking">
+      ✏️ Completar palabra
+    </button>
+    <button type="button" [class.active]="juego === 'cuestionario'" (click)="seleccionarJuego('cuestionario')"
+      [disabled]="cargandoRanking">
+      📝 Cuestionario
+    </button>
+  </nav>
+  <!-- =======================================================
+       CONTENIDO PRINCIPAL
+  ======================================================== -->
+  <main class="score-content">
+    <!-- =====================================================
+         MI PUNTUACIÓN
+    ====================================================== -->
+    <aside class="my-score-card">
+      <h2>Mi puntuación</h2>
+      <div class="score-number">
+        {{ puntuacion }}
+      </div>
+      <span class="points-label"> puntos </span>
+      <!-- ===================================================
+           INFORMACIÓN DE LA PARTIDA
+      ==================================================== -->
+      <div class="game-information" *ngIf="tieneResultado">
+        <!-- CATEGORÍA -->
+        <div>
+          <span> Categoría </span>
+
+          <strong>
+            {{ categoria || "General" }}
+          </strong>
+        </div>
+
+        <!-- REPASO -->
+        <div *ngIf="repaso">
+          <span>Repasó</span>
+
+          <strong>
+            {{ repaso }}
+          </strong>
+        </div>
+
+        <!-- ACIERTOS -->
+        <div>
+          <span> Aciertos </span>
+
+          <strong> {{ correctas }}/{{ total }} </strong>
+        </div>
+        <!-- RESULTADO -->
+        <div>
+          <span> Resultado </span>
+
+          <strong> {{ porcentaje }}% </strong>
+        </div>
+        <!-- ERRORES -->
+        <div>
+          <span> Errores </span>
+
+          <strong>
+            {{ errores }}
+          </strong>
+        </div>
+        <!-- TIEMPO -->
+        <div>
+          <span> Tiempo </span>
+
+          <strong>
+            {{ tiempoFormateado }}
+          </strong>
+        </div>
+      </div>
+      <!-- ===================================================
+           FORMULARIO PARA GUARDAR PUNTUACIÓN
+      ==================================================== -->
+      <div class="player-form" *ngIf="tieneResultado && !puntajeGuardado">
+        <!-- NOMBRE -->
+        <label for="playerName">
+          Nombre del jugador
+          <span class="required">*</span>
+        </label>
+        <input #playerNameInput id="playerName" name="playerName" type="text" [(ngModel)]="nombreJugador" maxlength="40"
+          autocomplete="off" placeholder="Escribe tu nombre" required [disabled]="guardando"
+          [class.input-error]="errorNombre" (input)="limpiarErrorNombre()" (keyup.enter)="guardarJugador()" />
+        <!-- ===============================================
+             MENSAJE NOMBRE OBLIGATORIO
+        ================================================ -->
+        <div class="name-error" *ngIf="errorNombre">⚠️ {{ errorNombre }}</div>
+        <!-- ===============================================
+             BOTÓN GUARDAR
+        ================================================ -->
+        <button type="button" (click)="guardarJugador()" [disabled]="guardando">
+          <ng-container *ngIf="!guardando"> 💾 Guardar puntaje </ng-container>
+
+          <ng-container *ngIf="guardando"> ⏳ Guardando... </ng-container>
+        </button>
+      </div>
+      <!-- ===================================================
+           MENSAJE GENERAL
+      ==================================================== -->
+      <div class="save-message" *ngIf="mensaje" [class.success]="puntajeGuardado" [class.error]="!puntajeGuardado">
+        {{ mensaje }}
+      </div>
+      <!-- ===================================================
+           RESULTADO GUARDADO
+      ==================================================== -->
+      <div class="saved-player" *ngIf="puntajeGuardado">
+        <strong>
+          {{ nombreJugador }}
+        </strong>
+
+        <span> {{ puntuacion }} puntos </span>
+
+        <span> {{ correctas }}/{{ total }} aciertos </span>
+
+        <span> ⏱️ {{ tiempoFormateado }} </span>
+      </div>
+    </aside>
+    <!-- =====================================================
+         TABLA DE POSICIONES
+    ====================================================== -->
+    <section class="ranking-card">
+      <!-- ===================================================
+           TÍTULO
+      ==================================================== -->
+      <div class="ranking-title">
+        <div>
+          <h2>🏆 Mejores jugadores</h2>
+
+          <p>{{ nombreJuego }} · {{ categoriaRanking || "General" }}</p>
+        </div>
+
+        <span> Página {{ paginaActual }} de {{ totalPaginas }} </span>
+      </div>
+      <!-- ===================================================
+           CARGANDO
+      ==================================================== -->
+      <div class="empty-ranking" *ngIf="cargandoRanking">
+        <div class="no-results">⏳</div>
+
+        <h3>Cargando puntuaciones...</h3>
+
+        <p>Consultando la tabla de posiciones.</p>
+      </div>
+      <!-- ===================================================
+           SIN PUNTUACIONES
+      ==================================================== -->
+      <div class="empty-ranking" *ngIf="!cargandoRanking && jugadores.length === 0">
+        <div>🏅</div>
+
+        <h3>Aún no hay puntuaciones</h3>
+
+        <p>Guarda el primer resultado para comenzar la clasificación.</p>
+      </div>
+      <!-- ===================================================
+           TABLA DEL RANKING
+      ==================================================== -->
+      <div class="ranking-table-container" *ngIf="!cargandoRanking && jugadores.length > 0">
+        <table>
+          <thead>
+            <tr>
+              <th>Puesto</th>
+              <th>Jugador</th>
+              <th>Aciertos</th>
+              <th>Puntuación</th>
+              <th>Tiempo</th>
+              <th>Fecha</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let jugador of jugadoresPagina">
+              <!-- ===========================================
+                   POSICIÓN
+              ============================================ -->
+              <td class="position">
+                <span *ngIf="jugador.posicion === 1" class="medal"> 🥇 </span>
+                <span *ngIf="jugador.posicion === 2" class="medal"> 🥈 </span>
+                <span *ngIf="jugador.posicion === 3" class="medal"> 🥉 </span>
+                <strong>
+                  {{ jugador.posicion }}
+                </strong>
+              </td>
+              <!-- ===========================================
+                   JUGADOR
+              ============================================ -->
+              <td class="player-name">
+                {{ jugador.jugador }}
+              </td>
+              <!-- ===========================================
+                   ACIERTOS
+              ============================================ -->
+              <td class="ranking-correct">
+                <strong> {{ jugador.correctas }}/{{ jugador.total }} </strong>
+              </td>
+              <!-- ===========================================
+                   PUNTUACIÓN
+              ============================================ -->
+              <td class="ranking-points">
+                <strong>
+                  {{ jugador.puntuacion }}
+                </strong>
+              </td>
+              <!-- ===========================================
+                   TIEMPO
+              ============================================ -->
+              <td class="ranking-time">
+                <span *ngIf="jugador.tiempoSegundos > 0">
+                  ⏱️
+                  {{ formatearTiempo(jugador.tiempoSegundos) }}
+                </span>
+                <span *ngIf="jugador.tiempoSegundos <= 0"> - </span>
+              </td>
+              <!-- ===========================================
+                   FECHA
+              ============================================ -->
+              <td class="ranking-date">
+                {{ jugador.fecha || "-" }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <!-- ===================================================
+           PAGINACIÓN
+      ==================================================== -->
+      <div class="pagination" *ngIf="!cargandoRanking && jugadores.length > 0">
+        <button type="button" (click)="paginaAnterior()" [disabled]="paginaActual === 1">
+          ← Anterior
+        </button>
+        <span>
+          Página
+          <strong>
+            {{ paginaActual }}
+          </strong>
+          de
+          <strong>
+            {{ totalPaginas }}
+          </strong>
+        </span>
+        <button type="button" (click)="paginaSiguiente()" [disabled]="paginaActual === totalPaginas">
+          Siguiente →
+        </button>
+      </div>
+      <!-- ===================================================
+           RESUMEN
+      ==================================================== -->
+      <div class="ranking-summary" *ngIf="!cargandoRanking && jugadores.length > 0">
+        <span>
+          {{ jugadores.length }}
+          jugador(es) en la clasificación
+        </span>
+
+        <span> 30 puestos por página </span>
+      </div>
+    </section>
+  </main>
+  <!-- =======================================================
+       GRÁFICA TOP 30
+  ======================================================== -->
+  <section class="progress-chart-card" *ngIf="!cargandoRanking && jugadores.length > 0">
+    <!-- =====================================================
+         ENCABEZADO DE LA GRÁFICA
+    ====================================================== -->
+    <div class="progress-chart-header">
+      <div>
+        <h2>📈 Progreso de los mejores jugadores</h2>
+
+        <p>
+          Comparación de los mejores
+          {{ cantidadJugadoresGrafica }}
+          jugadores en
+          {{ nombreJuego }}.
+        </p>
+      </div>
+      <div class="chart-badge">
+        Top
+        {{ cantidadJugadoresGrafica }}
+      </div>
+    </div>
+    <!-- =====================================================
+         INFORMACIÓN
+    ====================================================== -->
+    <div class="chart-information">
+      <span> 🎯 Aciertos </span>
+
+      <span> 🏆 Puntuación </span>
+
+      <span> ⏱️ Tiempo </span>
+
+      <span>
+        👥 {{ cantidadJugadoresGrafica }} jugadores
+      </span>
+
+      <span>
+        🎮 {{ nombreJuego }}
+      </span>
+    </div>
+    <!-- =====================================================
+         GRÁFICA
+    ====================================================== -->
+    <div class="chart-container">
+      <canvas #graficaProgreso> </canvas>
+    </div>
+    <!-- =====================================================
+         EXPLICACIÓN
+    ====================================================== -->
+    <div class="chart-description">
+      <p>
+        La gráfica representa a los {{ cantidadJugadoresGrafica }} mejores jugadores de la clasificación.
+      </p>
+
+      <p>
+        La posición se determina considerando los aciertos, la puntuación y el tiempo empleado.
+      </p>
+
+      <p>
+        En caso de resultados similares, un menor tiempo permite diferenciar el desempeño de los jugadores.
+      </p>
+    </div>
+  </section>
+
+  <!-- =======================================================
+       BOTÓN VOLVER
+  ======================================================== -->
+  <div class="back-container">
+    <button type="button" class="back-button" (click)="volver()">
+      ← Volver al juego
+    </button>
+  </div>
+</div>

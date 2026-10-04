@@ -1,0 +1,394 @@
+/* ======================================================
+   TABLERO PRINCIPAL
+   IMPORTANTE:
+   conserva las dos columnas separadas como en la captura
+\====================================================== */
+.game-board {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  column-gap: 225px;
+  width: 100%;
+  min-height: 620px;
+}
+
+/* ======================================================
+   COLUMNAS IZQUIERDA Y DERECHA
+\====================================================== */
+.column {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+/* ======================================================
+   TARJETAS DE PALABRAS
+\====================================================== */
+.word-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 75px;
+  padding: 0;
+  border: 1px solid #4b8d12;
+  border-radius: 60px;
+  background: #ffffff;
+  color: #000;
+  font-size: 29px;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    transform 0.15s,
+    background 0.2s,
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+
+.word-card:hover:not(:disabled) {
+  transform: scale(1.005);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+}
+
+/* ======================================================
+   TARJETA IZQUIERDA
+   Texto centrado.
+   Conector a la derecha.
+\====================================================== */
+.left-card {
+  justify-content: center;
+  padding-left: 35px;
+  padding-right: 80px;
+}
+
+/* ======================================================
+   TARJETA DERECHA
+   Texto centrado.
+   Conector a la izquierda.
+\====================================================== */
+.right-card {
+  justify-content: center;
+  padding-left: 80px;
+  padding-right: 35px;
+}
+
+/* ======================================================
+   TEXTO DE LA PALABRA
+\====================================================== */
+.word-text {
+  flex: 1;
+  text-align: center;
+  text-transform: capitalize;
+}
+
+/* ======================================================
+   PALABRA SELECCIONADA
+\====================================================== */
+.word-card.selected {
+  background: #ffe082;
+  border-color: #ffb300;
+  box-shadow: 0 0 0 4px rgba(255, 179, 0, 0.2);
+}
+
+/* ======================================================
+   RESPUESTA CORRECTA
+\====================================================== */
+.word-card.connected {
+  background: #68b910;
+  color: black;
+  border-color: #397800;
+}
+
+.word-card:disabled {
+  cursor: default;
+  opacity: 1;
+}
+
+/* ======================================================
+   PUNTOS NEGROS DE CONEXIÓN
+\====================================================== */
+.connector {
+  position: absolute;
+  top: 50%;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #292929;
+  transform: translateY(-50%);
+  box-shadow: 0 0 0 5px rgba(0, 0, 0, 0.08);
+}
+
+/* CONECTOR DE LA TARJETA IZQUIERDA */
+.connector-right {
+  right: 30px;
+}
+
+/* CONECTOR DE LA TARJETA DERECHA */
+.connector-left {
+  left: 30px;
+}
+
+/* ======================================================
+   IMAGEN DENTRO DE LA TARJETA
+\====================================================== */
+.word-image {
+  width: 90px;
+  height: 70px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-right: 20px;
+}
+
+/* ======================================================
+   SVG DE CONEXIONES
+\====================================================== */
+.connections-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.connections-layer line {
+  stroke-width: 6;
+  stroke-linecap: round;
+}
+
+/* ======================================================
+   LÍNEA CORRECTA
+\====================================================== */
+.correct-line {
+  stroke: #2f3437;
+}
+
+/* ======================================================
+   LÍNEA INCORRECTA
+\====================================================== */
+.wrong-line {
+  stroke: #d32f2f;
+}
+
+/* ======================================================
+   MENSAJE DE CAMBIO DE PANTALLA
+\====================================================== */
+.changing-message {
+  width: 100%;
+  max-width: 500px;
+  margin: 18px auto;
+  padding: 14px 20px;
+  border-radius: 18px;
+  background: #eef7e8;
+  color: #173700;
+  text-align: center;
+  font-size: 17px;
+  font-weight: bold;
+}
+
+/* ======================================================
+   RESPONSIVE - TABLET
+\====================================================== */
+@media (max-width: 1000px) {
+  .game-board {
+    column-gap: 100px;
+    min-height: 540px;
+  }
+
+  .word-card {
+    height: 85px;
+    border-radius: 45px;
+    font-size: 21px;
+  }
+
+  .connector {
+    width: 20px;
+    height: 20px;
+  }
+
+  .connector-right {
+    right: 20px;
+  }
+
+  .connector-left {
+    left: 20px;
+  }
+
+  .left-card {
+    padding-right: 55px;
+  }
+
+  .right-card {
+    padding-left: 55px;
+  }
+}
+
+/* ======================================================
+   RESPONSIVE - CELULAR
+\====================================================== */
+@media (max-width: 600px) {
+
+  /* TABLERO */
+  .game-board {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    column-gap: 42px;
+    min-height: 500px;
+  }
+
+  .column {
+    gap: 8px;
+  }
+
+  /* TARJETAS */
+  .word-card {
+    height: 67px;
+    border-radius: 35px;
+    font-size: 20px;
+  }
+
+  .left-card {
+    padding-left: 8px;
+    padding-right: 30px;
+  }
+
+  .right-card {
+    padding-left: 30px;
+    padding-right: 8px;
+  }
+
+  /* CONECTORES */
+  .connector {
+    width: 14px;
+    height: 14px;
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.08);
+  }
+
+  .connector-right {
+    right: 8px;
+  }
+
+  .connector-left {
+    left: 8px;
+  }
+
+  /* IMÁGENES */
+  .word-image {
+    width: 45px;
+    height: 45px;
+    margin-right: 8px;
+  }
+}
+
+/* =========================================================
+   IMÁGENES - JUEGO DE RELACIONAR
+   ========================================================= */
+/* =========================================================
+   RESULTADO DEL BUSCADOR
+   ORGANIZA TEXTO + IMAGEN A LA DERECHA
+   ========================================================= */
+.word-list-item {
+  display: grid;
+  grid-template-columns: minmax(80px, 110px) 35px minmax(80px, 110px) 1fr 95px;
+  align-items: center;
+  gap: 12px;
+}
+
+/* =========================================================
+   CONTENEDOR DE LA IMAGEN PEQUEÑA
+   EN "PALABRAS ENCONTRADAS"
+   ========================================================= */
+.search-result-image {
+  width: 90px;
+  height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  justify-self: end;
+  flex-shrink: 0;
+  overflow: hidden;
+  border-radius: 10px;
+  background: #f7f7f7;
+  border: 1px solid #dddddd;
+}
+
+/* =========================================================
+   IMAGEN PEQUEÑA DEL BUSCADOR
+   ========================================================= */
+.clickable-search-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  cursor: zoom-in;
+  border-radius: 8px;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+/* =========================================================
+   EFECTO AL PASAR EL MOUSE
+   ========================================================= */
+.clickable-search-image:hover {
+  transform: scale(1.06);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* =========================================================
+   CUANDO UNA PALABRA NO TIENE IMAGEN
+   ========================================================= */
+.no-search-image {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  font-size: 27px;
+  opacity: 0.35;
+}
+
+/* =========================================================
+   IMAGEN PEQUEÑA DENTRO DEL TABLERO
+   ========================================================= */
+.word-image {
+  width: 55px;
+  height: 55px;
+  min-width: 55px;
+  min-height: 55px;
+  max-width: 55px;
+  max-height: 55px;
+  object-fit: contain;
+  display: block;
+  flex-shrink: 0;
+  border-radius: 8px;
+  margin-right: 10px;
+}
+
+/* =========================================================
+   ADAPTACIÓN PARA PANTALLAS PEQUEÑAS
+   ========================================================= */
+@media (max-width: 700px) {
+  .word-list-item {
+    grid-template-columns: 1fr 25px 1fr 1fr 70px;
+    gap: 7px;
+  }
+
+  .search-result-image {
+    width: 65px;
+    height: 55px;
+  }
+
+  .word-image {
+    width: 45px;
+    height: 45px;
+    min-width: 45px;
+    min-height: 45px;
+    max-width: 45px;
+    max-height: 45px;
+    margin-right: 6px;
+  }
+}

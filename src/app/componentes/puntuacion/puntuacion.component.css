@@ -1,0 +1,437 @@
+.score-page {
+  width: min(1180px, calc(100% - 32px));
+  max-width: 1180px;
+  margin: 30px auto;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+  overflow-x: hidden;
+}
+
+.score-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.trophy {
+  font-size: 52px;
+  flex-shrink: 0;
+}
+
+.score-header h1 {
+  margin: 0;
+  font-size: 34px;
+  text-transform: uppercase;
+}
+
+.score-header p {
+  margin: 5px 0 0;
+  font-size: 18px;
+}
+
+.game-navigation {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 25px;
+}
+
+.game-navigation button {
+  border: 1px solid #d5d5d5;
+  border-radius: 9px;
+  padding: 12px 18px;
+  background: white;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.game-navigation button.active {
+  background: #263238;
+  color: white;
+  border-color: #263238;
+}
+
+.score-content {
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr);
+  gap: 22px;
+  align-items: start;
+}
+
+.my-score-card,
+.ranking-card {
+  min-width: 0;
+  box-sizing: border-box;
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 14px;
+  padding: 22px;
+  box-shadow: 0 5px 18px rgba(0, 0, 0, 0.08);
+}
+
+.my-score-card {
+  text-align: center;
+}
+
+.my-score-card h2 {
+  margin-top: 0;
+}
+
+.points-label {
+  display: block;
+  margin-top: 5px;
+  margin-bottom: 25px;
+}
+
+.game-information {
+  display: grid;
+  gap: 10px;
+  text-align: left;
+}
+
+.game-information div {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid #eeeeee;
+}
+
+.game-information strong {
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+.player-form {
+  width: 100%;
+  margin-top: 24px;
+  text-align: left;
+  box-sizing: border-box;
+}
+
+.player-form label {
+  display: block;
+  margin-bottom: 7px;
+  font-weight: 700;
+}
+
+.player-form input {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 12px;
+  border: 1px solid #cccccc;
+  border-radius: 8px;
+  font-size: 16px;
+}
+
+.player-form button {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  margin-top: 10px;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  background: #2e7d32;
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.player-form button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.name-error {
+  margin-top: 7px;
+  color: #c62828;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.input-error {
+  border-color: #e53935 !important;
+}
+
+.save-message {
+  margin-top: 15px;
+  padding: 10px;
+  border-radius: 8px;
+  background: #fff3e0;
+  overflow-wrap: anywhere;
+}
+
+.save-message.success {
+  background: #e8f5e9;
+}
+
+.saved-player {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-top: 18px;
+}
+
+.ranking-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.ranking-title h2,
+.ranking-title p {
+  margin: 0;
+}
+
+.ranking-title p {
+  margin-top: 5px;
+}
+
+.ranking-title > span {
+  white-space: nowrap;
+}
+
+.ranking-table-container {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  padding: 13px 12px;
+  text-align: left;
+  border-bottom: 1px solid #eeeeee;
+}
+
+th {
+  background: #f5f5f5;
+}
+
+.position {
+  width: 100px;
+}
+
+.ranking-points {
+  font-weight: 800;
+}
+
+.empty-ranking {
+  padding: 60px 20px;
+  text-align: center;
+}
+
+.empty-ranking div {
+  font-size: 55px;
+}
+
+.empty-ranking h3 {
+  margin-bottom: 5px;
+}
+
+.ranking-summary {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  margin-top: 12px;
+  font-size: 14px;
+}
+
+.progress-chart-card {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  margin-top: 25px;
+  padding: 22px;
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 14px;
+  box-shadow: 0 5px 18px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+.progress-chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+}
+
+.progress-chart-header h2 {
+  margin: 0;
+}
+
+.progress-chart-header p {
+  margin: 7px 0 0;
+}
+
+.chart-information {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 18px 0;
+}
+
+.chart-container {
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.chart-container canvas {
+  max-width: 100% !important;
+}
+
+.chart-description {
+  overflow-wrap: anywhere;
+}
+
+.back-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 25px;
+}
+
+.back-button {
+  padding: 12px 22px;
+  border: none;
+  border-radius: 8px;
+  background: #424242;
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+@media (max-width: 800px) {
+  .score-page {
+    width: calc(100% - 20px);
+    margin: 15px auto;
+  }
+
+  .score-content {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .score-header h1 {
+    font-size: 27px;
+  }
+
+  .ranking-title {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .my-score-card,
+  .ranking-card {
+    width: 100%;
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 550px) {
+  .score-page {
+    font-size: 21px;
+  }
+
+  .score-header p {
+    font-size: 21px;
+  }
+
+  .game-navigation button {
+    font-size: 21px;
+  }
+
+  .my-score-card h2 {
+    font-size: 26px;
+  }
+
+  .points-label {
+    font-size: 21px;
+  }
+
+  .game-information span,
+  .game-information strong {
+    font-size: 21px;
+  }
+
+  .player-form label {
+    font-size: 21px;
+  }
+
+  .player-form input {
+    font-size: 21px;
+  }
+
+  .player-form button {
+    font-size: 21px;
+  }
+
+  .ranking-title p,
+  .ranking-title > span {
+    font-size: 21px;
+  }
+
+  table {
+    font-size: 21px;
+  }
+
+  .medal {
+    font-size: 21px;
+  }
+
+  .ranking-summary {
+    font-size: 21px;
+  }
+
+  .chart-information,
+  .chart-description {
+    font-size: 21px;
+  }
+
+  .back-button {
+    font-size: 21px;
+  }
+}
+
+@media (max-width: 380px) {
+  .score-page {
+    padding: 7px;
+  }
+
+  .my-score-card,
+  .ranking-card {
+    padding: 12px;
+  }
+
+  .score-header h1 {
+    font-size: 24px;
+  }
+
+  .ranking-title h2 {
+    font-size: 24px;
+  }
+
+  table {
+    font-size: 21px;
+  }
+}

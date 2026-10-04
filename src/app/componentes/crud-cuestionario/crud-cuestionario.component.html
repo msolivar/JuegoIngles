@@ -1,0 +1,576 @@
+<!-- =========================================================
+  CONTENEDOR PRINCIPAL
+========================================================== -->
+<div class="crud-container">
+  <!-- =======================================================
+    ENCABEZADO
+  ======================================================== -->
+  <header class="main-header">
+    <div class="header-icon">📝</div>
+
+    <div>
+      <h1>Crear cuestionario</h1>
+
+      <p>
+        Crea preguntas de selección múltiple, agrega imágenes y define la
+        respuesta correcta.
+      </p>
+    </div>
+  </header>
+
+  <!-- =======================================================
+    MENSAJES
+  ======================================================== -->
+  <div *ngIf="message" class="message" [class.success-message]="messageType === 'success'"
+    [class.error-message]="messageType === 'error'">
+    {{ message }}
+  </div>
+
+  <!-- =======================================================
+    FORMULARIO PRINCIPAL
+  ======================================================== -->
+  <form [formGroup]="cuestionarioForm" (ngSubmit)="saveCuestionario()" class="questionnaire-form">
+
+    <!-- =====================================================
+      INFORMACIÓN GENERAL
+    ====================================================== -->
+    <section class="general-card">
+      <div class="section-title">
+        <span class="section-number"> 1 </span>
+
+        <div>
+          <h2>Información del cuestionario</h2>
+
+          <p>Define la categoría y el tiempo disponible.</p>
+        </div>
+      </div>
+
+      <div class="general-grid">
+        <!-- =================================================
+          CATEGORÍA
+        ================================================== -->
+        <div class="form-field">
+          <label for="categoria">
+            Categoría del cuestionario
+
+            <span class="required">*</span>
+          </label>
+
+          <input id="categoria" type="text" formControlName="categoria" placeholder="Ejemplo: Practice Language Use"
+            [class.invalid-input]="isFieldInvalid('categoria')" />
+
+          <small class="field-error" *ngIf="isFieldInvalid('categoria')">
+            Ingresa una categoría válida.
+          </small>
+        </div>
+
+        <!-- =================================================
+             TIEMPO
+        ================================================== -->
+        <div class="form-field">
+          <label for="tiempoMinutos">
+            Tiempo para responder
+
+            <span class="required">*</span>
+          </label>
+
+          <div class="time-input-wrapper">
+            <input id="tiempoMinutos" type="number" min="1" formControlName="tiempoMinutos"
+              [class.invalid-input]="isFieldInvalid('tiempoMinutos')" />
+
+            <span class="time-unit"> minutos </span>
+          </div>
+
+          <small class="field-error" *ngIf="isFieldInvalid('tiempoMinutos')">
+            El tiempo debe ser mínimo de 1 minuto.
+          </small>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================
+         PREGUNTAS
+    ====================================================== -->
+    <section class="questions-section">
+      <div class="questions-heading">
+        <div class="section-title">
+          <span class="section-number"> 2 </span>
+
+          <div>
+            <h2>Preguntas</h2>
+
+            <p>Agrega las preguntas y selecciona la respuesta correcta.</p>
+          </div>
+        </div>
+
+        <span class="edit-button">
+          {{ preguntas.length }}
+
+          pregunta(s)
+        </span>
+      </div>
+
+      <!-- ===================================================
+           FORM ARRAY DE PREGUNTAS
+      ==================================================== -->
+      <div formArrayName="preguntas">
+        <article class="question-editor-card" *ngFor="
+            let preguntaControl of preguntas.controls;
+            let preguntaIndex = index
+          " [formGroupName]="preguntaIndex">
+          <!-- =================================================
+               ENCABEZADO DE LA PREGUNTA
+          ================================================== -->
+          <div class="question-editor-header">
+            <div class="question-title">
+              <span class="question-number">
+                {{ preguntaIndex + 1 }}
+              </span>
+
+              <h3>Pregunta {{ preguntaIndex + 1 }}</h3>
+            </div>
+
+            <button type="button" class="delete-question-button" (click)="removePregunta(preguntaIndex)"
+              [disabled]="preguntas.length <= 1">
+              🗑 Eliminar pregunta
+            </button>
+          </div>
+
+          <!-- =================================================
+               TEXTO DE LA PREGUNTA
+          ================================================== -->
+          <div class="form-field">
+            <label>
+              Texto de la pregunta
+
+              <span class="required">*</span>
+            </label>
+
+            <textarea rows="5" formControlName="pregunta" placeholder="Escribe aquí el texto, lectura o pregunta..."
+              [class.invalid-input]="isPreguntaFieldInvalid(preguntaIndex, 'pregunta')">
+            </textarea>
+
+            <small class="field-error" *ngIf="isPreguntaFieldInvalid(preguntaIndex, 'pregunta')">
+              Escribe el texto de la pregunta.
+            </small>
+          </div>
+
+          <!-- =================================================
+               URL DE IMAGEN
+          ================================================== -->
+          <div class="form-field">
+            <label>
+              URL de imagen
+
+              <span class="optional"> (opcional) </span>
+            </label>
+
+            <input type="url" formControlName="image" placeholder="https\://..." />
+          </div>
+
+          <!-- =================================================
+               VISTA PREVIA DE LA IMAGEN
+          ================================================== -->
+          <div class="image-preview" *ngIf="preguntaControl.get('image')?.value">
+            <span class="preview-label"> Vista previa </span>
+
+            <img [src]="preguntaControl.get('image')?.value"
+              [alt]="preguntaControl.get('pregunta')?.value || 'Imagen de la pregunta'" (click)="
+                openImage(
+                  preguntaControl.get('image')?.value,
+                  preguntaControl.get('pregunta')?.value
+                )" />
+          </div>
+
+          <!-- =================================================
+               OPCIONES
+          ================================================== -->
+          <div class="options-editor">
+            <div class="options-editor-header">
+              <div>
+                <h4>Opciones de respuesta</h4>
+
+                <p>Marca el círculo de la opción correcta.</p>
+              </div>
+
+              <button type="button" class="edit-button" (click)="addOpcion(preguntaIndex)">
+                + Agregar opción
+              </button>
+            </div>
+
+            <!-- ===============================================
+                 FORM ARRAY OPCIONES
+            ================================================ -->
+            <div formArrayName="opciones" class="option-editor-list">
+              <div class="option-editor-row" *ngFor="
+                  let opcionControl of getOpciones(preguntaIndex).controls;
+                  let opcionIndex = index
+                " [formGroupName]="opcionIndex" [class.correct-option-row]="
+                  isRespuestaCorrecta(
+                    preguntaIndex,
+                    opcionControl.get('id')?.value
+                  )
+                ">
+                <!-- ===========================================
+                     RADIO RESPUESTA CORRECTA
+                ============================================ -->
+                <label class="correct-radio" title="Marcar como respuesta correcta">
+                  <input type="radio" [name]="'respuestaCorrecta-' + preguntaIndex" [checked]="
+                      isRespuestaCorrecta(
+                        preguntaIndex,
+                        opcionControl.get('id')?.value
+                      )" (change)="
+                      setRespuestaCorrecta(
+                        preguntaIndex,
+                        opcionControl.get('id')?.value
+                      )" />
+
+                  <span class="custom-radio"></span>
+                </label>
+
+                <!-- ===========================================
+                     LETRA
+                ============================================ -->
+                <span class="option-letter">
+                  {{ getOptionLetter(opcionIndex) }}
+                </span>
+
+                <!-- ===========================================
+                     TEXTO
+                ============================================ -->
+                <div class="option-input-container">
+                  <input type="text" formControlName="texto"
+                    [placeholder]="'Escribe la opción ' + getOptionLetter(opcionIndex)"
+                    [class.invalid-input]="isOpcionInvalid(preguntaIndex, opcionIndex)" />
+
+                  <small class="field-error" *ngIf="isOpcionInvalid(preguntaIndex, opcionIndex)">
+                    Escribe esta opción.
+                  </small>
+                </div>
+
+                <!-- ===========================================
+                     ELIMINAR OPCIÓN
+                ============================================ -->
+                <button type="button" class="delete-option-button" title="Eliminar opción"
+                  [disabled]="getOpciones(preguntaIndex).length <= 2"
+                  (click)="removeOpcion(preguntaIndex, opcionIndex)">
+                  ✕
+                </button>
+              </div>
+            </div>
+
+            <!-- ===============================================
+                 ERROR RESPUESTA CORRECTA
+            ================================================ -->
+            <div class="result-detail-button no-results" *ngIf="
+                preguntaControl.get('respuestaCorrecta')?.invalid &&
+                preguntaControl.get('respuestaCorrecta')?.touched
+              ">
+              ⚠️ Selecciona cuál opción es la respuesta correcta.
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <!-- ===================================================
+           AGREGAR PREGUNTA
+      ==================================================== -->
+      <button type="button" class="add-question-button" (click)="addPregunta()">
+        ＋ Agregar otra pregunta
+      </button>
+    </section>
+
+    <!-- =====================================================
+         BOTONES GUARDAR / CANCELAR
+    ====================================================== -->
+    <div class="form-actions">
+      <button type="submit" class="save-button" [disabled]="saving">
+        <ng-container *ngIf="!saving">
+          {{
+          isEditing ? "💾 Actualizar cuestionario" : "💾 Guardar cuestionario"
+          }}
+        </ng-container>
+
+        <ng-container *ngIf="saving"> ⏳ Guardando... </ng-container>
+      </button>
+
+      <button *ngIf="isEditing" type="button" class="cancel-button" (click)="cancelEdit()" [disabled]="saving">
+        ✕ Cancelar edición
+      </button>
+    </div>
+  </form>
+
+  <!-- =======================================================
+       CUESTIONARIOS GUARDADOS
+  ======================================================== -->
+  <section class="saved-section">
+    <!-- =====================================================
+         ENCABEZADO
+    ====================================================== -->
+    <div class="saved-header">
+      <div>
+        <h2>📚 Cuestionarios guardados</h2>
+
+        <p>
+          {{ totalCuestionarios }} cuestionario(s) {{ totalPreguntas }} pregunta(s)
+        </p>
+      </div>
+    </div>
+
+    <!-- =====================================================
+         BUSCADOR
+    ====================================================== -->
+    <div class="game-setup-dashboard">
+      <div class="setup-field full-width search-setup">
+        <label for="searchWord">🔎 Buscar Cuestionario</label>
+
+        <input id="searchWord" type="text" [value]="searchTerm" (input)="onSearchChange($any($event.target).value)"
+          placeholder="Buscar categoría, pregunta u opción..." />
+
+        <!-- <button *ngIf="searchTerm" type="button" class="hint-close" title="Limpiar búsqueda"
+        (click)="onSearchChange('')">
+        ✕
+      </button> -->
+      </div>
+    </div>
+
+    <!-- =====================================================
+         CARGANDO
+    ====================================================== -->
+    <div class="loading-saved" *ngIf="loading">
+      ⏳ Cargando cuestionarios...
+    </div>
+
+    <!-- =====================================================
+         SIN RESULTADOS
+    ====================================================== -->
+    <div class="empty-saved" *ngIf="!loading && filteredCuestionarios.length === 0">
+      <div class="empty-icon">📭</div>
+
+      <h3>No se encontraron cuestionarios</h3>
+
+      <p *ngIf="searchTerm">No hay resultados para “{{ searchTerm }}”.</p>
+
+      <p *ngIf="!searchTerm">Aún no has guardado cuestionarios.</p>
+    </div>
+
+    <!-- =====================================================
+         LISTADO DE CUESTIONARIOS
+    ====================================================== -->
+    <div class="saved-list" *ngIf="!loading && filteredCuestionarios.length > 0">
+      <article class="saved-questionnaire" *ngFor="
+          let cuestionario of filteredCuestionarios;
+          trackBy: trackByCuestionario
+        ">
+        <!-- =================================================
+             CABECERA DEL CUESTIONARIO
+        ================================================== -->
+        <div class="saved-questionnaire-header">
+          <div class="saved-title-area">
+            <div class="category-icon">🏷️</div>
+
+            <div>
+              <h3>
+                {{ cuestionario.categoria }}
+              </h3>
+
+              <div class="questionnaire-meta">
+                <span>
+                  ❓{{ cuestionario.preguntas.length }} pregunta(s)
+                </span>
+
+                <span>
+                  ⏱️{{ cuestionario.tiempoMinutos }} minutos
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- ===============================================
+               EDITAR / ELIMINAR
+          ================================================ -->
+          <div class="saved-actions">
+            <button type="button" class="print-vocabulary-button" (click)="printQuestionnaire(cuestionario)">
+              🖨️ Imprimir
+            </button>
+
+            <button type="button" class="edit-button" (click)="editCuestionario(cuestionario)">
+              📝 Editar
+            </button>
+
+            <button type="button" class="delete-button" (click)="deleteCuestionario(cuestionario)">
+              🗑 Eliminar
+            </button>
+          </div>
+        </div>
+
+        <!-- =================================================
+             PAGINACIÓN SUPERIOR
+        ================================================== -->
+        <div class="question-pagination-container top-pagination" *ngIf="cuestionario.preguntas.length > 0">
+          <div class="pagination-information">
+            <strong>
+              {{ getQuestionPaginationText(cuestionario) }}
+            </strong>
+
+            <span>
+              Página
+              {{ getQuestionPage(cuestionario.id) }}
+              de
+              {{ getTotalQuestionPages(cuestionario) }}
+            </span>
+          </div>
+
+          <div class="pagination-controls" *ngIf="getTotalQuestionPages(cuestionario) > 1">
+            <!-- =============================================
+                 ANTERIOR
+            ============================================== -->
+            <button type="button" class="pagination-arrow" [disabled]="isFirstQuestionPage(cuestionario)"
+              (click)="previousQuestionPage(cuestionario)">
+              ← Anterior
+            </button>
+
+            <!-- =============================================
+                 NÚMEROS DE PÁGINA
+            ============================================== -->
+            <button type="button" class="pagination-number" *ngFor="let page of getQuestionPageNumbers(cuestionario)"
+              [class.active-page]="page === getQuestionPage(cuestionario.id)"
+              (click)="goToQuestionPage(cuestionario, page)">
+              {{ page }}
+            </button>
+
+            <!-- =============================================
+                 SIGUIENTE
+            ============================================== -->
+            <button type="button" class="pagination-arrow" [disabled]="isLastQuestionPage(cuestionario)"
+              (click)="nextQuestionPage(cuestionario)">
+              Siguiente →
+            </button>
+          </div>
+        </div>
+
+        <!-- =================================================
+             PREGUNTAS PAGINADAS
+             IMPORTANTE:
+             AQUÍ SOLO SE RENDERIZAN 10
+        ================================================== -->
+        <div class="saved-questions">
+          <article class="saved-question" *ngFor="
+              let pregunta of getPaginatedQuestions(cuestionario);
+              let preguntaIndex = index;
+              trackBy: trackByPregunta
+            ">
+            <!-- ===============================================
+                 NÚMERO REAL
+            ================================================ -->
+            <div class="saved-question-number">
+              {{ getRealQuestionNumber(cuestionario, preguntaIndex) }}
+            </div>
+
+            <!-- ===============================================
+                 CONTENIDO
+            ================================================ -->
+            <div class="saved-question-content">
+              <!-- =============================================
+                   TEXTO
+              ============================================== -->
+              <h4>
+                {{ pregunta.pregunta }}
+              </h4>
+
+              <!-- =============================================
+                   IMAGEN
+              ============================================== -->
+              <div class="saved-image-container" *ngIf="pregunta.image">
+                <img [src]="pregunta.image" [alt]="pregunta.pregunta" title="Haz clic para ampliar"
+                  (click)="openImage(pregunta.image, pregunta.pregunta)" />
+              </div>
+
+              <!-- =============================================
+                   OPCIONES
+              ============================================== -->
+              <div class="saved-options">
+                <div class="saved-option" *ngFor="
+                    let opcion of pregunta.opciones;
+                    let opcionIndex = index;
+                    trackBy: trackByOpcion
+                  " [class.saved-correct-option]="
+                    opcion.id === pregunta.respuestaCorrecta
+                  ">
+                  <span class="saved-option-letter">
+                    {{ getOptionLetter(opcionIndex) }}.
+                  </span>
+
+                  <span class="saved-option-text">
+                    {{ opcion.texto }}
+                  </span>
+
+                  <span class="correct-badge" *ngIf="opcion.id === pregunta.respuestaCorrecta">
+                    ✓ Correcta
+                  </span>
+                </div>
+              </div>
+
+              <!-- =============================================
+                   RESPUESTA CORRECTA
+              ============================================== -->
+              <div class="correct-answer-summary">
+                <strong> Respuesta correcta: </strong>
+
+                <span>
+                  {{ getCorrectAnswerLetter(pregunta) }}. {{ getCorrectAnswerText(pregunta) }}
+                </span>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <!-- =================================================
+             PAGINACIÓN INFERIOR
+        ================================================== -->
+        <div class="question-pagination-container bottom-pagination" *ngIf="getTotalQuestionPages(cuestionario) > 1">
+          <div class="pagination-information">
+            <strong>
+              {{ getQuestionPaginationText(cuestionario) }}
+            </strong>
+          </div>
+
+          <div class="pagination-controls">
+            <button type="button" class="pagination-arrow" [disabled]="isFirstQuestionPage(cuestionario)"
+              (click)="previousQuestionPage(cuestionario)">
+              ← Anterior
+            </button>
+
+            <button type="button" class="pagination-number" *ngFor="let page of getQuestionPageNumbers(cuestionario)"
+              [class.active-page]="page === getQuestionPage(cuestionario.id)"
+              (click)="goToQuestionPage(cuestionario, page)">
+              {{ page }}
+            </button>
+
+            <button type="button" class="pagination-arrow" [disabled]="isLastQuestionPage(cuestionario)"
+              (click)="nextQuestionPage(cuestionario)">
+              Siguiente →
+            </button>
+          </div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- =======================================================
+       MODAL IMAGEN
+  ======================================================== -->
+  <div class="image-modal-overlay" *ngIf="selectedImage" (click)="closeImage()">
+    <div class="image-modal-content" (click)="$event.stopPropagation()">
+      <button type="button" class="image-modal-close" (click)="closeImage()" aria-label="Cerrar imagen">
+        ✕
+      </button>
+
+      <div class="image-modal-question" *ngIf="selectedImageQuestion">
+        {{ selectedImageQuestion }}
+      </div>
+
+      <img [src]="selectedImage" [alt]="selectedImageQuestion || 'Imagen ampliada'" />
+    </div>
+  </div>
+</div>

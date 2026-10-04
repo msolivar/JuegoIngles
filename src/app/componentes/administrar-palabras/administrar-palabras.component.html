@@ -1,0 +1,427 @@
+<div class="words-admin">
+  <!-- =====================================================
+       TÍTULO
+  ====================================================== -->
+  <h1 class="title">🎮 Parejas de palabras</h1>
+
+  <!-- =====================================================
+       FORMULARIO REACTIVO
+  ====================================================== -->
+  <form class="game-setup-dashboard" [formGroup]="registroForm" (ngSubmit)="savePair()">
+    <!-- ===================================================
+         AVISO DE EDICIÓN
+    ==================================================== -->
+    <div class="setup-field full-width" *ngIf="isEditing">
+      <label>✏️ Estás modificando una palabra existente</label>
+    </div>
+
+    <!-- ===================================================
+         VERBO
+    ==================================================== -->
+    <div class="setup-row">
+      <div class="setup-field">
+        <label for="left"> Verbo </label>
+
+        <input id="left" type="text" formControlName="left" placeholder="Ej. Think" />
+
+        <div class="no-results" *ngIf="leftControl?.touched && leftControl?.hasError('required')">
+          El verbo es obligatorio.
+        </div>
+        <div class="no-results" *ngIf="leftControl?.touched && leftControl?.hasError('minlength')">
+          El verbo debe tener mínimo 2 caracteres.
+        </div>
+      </div>
+
+      <!-- ===================================================
+         PAREJA
+    ==================================================== -->
+      <div class="setup-field">
+        <label for="right"> Pareja </label>
+
+        <input id="right" type="text" formControlName="right" placeholder="Ej. Thought" />
+
+        <div class="no-results" *ngIf="rightControl?.touched && rightControl?.hasError('required')">
+          La pareja es obligatoria.
+        </div>
+
+        <div class="no-results" *ngIf="rightControl?.touched && rightControl?.hasError('minlength')">
+          La pareja debe tener mínimo 2 caracteres.
+        </div>
+      </div>
+    </div>
+
+    <!-- ===================================================
+         SIGNIFICADO
+    ==================================================== -->
+    <div class="setup-row">
+      <div class="setup-field">
+        <label for="meaning"> Significado </label>
+
+        <input id="meaning" type="text" formControlName="meaning" placeholder="Ej. Pensar" />
+
+        <div class="no-results" *ngIf="meaningControl?.touched && meaningControl?.hasError('required')">
+          El significado es obligatorio.
+        </div>
+
+        <div class="no-results" *ngIf="meaningControl?.touched && meaningControl?.hasError('minlength')">
+          El significado debe tener mínimo 2 caracteres.
+        </div>
+      </div>
+
+      <div class="setup-field">
+        <label for="categoriaPalabra"> Categoría palabra </label>
+
+        <input id="categoriaPalabra" type="text" formControlName="categoriaPalabra" placeholder="Ej. Verbo Irregular" />
+
+        <div class="no-results" *ngIf="categoriaControl?.touched && categoriaControl?.hasError('required')">
+          La categoría es obligatoria.
+        </div>
+
+        <div class="no-results" *ngIf="categoriaControl?.touched && categoriaControl?.hasError('minlength')">
+          La categoría debe tener mínimo 2 caracteres.
+        </div>
+      </div>
+    </div>
+
+    <!-- ===================================================
+     IMAGEN
+    ==================================================== -->
+    <div class="setup-field">
+      <label for="image"> Imagen </label>
+
+      <input id="image" type="url" formControlName="image" placeholder="URL de imagen" autocomplete="off" />
+
+      <div class="no-results" *ngIf="imageControl?.touched && imageControl?.hasError('required')">
+        La URL de la imagen es obligatoria.
+      </div>
+    </div>
+
+    <!-- ===================================================
+         BOTONES DEL FORMULARIO
+    ==================================================== -->
+    <!-- GUARDAR -->
+    <button *ngIf="!isEditing" type="submit" class="save-button" [disabled]="saving">
+      💾
+      {{ saving ? "Guardando..." : "Guardar palabra" }}
+    </button>
+
+    <!-- ACTUALIZAR -->
+    <button *ngIf="isEditing" type="submit" class="edit-button" [disabled]="saving">
+      ✏️
+      {{ saving ? "Actualizando..." : "Actualizar palabra" }}
+    </button>
+
+    <!-- CANCELAR EDICIÓN -->
+    <button *ngIf="isEditing" type="button" class="cancel-button" (click)="cancelEdit()">
+      ✖ Cancelar edición
+    </button>
+
+    <!-- ===================================================
+     VISTA PREVIA
+     OCUPA TODO EL ANCHO DEL FORMULARIO
+    ==================================================== -->
+
+    <div class="image-preview-container" *ngIf="registroForm.get('image')?.value">
+      <span class="image-preview-title"> Vista previa </span>
+
+      <img class="image-preview" [src]="registroForm.get('image')?.value"
+        [alt]="registroForm.get('left')?.value || 'Vista previa de la imagen'" title="Haz clic para ampliar" (click)="
+          openImage(
+            registroForm.get('image')?.value,
+            registroForm.get('left')?.value || '',
+            registroForm.get('meaning')?.value || ''
+          )
+        " />
+
+      <small class="image-preview-help">
+        Haz clic en la imagen para ampliarla
+      </small>
+    </div>
+
+    <!-- ===================================================
+         MENSAJE GENERAL
+    ==================================================== -->
+    <div *ngIf="message" class="no-results" [class.success-message]="messageType === 'success'"
+      [class.delete-button]="messageType === 'error'">
+      {{ message }}
+    </div>
+  </form>
+
+  <!-- =====================================================
+       BUSCADOR AUTOMÁTICO
+  ====================================================== -->
+  <div class="game-setup-dashboard">
+    <div class="setup-field full-width search-setup">
+      <h2>🔎 Buscar palabra</h2>
+
+      <input type="text" [(ngModel)]="searchTerm" (ngModelChange)="onSearchChange()"
+        placeholder="Buscar por verbo, pareja, significado o categoría..." autocomplete="off" />
+
+
+    </div>
+    <!-- =====================================================
+        IMPRIMIR CUESTIONARIO
+      ====================================================== -->
+    <button type="button" class="print-vocabulary-button" (click)="printQuestionnaire()">
+      🖨️ Imprimir cuestionario
+    </button>
+  </div>
+
+  <!-- =====================================================
+       TOTAL DE PALABRAS
+  ====================================================== -->
+  <div class="total-words">
+    📚 Palabras almacenadas actualmente:
+
+    <strong>
+      {{ pairs.length }}
+    </strong>
+  </div>
+
+  <!-- =====================================================
+       CONTROLES DEL LISTADO
+       ORDENAR + MOSTRAR EN LA MISMA FILA
+  ====================================================== -->
+  <div class="list-controls">
+    <!-- ===================================================
+         ORDENAR POR
+    ==================================================== -->
+    <div class="sort-section">
+      <label for="sortOrder"> 📋 Ordenar por: </label>
+
+      <select id="sortOrder" [(ngModel)]="sortOrder" (ngModelChange)="changeSortOrder()">
+        <option value="latest">🕒 Última guardada primero</option>
+
+        <option value="alphabetical">🔤 Orden alfabético A-Z</option>
+      </select>
+    </div>
+
+    <!-- ===================================================
+         MOSTRAR
+    ==================================================== -->
+    <div class="page-size-section">
+      <label for="pageSize"> 👁️ Mostrar: </label>
+
+      <select id="pageSize" [(ngModel)]="pageSize" (ngModelChange)="changePageSize()">
+        <option [ngValue]="10">10 palabras por página</option>
+
+        <option [ngValue]="30">30 palabras por página</option>
+
+        <option [ngValue]="'all'">Mostrar todo</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- =====================================================
+       PAGINACIÓN
+  ====================================================== -->
+  <div class="pagination" *ngIf="pageSize !== 'all' && sortedPairs.length > 0">
+    <!-- ===================================================
+         BOTÓN ANTERIOR
+    ==================================================== -->
+    <button type="button" class="pagination-button" (click)="previousPage()" [disabled]="currentPage === 1">
+      ◀ Anterior
+    </button>
+
+    <!-- ===================================================
+         NÚMEROS DE PÁGINA
+    ==================================================== -->
+    <button type="button" class="page-number" *ngFor="let page of pageNumbers"
+      [class.active-page]="page === currentPage" (click)="goToPage(page)">
+      {{ page }}
+    </button>
+
+    <!-- ===================================================
+         BOTÓN SIGUIENTE
+    ==================================================== -->
+    <button type="button" class="pagination-button" (click)="nextPage()" [disabled]="currentPage === totalPages">
+      Siguiente ▶
+    </button>
+  </div>
+
+  <!-- =====================================================
+       INFORMACIÓN DE LA PÁGINA ACTUAL
+  ====================================================== -->
+  <div class="pagination-info" *ngIf="pageSize !== 'all' && sortedPairs.length > 0">
+    Página
+
+    <strong>
+      {{ currentPage }}
+    </strong>
+
+    de
+
+    <strong>
+      {{ totalPages }}
+    </strong>
+  </div>
+
+  <!-- =====================================================
+       LISTA DE PALABRAS
+  ====================================================== -->
+  <div class="pairs-list">
+    <!-- ===================================================
+         SIN RESULTADOS
+    ==================================================== -->
+    <div class="no-results" *ngIf="searchTerm.trim().length > 0 && sortedPairs.length === 0">
+      No se encontraron palabras.
+    </div>
+
+    <!-- ===================================================
+         TARJETAS
+    ==================================================== -->
+    <div class="pair-card" *ngFor="let pair of paginatedPairs">
+      <!-- =================================================
+           IMAGEN
+      ================================================== -->
+      <div class="pair-image">
+        <!-- IMAGEN DISPONIBLE -->
+        <img *ngIf="pair.image" [src]="pair.image" [alt]="pair.left" class="clickable-image"
+          title="Haz clic para ampliar" (click)="openImage(pair.image, pair.left, pair.meaning)" />
+
+        <!-- SIN IMAGEN -->
+        <span *ngIf="!pair.image"> 🖼️ </span>
+      </div>
+
+      <!-- =================================================
+           INFORMACIÓN
+      ================================================== -->
+      <div class="pair-content">
+        <!-- CATEGORÍA -->
+        <div class="category">
+          🏷️
+          {{ pair.categoriaPalabra }}
+        </div>
+
+        <!-- SIGNIFICADO -->
+        <div class="meaning">
+          {{ pair.meaning }}
+        </div>
+
+        <!-- VERBO Y PAREJA -->
+        <div class="verbs">
+          <strong>
+            {{ pair.left }}
+          </strong>
+
+          <span class="arrow"> ➜ </span>
+
+          <strong>
+            {{ pair.right }}
+          </strong>
+        </div>
+      </div>
+
+      <!-- =================================================
+           ACCIONES
+      ================================================== -->
+      <div class="pair-actions">
+        <!-- EDITAR -->
+        <button type="button" class="edit-button" (click)="loadForEdit(pair)">
+          ✏️ Editar
+        </button>
+        <!-- ELIMINAR -->
+        <button type="button" class="delete-button" (click)="deletePair(pair)">
+          🗑️ Eliminar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =====================================================
+       PAGINACIÓN INFERIOR
+  ====================================================== -->
+  <div class="pagination" *ngIf="pageSize !== 'all' && sortedPairs.length > 0">
+    <!-- ===================================================
+         ANTERIOR
+    ==================================================== -->
+    <button type="button" class="pagination-button" (click)="previousPage()" [disabled]="currentPage === 1">
+      ◀ Anterior
+    </button>
+
+    <!-- ===================================================
+         NÚMEROS DE PÁGINA
+    ==================================================== -->
+    <button type="button" class="page-number" *ngFor="let page of pageNumbers"
+      [class.active-page]="page === currentPage" (click)="goToPage(page)">
+      {{ page }}
+    </button>
+
+    <!-- ===================================================
+         SIGUIENTE
+    ==================================================== -->
+    <button type="button" class="pagination-button" (click)="nextPage()" [disabled]="currentPage === totalPages">
+      Siguiente ▶
+    </button>
+  </div>
+
+  <!-- =====================================================
+       INFORMACIÓN DE PÁGINA
+  ====================================================== -->
+  <div class="pagination-info" *ngIf="pageSize !== 'all' && sortedPairs.length > 0">
+    Página
+
+    <strong>
+      {{ currentPage }}
+    </strong>
+
+    de
+
+    <strong>
+      {{ totalPages }}
+    </strong>
+  </div>
+
+  <!-- =====================================================
+       INFORMACIÓN CUANDO SE MUESTRA TODO
+  ====================================================== -->
+  <div class="pagination-info" *ngIf="pageSize === 'all' && sortedPairs.length > 0">
+    Mostrando
+
+    <strong>
+      {{ sortedPairs.length }}
+    </strong>
+
+    palabra(s)
+  </div>
+
+  <!-- =====================================================
+       VISOR DE IMAGEN AMPLIADA
+  ====================================================== -->
+  <div class="image-modal-overlay" *ngIf="selectedImage" (click)="closeImage()">
+    <!-- ===================================================
+         CONTENEDOR DEL VISOR
+    ==================================================== -->
+    <div class="image-modal-content" (click)="$event.stopPropagation()">
+      <!-- =================================================
+           BOTÓN CERRAR
+      ================================================== -->
+      <button type="button" class="image-modal-close" (click)="closeImage()" aria-label="Cerrar imagen">
+        ✕
+      </button>
+
+      <div class="image-modal-caption">
+        <!-- =================================================
+           PALABRA EN INGLÉS
+        ================================================== -->
+        <span class="image-modal-word" *ngIf="selectedImageWord">
+          {{ selectedImageWord }}
+        </span>
+
+        <!-- =================================================
+           SIGNIFICADO
+        ================================================== -->
+        <span class="image-modal-word" *ngIf="selectedImageMeaning">
+          <strong> - </strong>
+
+          {{ selectedImageMeaning }}
+        </span>
+      </div>
+
+      <!-- =================================================
+           IMAGEN GRANDE
+      ================================================== -->
+      <img [src]="selectedImage" [alt]="selectedImageWord || 'Imagen ampliada'" />
+    </div>
+  </div>
+</div>

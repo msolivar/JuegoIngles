@@ -1,0 +1,144 @@
+<div class="contenedor">
+    <div class="tarjeta">
+        <h2>
+            {{ editando ? "Editar usuario" : "Registrar usuario" }}
+        </h2>
+
+        <form [formGroup]="formularioUsuario" (ngSubmit)="guardarUsuario()">
+            <!-- NOMBRE -->
+            <div class="campo">
+                <label for="nombre"> Nombre </label>
+
+                <input type="text" id="nombre" formControlName="nombre" placeholder="Ingrese el nombre"
+                    [class.input-error]="nombre?.invalid && nombre?.touched" />
+
+                <div class="mensaje-error" *ngIf="nombre?.invalid && nombre?.touched">
+                    <small *ngIf="nombre?.errors?.['required']">
+                        El nombre es obligatorio.
+                    </small>
+                </div>
+            </div>
+
+            <!-- APELLIDO -->
+            <div class="campo">
+                <label for="apellido"> Apellido </label>
+
+                <input type="text" id="apellido" formControlName="apellido" placeholder="Ingrese el apellido"
+                    [class.input-error]="apellido?.invalid && apellido?.touched" />
+
+                <div class="mensaje-error" *ngIf="apellido?.invalid && apellido?.touched">
+                    <small *ngIf="apellido?.errors?.['required']">
+                        El apellido es obligatorio.
+                    </small>
+                </div>
+            </div>
+
+            <!-- CORREO -->
+            <div class="campo">
+                <label for="correo"> Correo electrónico </label>
+
+                <input type="email" id="correo" formControlName="correo" placeholder="correo@ejemplo.com"
+                    [class.input-error]="correo?.invalid && correo?.touched" />
+
+                <div class="mensaje-error" *ngIf="correo?.invalid && correo?.touched">
+                    <small *ngIf="correo?.errors?.['required']">
+                        El correo es obligatorio.
+                    </small>
+
+                    <small *ngIf="correo?.errors?.['email']">
+                        Ingrese un correo electrónico válido.
+                    </small>
+                </div>
+            </div>
+
+            <!-- TELÉFONO -->
+            <div class="campo">
+                <label for="telefono"> Teléfono </label>
+
+                <input type="text" id="telefono" formControlName="telefono" placeholder="Ingrese el teléfono"
+                    [class.input-error]="telefono?.invalid && telefono?.touched" />
+
+                <div class="mensaje-error" *ngIf="telefono?.invalid && telefono?.touched">
+                    <small *ngIf="telefono?.errors?.['required']">
+                        El teléfono es obligatorio.
+                    </small>
+
+                    <small *ngIf="telefono?.errors?.['minlength']">
+                        El teléfono debe tener mínimo 7 caracteres.
+                    </small>
+                </div>
+            </div>
+
+            <!-- BOTONES -->
+            <div class="botones">
+                <button type="submit" class="btn btn-guardar">
+                    {{ editando ? "Actualizar usuario" : "Registrar usuario" }}
+                </button>
+
+                <button *ngIf="editando" type="button" class="btn btn-cancelar" (click)="cancelarEdicion()">
+                    Cancelar
+                </button>
+            </div>
+        </form>
+
+        <!-- MENSAJE GENERAL -->
+        <div class="mensaje-general" *ngIf="mensaje">
+            {{ mensaje }}
+        </div>
+    </div>
+
+    <!-- LISTADO DE USUARIOS -->
+    <div class="tarjeta lista-usuarios">
+        <h2>Usuarios registrados</h2>
+
+        <!-- SIN USUARIOS -->
+        <div class="sin-registros" *ngIf="usuarios.length === 0">
+            No hay usuarios registrados.
+        </div>
+
+        <!-- TABLA -->
+        <div class="tabla-contenedor" *ngIf="usuarios.length > 0">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Apellido</th>
+                        <th>Correo</th>
+                        <th>Teléfono</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr *ngFor="let usuario of usuarios">
+                        <td>
+                            {{ usuario.nombre }}
+                        </td>
+
+                        <td>
+                            {{ usuario.apellido }}
+                        </td>
+
+                        <td>
+                            {{ usuario.correo }}
+                        </td>
+
+                        <td>
+                            {{ usuario.telefono }}
+                        </td>
+
+                        <td class="acciones">
+                            <button type="button" class="btn-editar" (click)="editarUsuario(usuario)">
+                                Editar
+                            </button>
+
+                            <button type="button" class="btn-eliminar" (click)="eliminarUsuario(usuario)">
+                                Eliminar
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
