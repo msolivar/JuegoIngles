@@ -496,9 +496,13 @@
         <!-- =================================================
              BOTÓN CERRAR
         ================================================== -->
-        <button type="button" class="results-detail-close" (click)="closeResultsDetail()" aria-label="Cerrar">
-          ✕
-        </button>
+        <div class="espacio-100">
+          <button type="button" class="results-detail-close" (click)="closeResultsDetail()"
+            aria-label="Cerrar">
+            ✕
+          </button>
+        </div>
+
         <!-- ===================================================
            CORRECTAS
       ==================================================== -->
@@ -560,8 +564,8 @@
             🎉 ¡No cometiste ningún error!
           </div>
 
-          <div class="results-detail-actions">
-            <button *ngIf="showingErrorWords && wordsWithErrors.length > 0" type="button"
+          <div class="results-detail-actions" *ngIf="wordsWithErrors.length > 5">
+            <button *ngIf="showingErrorWords" type="button"
               class="result-detail-button practice-errors-button" (click)="practiceErrorWords()">
               🎯 Practicar mis errores
             </button>
