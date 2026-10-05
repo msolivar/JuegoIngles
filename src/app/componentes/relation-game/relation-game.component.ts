@@ -397,8 +397,6 @@ export class RelationGameComponent implements AfterViewInit {
 
     this.reviewType = 'right';
 
-    this.wordOrder = 'random';
-
     this.searchTerm = '';
 
     this.practicingOnlyErrors = false;
@@ -496,7 +494,6 @@ export class RelationGameComponent implements AfterViewInit {
     this.currentPage = 0;
     this.searchTerm = '';
     this.reviewType = 'right';
-    this.wordOrder = 'random';
     this.loadError = '';
     this.pairErrors = {};
     this.practicingOnlyErrors = false;

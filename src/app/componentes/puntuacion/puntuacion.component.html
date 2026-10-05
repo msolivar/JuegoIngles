@@ -365,6 +365,24 @@
   </section>
 
   <!-- =======================================================
+       NAVEGACIÓN ENTRE JUEGOS
+  ======================================================== -->
+  <nav class="game-navigation" *ngIf="!cargandoRanking && jugadores.length > 5">
+    <button type="button" [class.active]="juego === 'unir-palabra'" (click)="seleccionarJuego('unir-palabra')"
+      [disabled]="cargandoRanking">
+      🔗 Unir palabra
+    </button>
+    <button type="button" [class.active]="juego === 'completar-palabra'" (click)="seleccionarJuego('completar-palabra')"
+      [disabled]="cargandoRanking">
+      ✏️ Completar palabra
+    </button>
+    <button type="button" [class.active]="juego === 'cuestionario'" (click)="seleccionarJuego('cuestionario')"
+      [disabled]="cargandoRanking">
+      📝 Cuestionario
+    </button>
+  </nav>
+
+  <!-- =======================================================
        BOTÓN VOLVER
   ======================================================== -->
   <div class="back-container">
