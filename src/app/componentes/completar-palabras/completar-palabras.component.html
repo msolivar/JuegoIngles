@@ -60,23 +60,56 @@
           <small> Disponible: {{ pairs.length }} pregunta(s) </small>
         </div>
 
-        <!-- ORDEN -->
+        <!-- =====================================================
+     ORDEN DE LAS PALABRAS
+====================================================== -->
         <div class="setup-field">
-          <label for="wordOrder"> 🔀 Orden de las palabras </label>
+
+          <label for="wordOrder">
+            🔀 Orden de las palabras
+          </label>
 
           <select id="wordOrder" [(ngModel)]="wordOrder">
-            <option value="random">Aleatorio</option>
 
-            <option value="original">Orden original</option>
+            <!-- ALEATORIO -->
+            <option value="random">
+              Aleatorio
+            </option>
+
+            <!-- ORDEN ORIGINAL DE FIREBASE -->
+            <option value="original">
+              Orden original
+            </option>
+
+            <!-- ASCENDENTE -->
+            <option value="ascending">
+              Ascendente (A → Z)
+            </option>
+
+            <!-- DESCENDENTE -->
+            <option value="descending">
+              Descendente (Z → A)
+            </option>
+
           </select>
 
+          <!-- DESCRIPCIÓN -->
           <small *ngIf="wordOrder === 'random'">
             Las palabras aparecerán mezcladas.
           </small>
 
           <small *ngIf="wordOrder === 'original'">
-            Las palabras aparecerán en su orden original.
+            Las palabras conservarán su orden original.
           </small>
+
+          <small *ngIf="wordOrder === 'ascending'">
+            Las palabras aparecerán de la A a la Z.
+          </small>
+
+          <small *ngIf="wordOrder === 'descending'">
+            Las palabras aparecerán de la Z a la A.
+          </small>
+
         </div>
       </div>
 
@@ -193,6 +226,14 @@
          JUEGO
     ====================================================== -->
     <ng-container *ngIf="!gameFinished && pages.length > 0">
+
+      <!-- ===================================================
+           CAMBIANDO PÁGINA
+      ==================================================== -->
+      <div class="changing-page-message" *ngIf="changingPage">
+        Cargando siguiente pantalla...
+      </div>
+
       <!-- ===================================================
            ENCABEZADO
       ==================================================== -->
@@ -230,7 +271,7 @@
                   &nbsp;
                 </span>
                 <!-- LETRA VISIBLE -->
-                <span *ngIf="!cell.isSpace && !cell.hidden" class="visible-letter">
+                <span *ngIf="!cell.isSpace && !cell.hidden" class="visible-letter1">
                   {{ cell.letter }}
                 </span>
                 <!-- LETRA OCULTA -->
@@ -261,7 +302,7 @@
                   &nbsp;
                 </span>
                 <!-- LETRA VISIBLE -->
-                <span *ngIf="!cell.isSpace && !cell.hidden" class="visible-letter">
+                <span *ngIf="!cell.isSpace && !cell.hidden" class="visible-letter1">
                   {{ cell.letter }}
                 </span>
                 <!-- LETRA OCULTA -->
@@ -497,8 +538,7 @@
              BOTÓN CERRAR
         ================================================== -->
         <div class="espacio-100">
-          <button type="button" class="results-detail-close" (click)="closeResultsDetail()"
-            aria-label="Cerrar">
+          <button type="button" class="results-detail-close" (click)="closeResultsDetail()" aria-label="Cerrar">
             ✕
           </button>
         </div>
@@ -565,8 +605,8 @@
           </div>
 
           <div class="results-detail-actions" *ngIf="wordsWithErrors.length > 3">
-            <button *ngIf="showingErrorWords" type="button"
-              class="result-detail-button practice-errors-button" (click)="practiceErrorWords()">
+            <button *ngIf="showingErrorWords" type="button" class="result-detail-button practice-errors-button"
+              (click)="practiceErrorWords()">
               🎯 Practicar mis errores
             </button>
           </div>

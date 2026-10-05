@@ -46,9 +46,7 @@ interface ExercisePair {
   templateUrl: './completar-palabras.component.html',
   styleUrls: ['./completar-palabras.component.css'],
 })
-
 export class CompletarPalabrasComponent {
-
   // =========================================================
   // TODAS LAS PALABRAS DE FIREBASE
   // =========================================================
@@ -71,7 +69,7 @@ export class CompletarPalabrasComponent {
   // Dashboard de configuración
   gameStarted = false;
   reviewType: 'right' | 'meaning' = 'right';
-  wordOrder: 'random' | 'original' = 'random';
+  wordOrder: 'random' | 'original' | 'ascending' | 'descending' = 'random';
 
   // =========================================================
   // MENSAJE DE VALIDACIÓN DE CATEGORÍA
@@ -106,14 +104,14 @@ export class CompletarPalabrasComponent {
         : this.selectedPairCount;
 
     /*
-   * Se permiten aproximadamente 2 intentos
-   * por cada pareja, con un mínimo de 15.
-   * 6 parejas  -> 15 intentos
-   * 12 parejas -> 24 intentos
-   * 18 parejas -> 36 intentos
-   * 24 parejas -> 48 intentos
-   */
-    return Math.max(15, cantidadParejas * 2,);
+     * Se permiten aproximadamente 2 intentos
+     * por cada pareja, con un mínimo de 15.
+     * 6 parejas  -> 15 intentos
+     * 12 parejas -> 24 intentos
+     * 18 parejas -> 36 intentos
+     * 24 parejas -> 48 intentos
+     */
+    return Math.max(15, cantidadParejas * 2);
   }
 
   selectedPairCount = 12;
@@ -290,7 +288,6 @@ export class CompletarPalabrasComponent {
       this.tiempoSegundos = 0;
 
       this.selectedPairCount = Math.min(12, this.allPairs.length);
-
     });
   }
 
@@ -448,12 +445,53 @@ export class CompletarPalabrasComponent {
     }
 
     // =====================================================
-    // MEZCLAR Y ELEGIR PAREJAS
+    // ORDENAR Y ELEGIR PAREJAS
     // =====================================================
     const sourcePairs = [...this.pairs];
 
-    const orderedPairs = this.wordOrder === 'random' ? this.shuffle(sourcePairs) : sourcePairs;
+    let orderedPairs = [...sourcePairs];
 
+    switch (this.wordOrder) {
+      // ===================================================
+      // ALEATORIO
+      // ===================================================
+      case 'random':
+        orderedPairs = this.shuffle(orderedPairs);
+        break;
+
+      // ===================================================
+      // ORDEN ORIGINAL
+      // ===================================================
+      case 'original':
+        // Conserva el orden original recibido.
+        break;
+
+      // ===================================================
+      // ASCENDENTE A → Z
+      // ===================================================
+      case 'ascending':
+        orderedPairs.sort((a, b) =>
+          a.left.localeCompare(b.left, undefined, {
+            sensitivity: 'base',
+          }),
+        );
+        break;
+
+      // ===================================================
+      // DESCENDENTE Z → A
+      // ===================================================
+      case 'descending':
+        orderedPairs.sort((a, b) =>
+          b.left.localeCompare(a.left, undefined, {
+            sensitivity: 'base',
+          }),
+        );
+        break;
+    }
+
+    // =====================================================
+    // ELEGIR LA CANTIDAD SOLICITADA
+    // =====================================================
     const selectedPairs = orderedPairs.slice(0, this.selectedPairCount);
 
     // =====================================================
@@ -508,15 +546,10 @@ export class CompletarPalabrasComponent {
 
     const validIndexes = characters
 
-      .map(
-        (
-          character,
-          index,
-        ) => ({
-          character,
-          index,
-        }),
-      )
+      .map((character, index) => ({
+        character,
+        index,
+      }))
 
       .filter((item) => !/\s/.test(item.character))
 
@@ -546,30 +579,25 @@ export class CompletarPalabrasComponent {
       ),
     );
 
-    return characters.map(
-      (
-        character,
-        index,
-      ) => {
-        if (/\s/.test(character)) {
-          return {
-            letter: character,
-            hidden: false,
-            value: '',
-            correct: null,
-            isSpace: true,
-          };
-        }
-
+    return characters.map((character, index) => {
+      if (/\s/.test(character)) {
         return {
           letter: character,
-          hidden: hiddenIndexes.has(index),
+          hidden: false,
           value: '',
           correct: null,
-          isSpace: false,
+          isSpace: true,
         };
-      },
-    );
+      }
+
+      return {
+        letter: character,
+        hidden: hiddenIndexes.has(index),
+        value: '',
+        correct: null,
+        isSpace: false,
+      };
+    });
   }
 
   // =========================================================
@@ -800,7 +828,9 @@ export class CompletarPalabrasComponent {
       return;
     }
 
-    const errorIds = new Set(this.wordsWithErrors.map((exercise) => exercise.id));
+    const errorIds = new Set(
+      this.wordsWithErrors.map((exercise) => exercise.id),
+    );
 
     this.practicingOnlyErrors = true;
 
@@ -823,7 +853,9 @@ export class CompletarPalabrasComponent {
       this.pairs = [...this.allPairs];
     } else {
       this.pairs = this.allPairs.filter(
-        (pair) => pair.categoriaPalabra?.trim().toLowerCase() === this.selectedCategory.trim().toLowerCase()
+        (pair) =>
+          pair.categoriaPalabra?.trim().toLowerCase() ===
+          this.selectedCategory.trim().toLowerCase(),
       );
     }
 
@@ -867,7 +899,8 @@ export class CompletarPalabrasComponent {
         };
       })
 
-      .filter((pair): pair is GamePair => pair !== null).slice(0,6);
+      .filter((pair): pair is GamePair => pair !== null)
+      .slice(0, 6);
 
     if (this.hints.length === 0) {
       return;
@@ -1004,10 +1037,10 @@ export class CompletarPalabrasComponent {
 
     return this.pairs.filter(
       (pair) =>
-      pair.left.toLowerCase().includes(term) ||
-      pair.right.toLowerCase().includes(term) ||
-      pair.meaning.toLowerCase().includes(term) ||
-      (pair.categoriaPalabra || '').toLowerCase().includes(term),
+        pair.left.toLowerCase().includes(term) ||
+        pair.right.toLowerCase().includes(term) ||
+        pair.meaning.toLowerCase().includes(term) ||
+        (pair.categoriaPalabra || '').toLowerCase().includes(term),
     );
   }
 
@@ -1060,7 +1093,10 @@ export class CompletarPalabrasComponent {
 
     this.tiempoFin = Date.now();
 
-    this.tiempoSegundos = Math.max(0, Math.floor((this.tiempoFin - this.tiempoInicio) / 1000));
+    this.tiempoSegundos = Math.max(
+      0,
+      Math.floor((this.tiempoFin - this.tiempoInicio) / 1000),
+    );
   }
 
   // =========================================================
@@ -1076,14 +1112,10 @@ export class CompletarPalabrasComponent {
     // - CORRECTAS > ERRORES
     // =====================================================
     if (!this.puedeGuardarPuntaje) {
-
-      console.warn(
-        'No se puede guardar el puntaje.',
-        {
-          correctas: this.totalCorrectWords,
-          errores: this.errors,
-        },
-      );
+      console.warn('No se puede guardar el puntaje.', {
+        correctas: this.totalCorrectWords,
+        errores: this.errors,
+      });
 
       return;
     }
@@ -1104,9 +1136,7 @@ export class CompletarPalabrasComponent {
         : this.selectedCategory;
 
     const repasoParaPuntuacion =
-    this.reviewType === 'meaning'
-      ? 'Verbo → Significado'
-      : 'Verbo → Pareja';
+      this.reviewType === 'meaning' ? 'Verbo → Significado' : 'Verbo → Pareja';
 
     // =====================================================
     // IR A PUNTUACIÓN
@@ -1143,7 +1173,7 @@ export class CompletarPalabrasComponent {
     );
   }
 
-   printVocabulary(): void {
+  printVocabulary(): void {
     if (!this.pairs || this.pairs.length === 0) {
       return;
     }

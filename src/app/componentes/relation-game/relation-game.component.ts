@@ -119,7 +119,7 @@ export class RelationGameComponent implements AfterViewInit {
     // 5 vidas por cada 6 parejas
     // con un mínimo de 6 vidas
 
-    return Math.max(6, Math.ceil((cantidadParejas * 5) / 6),);
+    return Math.max(6, Math.ceil((cantidadParejas * 5) / 6));
   }
 
   errors = 0;
@@ -136,7 +136,7 @@ export class RelationGameComponent implements AfterViewInit {
   // =========================================================
   // ORDEN DE LAS PALABRAS
   // =========================================================
-  wordOrder: 'random' | 'original' = 'random';
+  wordOrder: 'random' | 'original' | 'ascending' | 'descending' = 'random';
 
   // =========================================================
   // CONTROL DEL TIEMPO DE LA PARTIDA
@@ -293,12 +293,7 @@ export class RelationGameComponent implements AfterViewInit {
         ),
       )
 
-        .sort(
-          (
-            a,
-            b,
-          ) => a.localeCompare(b),
-        );
+        .sort((a, b) => a.localeCompare(b));
 
       this.pairs = [];
 
@@ -560,7 +555,7 @@ export class RelationGameComponent implements AfterViewInit {
 
     this.cronometroActivo = false;
 
-    console.log('⏱️ Tiempo final:', this.tiempoSegundos, 'segundos',);
+    console.log('⏱️ Tiempo final:', this.tiempoSegundos, 'segundos');
   }
 
   // =========================================================
@@ -650,8 +645,46 @@ export class RelationGameComponent implements AfterViewInit {
 
     let preparedPairs: GamePair[] = [...this.pairs];
 
-    if (this.wordOrder === 'random') {
-      preparedPairs = this.shuffle(preparedPairs);
+    // =========================================================
+    // ORDEN DE LAS PALABRAS
+    // =========================================================
+    switch (this.wordOrder) {
+      // -------------------------------------------------------
+      // ALEATORIO
+      // -------------------------------------------------------
+      case 'random':
+        preparedPairs = this.shuffle(preparedPairs);
+        break;
+
+      // -------------------------------------------------------
+      // ORDEN ORIGINAL
+      // -------------------------------------------------------
+      case 'original':
+        // No hacemos nada.
+        // Conserva exactamente el orden recibido de Firebase.
+        break;
+
+      // -------------------------------------------------------
+      // ASCENDENTE A → Z
+      // -------------------------------------------------------
+      case 'ascending':
+        preparedPairs.sort((a, b) =>
+          a.left.localeCompare(b.left, undefined, {
+            sensitivity: 'base',
+          }),
+        );
+        break;
+
+      // -------------------------------------------------------
+      // DESCENDENTE Z → A
+      // -------------------------------------------------------
+      case 'descending':
+        preparedPairs.sort((a, b) =>
+          b.left.localeCompare(a.left, undefined, {
+            sensitivity: 'base',
+          }),
+        );
+        break;
     }
 
     this.gamePairs = preparedPairs.slice(0, this.selectedPairCount);
@@ -740,7 +773,10 @@ export class RelationGameComponent implements AfterViewInit {
 
       this.selectedLeft = null;
 
-      setTimeout(() => {this.drawLines(); this.checkCurrentPageComplete();}, 100);
+      setTimeout(() => {
+        this.drawLines();
+        this.checkCurrentPageComplete();
+      }, 100);
 
       return;
     }
@@ -898,7 +934,7 @@ export class RelationGameComponent implements AfterViewInit {
       return;
     }
 
-    this.hints = this.shuffle([...pendingPairs]).slice(0,6,);
+    this.hints = this.shuffle([...pendingPairs]).slice(0, 6);
 
     this.showHints = true;
 
@@ -929,11 +965,7 @@ export class RelationGameComponent implements AfterViewInit {
   // =========================================================
   // ABRIR IMAGEN AMPLIADA
   // =========================================================
-  openImage(
-    image: string | undefined,
-    word: string,
-    meaning: string,
-  ): void {
+  openImage(image: string | undefined, word: string, meaning: string): void {
     if (!image) {
       return;
     }
@@ -1282,7 +1314,7 @@ export class RelationGameComponent implements AfterViewInit {
     const result: T[][] = [];
 
     for (let i = 0; i < array.length; i += size) {
-      result.push(array.slice(i, i + size,),);
+      result.push(array.slice(i, i + size));
     }
 
     return result;
@@ -1300,7 +1332,10 @@ export class RelationGameComponent implements AfterViewInit {
     // - CORRECTAS > ERRORES
     // =======================================================
     if (!this.puedeGuardarPuntaje) {
-      console.warn('No se puede guardar el puntaje.', { correctas: this.totalCorrectWords, errores: this.errors, },);
+      console.warn('No se puede guardar el puntaje.', {
+        correctas: this.totalCorrectWords,
+        errores: this.errors,
+      });
       return;
     }
 
@@ -1330,9 +1365,7 @@ export class RelationGameComponent implements AfterViewInit {
     });
 
     const repasoParaPuntuacion =
-    this.reviewType === 'meaning'
-      ? 'Verbo → Significado'
-      : 'Verbo → Pareja';
+      this.reviewType === 'meaning' ? 'Verbo → Significado' : 'Verbo → Pareja';
 
     // =======================================================
     // IR AL COMPONENTE PUNTUACIÓN

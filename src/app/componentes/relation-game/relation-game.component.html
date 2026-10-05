@@ -63,6 +63,8 @@
           <select id="wordOrder" [(ngModel)]="wordOrder">
             <option value="random">Aleatorio</option>
             <option value="original">Orden original</option>
+            <option value="ascending">Ascendente (A → Z)</option>
+            <option value="descending">Descendente (Z → A)</option>
           </select>
 
           <small *ngIf="wordOrder === 'random'">
@@ -70,7 +72,15 @@
           </small>
 
           <small *ngIf="wordOrder === 'original'">
-            Las palabras conservarán su orden.
+            Las palabras conservarán su orden original.
+          </small>
+
+          <small *ngIf="wordOrder === 'ascending'">
+            Las palabras aparecerán de la A a la Z.
+          </small>
+
+          <small *ngIf="wordOrder === 'descending'">
+            Las palabras aparecerán de la Z a la A.
           </small>
         </div>
       </div>
@@ -573,8 +583,8 @@
             <!-- =================================================
                PRACTICAR SOLO LOS ERRORES
             ================================================== -->
-            <button *ngIf="showingErrorWords" type="button"
-              class="result-detail-button practice-errors-button" (click)="practiceErrorWords()">
+            <button *ngIf="showingErrorWords" type="button" class="result-detail-button practice-errors-button"
+              (click)="practiceErrorWords()">
               🔄 Practicar estos errores
             </button>
           </div>

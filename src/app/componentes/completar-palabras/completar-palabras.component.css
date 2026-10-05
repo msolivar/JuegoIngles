@@ -14,7 +14,7 @@
 
 .column-header {
   text-align: center;
-  color: #4f8d00;
+  color: #398900;
 }
 
 .exercise-list {
@@ -72,7 +72,7 @@
 /* ======================================================
    LETRAS VISIBLES
 ====================================================== */
-.visible-letter {
+.visible-letter, .visible-letter1 {
   display: inline-flex;
   justify-content: center;
   align-items: center;
@@ -105,9 +105,9 @@
 ====================================================== */
 .pair-arrow {
   text-align: center;
-  font-size: 30px;
+  font-size: 40px;
   font-weight: bold;
-  color: #67b70f;
+  color: #398900;
 }
 
 /* ======================================================
@@ -138,49 +138,11 @@
   font-size: 25px;
 }
 
-/* ======================================================
-   PANTALLAS PEQUEÑAS
-====================================================== */
-@media (max-width: 700px) {
-  .exercise-header,
-  .exercise-pair {
-    grid-template-columns: 35px minmax(0, 1fr) 35px minmax(0, 1fr) 30px;
-    gap: 5px;
-    padding-left: 5px;
-    padding-right: 5px;
-  }
-
-  .visible-letter,
-  .letter-input {
-    width: 60px;
-    font-size: 18px;
-  }
-
-  .letter-input {
-    height: 38px;
-  }
-
-  .visible-letter {
-    height: 38px;
-  }
-
-  .letter-row {
-    gap: 1px;
-  }
-
-  .pair-arrow {
-    font-size: 20px;
-  }
-
-  .column-header {
-    font-size: 14px;
-  }
-}
-
 /* =========================================================
    RESPONSIVE - TABLET
    ========================================================= */
 @media (max-width: 900px) {
+
   .exercise-header,
   .exercise-pair {
     grid-template-columns: 40px minmax(0, 1fr) 45px minmax(0, 1fr) 40px;
@@ -195,7 +157,6 @@
     gap: 3px;
   }
 
-  .visible-letter,
   .letter-input {
     width: 60px;
     height: 42px;
@@ -203,7 +164,60 @@
   }
 
   .pair-arrow {
+    font-size: 30px;
+  }
+}
+
+/* ======================================================
+   PANTALLAS PEQUEÑAS
+====================================================== */
+@media (max-width:800px) {
+  
+  .visible-letter, .visible-letter1 {
+    height: 38px;
+    width: 15px;
+  }
+}
+
+@media (max-width: 700px) {
+
+  .exercise-header,
+  .exercise-pair {
+    grid-template-columns: 35px minmax(0, 1fr) 35px minmax(0, 1fr) 30px;
+    gap: 5px;
+    padding-left: 5px;
+    padding-right: 5px;
+  }
+
+  .letter-input {
+    width: 60px;
+    font-size: 18px;
+  }
+
+  .letter-input {
+    height: 38px;
+  }
+
+  .letter-row {
+    gap: 1px;
+  }
+
+  .pair-arrow {
     font-size: 25px;
+  }
+
+  .column-header {
+    font-size: 14px;
+  }
+
+  .playing-category-text {
+    width: 100%;
+    font-size: 17px;
+    text-align: center;
+  }
+
+  .result-statistics {
+    flex-direction: column;
   }
 }
 
@@ -211,6 +225,7 @@
    RESPONSIVE - CELULAR
    ========================================================= */
 @media (max-width: 600px) {
+
   /* ---------------------------------------------------------
      OCULTAR CABECERA VERBO / PAREJA
      En móvil usamos cada tarjeta individual
@@ -255,7 +270,7 @@
   .pair-arrow {
     grid-area: arrow;
     text-align: center;
-    font-size: 24px;
+    font-size: 30px;
     line-height: 24px;
     transform: rotate(90deg);
     margin: 2px 0;
@@ -363,7 +378,7 @@
   background: #f1f8e9;
   border: 1px solid #cde5ba;
   border-radius: 20px;
-  color: #438b0b;
+  color: black;
   font-size: 15px;
   font-weight: 600;
   text-align: center;
@@ -379,20 +394,4 @@
   flex-wrap: wrap;
   gap: 15px;
   margin: 22px 0;
-}
-
-/* =========================================================
-   RESPONSIVE DEL NUEVO DASHBOARD Y RESULTADOS
-========================================================= */
-@media (max-width: 700px) {
-
-  .playing-category-text {
-    width: 100%;
-    font-size: 17px;
-    text-align: center;
-  }
-
-  .result-statistics {
-    flex-direction: column;
-  }
 }
