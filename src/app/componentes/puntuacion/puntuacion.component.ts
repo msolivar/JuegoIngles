@@ -62,6 +62,8 @@ export class PuntuacionComponent implements OnInit, AfterViewInit, OnDestroy {
 
   juego: TipoJuego | '' = '';
 
+  juegoPartidaActual: TipoJuego | '' = '';
+
   categoria = '';
 
   repaso = '';
@@ -115,6 +117,9 @@ export class PuntuacionComponent implements OnInit, AfterViewInit, OnDestroy {
         juegoRecibido === 'cuestionario'
       ) {
         this.juego = juegoRecibido;
+
+        // Guardamos cuál fue realmente el juego que terminó
+        this.juegoPartidaActual = juegoRecibido;
       }
 
       this.categoria = String(state['categoria'] ?? '');
@@ -209,6 +214,14 @@ export class PuntuacionComponent implements OnInit, AfterViewInit, OnDestroy {
     return this.total > 0;
   }
 
+  get puedeGuardarPuntuacion(): boolean {
+    return (
+      this.tieneResultado &&
+      !this.puntajeGuardado &&
+      this.juego === this.juegoPartidaActual
+    );
+  }
+
   get totalPaginas(): number {
     return Math.max(
       1,
@@ -265,6 +278,12 @@ export class PuntuacionComponent implements OnInit, AfterViewInit, OnDestroy {
 
   async guardarJugador(): Promise<void> {
     if (this.guardando) {
+      return;
+    }
+
+    if (this.juego !== this.juegoPartidaActual) {
+      this.mensaje =
+        'Solo puedes guardar la puntuación en el juego que acabas de completar.';
       return;
     }
 

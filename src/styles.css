@@ -1066,7 +1066,7 @@
   display: block;
   font-size: 20px;
   font-weight: 600;
-  color: #444;
+  color: black;
   text-align: left;
 }
 
@@ -1098,14 +1098,12 @@
   cursor: pointer;
 }
 
-
-
 /* TÍTULO */
 .category-selector h2 {
   margin: 0 0 25px;
   font-size: 26px;
   font-weight: 700;
-  color: #333;
+  color: black;
 }
 
 /* CONTENEDOR DEL SELECT */
@@ -1167,6 +1165,7 @@
 
 .setup-field label {
   font-weight: bold;
+  font-size: 20px;
 }
 
 /* =========================================================
@@ -1532,7 +1531,7 @@ button:active:not(:disabled) {
 ========================================================= */
 .option-letter {
   min-width: 26px;
-  color: #455a64;
+  color: black;
   font-size: 15px;
   font-weight: 800;
   text-align: center;
@@ -1605,7 +1604,7 @@ button:active:not(:disabled) {
   padding: 0 13px;
   border: none;
   border-radius: 20px;
-  background: #eeeeee;
+  background: darkgray;
   color: black;
   font-size: 15px;
   font-weight: bold;

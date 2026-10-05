@@ -1,0 +1,10 @@
+:host {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.panelcolor {
+  background-color: #f2f2f2;
+  flex: 1;
+}

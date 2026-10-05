@@ -30,11 +30,11 @@
   <!-- =======================================================
        CONTENIDO PRINCIPAL
   ======================================================== -->
-  <main class="score-content">
+  <main class="score-content" [class.ranking-only]="!puedeGuardarPuntuacion">
     <!-- =====================================================
          MI PUNTUACIÓN
     ====================================================== -->
-    <aside class="my-score-card">
+    <aside class="my-score-card" *ngIf="puedeGuardarPuntuacion">
       <h2>Mi puntuación</h2>
       <div class="score-number">
         {{ puntuacion }}
@@ -44,6 +44,16 @@
            INFORMACIÓN DE LA PARTIDA
       ==================================================== -->
       <div class="game-information" *ngIf="tieneResultado">
+
+        <!-- JUEGO -->
+        <div>
+          <span> Juego </span>
+
+          <strong>
+            {{ nombreJuego }}
+          </strong>
+        </div>
+
         <!-- CATEGORÍA -->
         <div>
           <span> Categoría </span>
@@ -55,7 +65,7 @@
 
         <!-- REPASO -->
         <div *ngIf="repaso">
-          <span>Repasó</span>
+          <span>Repaso</span>
 
           <strong>
             {{ repaso }}

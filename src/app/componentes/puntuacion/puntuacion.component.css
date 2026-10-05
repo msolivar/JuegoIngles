@@ -1,7 +1,7 @@
 .score-page {
   width: min(1180px, calc(100% - 32px));
   max-width: 1180px;
-  margin: 30px auto;
+  margin: 20px auto;
   padding: 0;
   box-sizing: border-box;
   font-family: Arial, sans-serif;
@@ -61,6 +61,17 @@
   grid-template-columns: 280px minmax(0, 1fr);
   gap: 22px;
   align-items: start;
+}
+
+/* Cuando no se muestra "Mi puntuación",
+   el ranking ocupa todo el ancho */
+.score-content.ranking-only {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.score-content.ranking-only .ranking-card {
+  grid-column: 1 / -1;
+  width: 100%;
 }
 
 .my-score-card,
