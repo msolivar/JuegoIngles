@@ -2,11 +2,8 @@
      CONTENEDOR PRINCIPAL
 ========================================================== -->
 <div class="quiz-container">
-
   <div class="category-selector" *ngIf="this.cuestionarios.length === 0">
-    <div class="no-results" *ngIf="loading">
-      ⏳ Cargando cuestionarios...
-    </div>
+    <div class="no-results" *ngIf="loading">⏳ Cargando cuestionarios...</div>
     <div class="no-results" *ngIf="!loading && loadError && !gameStarted && !gameFinished">
       ⚠️ {{ loadError }}
     </div>
@@ -23,7 +20,6 @@
          TARJETA DE SELECCIÓN
     ====================================================== -->
     <div class="category-selection-content">
-
       <!-- ===================================================
            CATEGORÍA
       ==================================================== -->
@@ -43,7 +39,6 @@
       <div class="no-results" *ngIf="selectionMessage">
         ⚠️ {{ selectionMessage }}
       </div>
-
     </div>
 
     <!-- ===================================================
@@ -79,38 +74,39 @@
           <input id="questionCount" type="number" [(ngModel)]="selectedQuestionCount" [min]="1" [max]="maxQuestionCount"
             (change)="validateQuestionCount()" (blur)="validateQuestionCount()" />
 
-          <small>
-            Disponible: {{ maxQuestionCount }} pregunta(s)
-          </small>
+          <small> Disponible: {{ maxQuestionCount }} pregunta(s) </small>
         </div>
 
         <!-- =================================================
-             ORDEN DE LAS PREGUNTAS
-        ================================================== -->
+     ORDEN DE LAS PREGUNTAS
+================================================== -->
         <div class="setup-field">
           <label for="questionOrder"> 🔀 Orden de las preguntas </label>
 
           <select id="questionOrder" [(ngModel)]="questionOrder">
             <option value="random">Aleatorio</option>
 
-            <option value="ordered">En orden</option>
+            <option value="ordered">Orden original</option>
+
+            <option value="ascending">Ascendente (A → Z)</option>
+
+            <option value="descending">Descendente (Z → A)</option>
           </select>
 
           <small>
             {{
             questionOrder === "random"
             ? "Las preguntas aparecerán mezcladas."
+            : questionOrder === "ascending"
+            ? "Las preguntas aparecerán en orden ascendente (A → Z)."
+            : questionOrder === "descending"
+            ? "Las preguntas aparecerán en orden descendente (Z → A)."
             : "Las preguntas aparecerán en su orden original."
             }}
           </small>
-
         </div>
       </div>
-
-
     </div>
-
-
 
     <button *ngIf="selectedCategory && cuestionariosCategoria.length > 0" type="button" class="print-vocabulary-button"
       (click)="imprimirPreguntas()" [disabled]="!selectedQuestionnaireId">
@@ -123,13 +119,41 @@
     <button type="button" class="new-game-button" (click)="startGame()">
       ▶ Empezar cuestionario
     </button>
-
   </section>
 
   <!-- =======================================================
        JUEGO EN CURSO
   ======================================================== -->
   <section class="quiz-game" *ngIf="gameStarted && !gameFinished && currentQuestion">
+
+    <!-- =====================================================
+         INFORMACIÓN INFERIOR
+    ====================================================== -->
+    <div class="selected-category-box">
+      <span>
+        ✅ Respondidas:
+
+        <strong>
+          {{ answeredQuestions }}
+        </strong>
+      </span>
+
+      <span>
+        ⭕ Pendientes:
+
+        <strong>
+          {{ unansweredQuestions }}
+        </strong>
+      </span>
+
+      <button type="button" class="change-category-button" (click)="changeCategory()">
+        🏷️ Otra categoría
+      </button>
+
+      <button type="button" class="results-back-button" (click)="submitQuestionnaire()">
+        🎮 Entregar ahora
+      </button>
+    </div>
     <!-- =====================================================
          ENCABEZADO SUPERIOR
     ====================================================== -->
@@ -250,6 +274,17 @@
       </div>
 
       <!-- ===================================================
+           ESTADO DE RESPUESTA
+      ==================================================== -->
+      <div class="answer-status answered" *ngIf="currentQuestionAnswered">
+        ✓ Respuesta seleccionada
+      </div>
+
+      <div class="answer-status unanswered" *ngIf="!currentQuestionAnswered">
+        Selecciona una respuesta antes de continuar.
+      </div>
+
+      <!-- ===================================================
            OPCIONES
       ==================================================== -->
       <div class="hint-list">
@@ -264,17 +299,6 @@
             {{ opcion.texto }}
           </span>
         </label>
-      </div>
-
-      <!-- ===================================================
-           ESTADO DE RESPUESTA
-      ==================================================== -->
-      <div class="answer-status answered" *ngIf="currentQuestionAnswered">
-        ✓ Respuesta seleccionada
-      </div>
-
-      <div class="answer-status unanswered" *ngIf="!currentQuestionAnswered">
-        Selecciona una respuesta antes de continuar.
       </div>
 
       <!-- ===================================================
@@ -307,7 +331,7 @@
     <!-- =====================================================
          INFORMACIÓN INFERIOR
     ====================================================== -->
-    <div class="quiz-footer-info">
+    <div class="selected-category-box">
       <span>
         ✅ Respondidas:
 
@@ -415,7 +439,6 @@
          VER RESULTADOS
     ====================================================== -->
     <div class="final-actions">
-
       <button type="button" class="result-detail-button correct-detail-button" (click)="showCorrectResults()">
         ✓ Correctas ({{ totalCorrectAnswers }})
       </button>
@@ -633,11 +656,11 @@
              ENCABEZADO
         ================================================== -->
         <div class="no-results">
-
           <h2>🎯 Vuelve a intentarlo</h2>
 
           <p>
-            Error {{ errorPracticeIndex + 1 }} de {{ errorPracticeQuestions.length }}
+            Error {{ errorPracticeIndex + 1 }} de
+            {{ errorPracticeQuestions.length }}
           </p>
         </div>
 
@@ -672,13 +695,18 @@
           <!-- ===============================================
                INSTRUCCIÓN
           ================================================ -->
-          <p class="practice-instruction">
-            Selecciona nuevamente la respuesta correcta:
+          <p class="select-instruction">
+            <strong> Selecciona la respuesta correcta: </strong>
           </p>
 
-
-
-
+          <!-- ===============================================
+               RETROALIMENTACIÓN AUTOMÁTICA
+          ================================================ -->
+          <div *ngIf="errorPracticeMessage" class="practice-feedback"
+            [class.practice-feedback-correct]="errorPracticeCorrect"
+            [class.practice-feedback-error]="!errorPracticeCorrect">
+            {{ errorPracticeMessage }}
+          </div>
 
           <!-- ===============================================
                OPCIONES
@@ -706,19 +734,10 @@
               <!-- ===========================================
                    TEXTO
               ============================================ -->
-              <span class="winner">
+              <span class="select-instruction">
                 {{ opcion.texto }}
               </span>
             </label>
-          </div>
-
-          <!-- ===============================================
-               RETROALIMENTACIÓN AUTOMÁTICA
-          ================================================ -->
-          <div *ngIf="errorPracticeMessage" class="practice-feedback"
-            [class.practice-feedback-correct]="errorPracticeCorrect"
-            [class.practice-feedback-error]="!errorPracticeCorrect">
-            {{ errorPracticeMessage }}
           </div>
         </div>
       </ng-container>

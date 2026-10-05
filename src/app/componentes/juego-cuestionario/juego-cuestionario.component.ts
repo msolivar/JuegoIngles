@@ -33,7 +33,7 @@ export class JuegoCuestionarioComponent implements OnInit, OnDestroy {
   selectedQuestionnaireId = '';
 
   selectedQuestionCount = 8;
-  questionOrder: 'random' | 'ordered' = 'random';
+  questionOrder: 'random' | 'ordered' | 'ascending' | 'descending' = 'random';
 
   cuestionarioActual: CuestionarioFirebase | null = null;
 
@@ -185,10 +185,40 @@ export class JuegoCuestionarioComponent implements OnInit, OnDestroy {
         : [],
     }));
 
-    if (this.questionOrder === 'random') {
-      preguntasImprimir = this.shuffleArray(preguntasImprimir);
+    // =====================================================
+    // ORDEN DE LAS PREGUNTAS PARA IMPRIMIR
+    // =====================================================
+    switch (this.questionOrder) {
+      case 'random':
+        preguntasImprimir = this.shuffleArray(preguntasImprimir);
+        break;
+
+      case 'ordered':
+        // Conserva el orden original.
+        break;
+
+      case 'ascending':
+        preguntasImprimir.sort((a, b) =>
+          (a.pregunta || '').localeCompare(b.pregunta || '', 'es', {
+            sensitivity: 'base',
+            numeric: true,
+          }),
+        );
+        break;
+
+      case 'descending':
+        preguntasImprimir.sort((a, b) =>
+          (b.pregunta || '').localeCompare(a.pregunta || '', 'es', {
+            sensitivity: 'base',
+            numeric: true,
+          }),
+        );
+        break;
     }
 
+    // =====================================================
+    // CANTIDAD DE PREGUNTAS A IMPRIMIR
+    // =====================================================
     preguntasImprimir = preguntasImprimir.slice(0, this.selectedQuestionCount);
 
     const contenidoPreguntas = preguntasImprimir
@@ -484,10 +514,53 @@ export class JuegoCuestionarioComponent implements OnInit, OnDestroy {
           : [],
       }));
 
-    if (this.questionOrder === 'random') {
-      preguntasDisponibles = this.shuffleArray(preguntasDisponibles);
+    // =====================================================
+    // ORDEN DE LAS PREGUNTAS
+    // =====================================================
+    switch (this.questionOrder) {
+      // ---------------------------------------------------
+      // ALEATORIO
+      // ---------------------------------------------------
+      case 'random':
+        preguntasDisponibles = this.shuffleArray(preguntasDisponibles);
+        break;
+
+      // ---------------------------------------------------
+      // ORDEN ORIGINAL
+      // ---------------------------------------------------
+      case 'ordered':
+        // No hacemos nada.
+        // Conserva el orden original de Firebase.
+        break;
+
+      // ---------------------------------------------------
+      // ASCENDENTE A → Z
+      // ---------------------------------------------------
+      case 'ascending':
+        preguntasDisponibles.sort((a, b) =>
+          (a.pregunta || '').localeCompare(b.pregunta || '', 'es', {
+            sensitivity: 'base',
+            numeric: true,
+          }),
+        );
+        break;
+
+      // ---------------------------------------------------
+      // DESCENDENTE Z → A
+      // ---------------------------------------------------
+      case 'descending':
+        preguntasDisponibles.sort((a, b) =>
+          (b.pregunta || '').localeCompare(a.pregunta || '', 'es', {
+            sensitivity: 'base',
+            numeric: true,
+          }),
+        );
+        break;
     }
 
+    // =====================================================
+    // TOMAR LA CANTIDAD DE PREGUNTAS SELECCIONADA
+    // =====================================================
     this.preguntas = preguntasDisponibles.slice(0, this.selectedQuestionCount);
 
     this.currentQuestionIndex = 0;

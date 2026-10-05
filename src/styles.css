@@ -915,20 +915,35 @@
 ========================================================= */
 .selected-category-box {
   width: calc(100% - 30px);
-  max-width: 900px;
+  max-width: 1100px;
   margin: 18px auto 12px;
   padding: 17px 25px;
-  box-sizing: border-box;
+
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 20px;
+
+  /* CLAVE PARA RESPONSIVE */
+  flex-wrap: wrap;
+  gap: 16px;
+
+  box-sizing: border-box;
+
   background: #ffffff;
   border: 1px solid #e0e6ea;
   border-radius: 16px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  font-size: 18px;
+
+  font-size: clamp(16px, 1.5vw, 20px);
   color: #333;
+}
+
+/* =========================================================
+   CONTADORES
+========================================================= */
+.selected-category-box > span {
+  flex: 1 1 130px;
+  min-width: 0;
 }
 
 /* =========================================================
@@ -940,25 +955,30 @@
 }
 
 /* BOTÓN CAMBIAR CATEGORÍA */
-.selected-category-box .change-category-button {
-  flex-shrink: 0;
+.selected-category-box .change-category-button,
+.selected-category-box .results-back-button {
+  flex: 1 1 220px;
+
+  min-width: 0;
+  max-width: 310px;
+  width: auto;
+
+  min-height: 64px;
+  height: auto;
+
+  padding: 12px 18px;
+
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  padding: 14px 24px;
-  border: none;
-  border-radius: 14px;
-  background: #1976d2;
-  color: #000;
-  font-size: 20px;
-  font-weight: 700;
-  cursor: pointer;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.18);
+
+  text-align: center;
+  white-space: normal;
 }
 
 /* EFECTO DEL BOTÓN */
-.selected-category-box .change-category-button:hover {
+.selected-category-box .change-category-button:hover,
+.selected-category-box .results-back-button:hover {
   background: #5b34a5;
   transform: translateY(-2px);
 }
@@ -1639,6 +1659,69 @@ button:active:not(:disabled) {
     max-width: 100%;
     max-height: 60vh;
   }
+
+  .selected-category-box {
+    padding: 15px 18px;
+    gap: 12px;
+  }
+
+  .selected-category-box > span {
+    flex: 1 1 calc(50% - 12px);
+    text-align: center;
+  }
+
+  .selected-category-box .change-category-button,
+  .selected-category-box .results-back-button {
+    flex: 1 1 calc(50% - 12px);
+    max-width: none;
+  }
+}
+
+@media (max-width: 700px) {
+  .setup-row {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .correct-word-card {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+
+  .game-setup-dashboard {
+    width: calc(100% - 20px);
+    margin: 15px auto;
+    padding: 22px 18px;
+    gap: 20px;
+    border-radius: 20px;
+  }
+
+  .attempts {
+    gap: 8px 14px;
+    font-size: 15px;
+  }
+
+  .image-modal-content img {
+    max-width: 90vw;
+    max-height: 80vh;
+  }
+
+  .score-practice-actions {
+    flex-direction: column;
+  }
+
+  .save-score-button,
+  .score-practice-actions .practice-errors-button {
+    width: 100%;
+    box-sizing: border-box;
+    text-align: center;
+  }
+
+  .edit-button,
+  .delete-button {
+    width: 100%;
+  }
+
 }
 
 /* =========================================================
@@ -1714,56 +1797,7 @@ button:active:not(:disabled) {
 
     font-size: 23px;
   }
-}
 
-@media (max-width: 700px) {
-  .setup-row {
-    grid-template-columns: 1fr;
-    gap: 0;
-  }
-
-  .correct-word-card {
-    grid-column: 1 / -1;
-    grid-row: 2;
-  }
-
-  .game-setup-dashboard {
-    width: calc(100% - 20px);
-    margin: 15px auto;
-    padding: 22px 18px;
-    gap: 20px;
-    border-radius: 20px;
-  }
-
-  .attempts {
-    gap: 8px 14px;
-    font-size: 15px;
-  }
-
-  .image-modal-content img {
-    max-width: 90vw;
-    max-height: 80vh;
-  }
-
-  .score-practice-actions {
-    flex-direction: column;
-  }
-
-  .save-score-button,
-  .score-practice-actions .practice-errors-button {
-    width: 100%;
-    box-sizing: border-box;
-    text-align: center;
-  }
-
-  .edit-button,
-  .delete-button {
-    width: 100%;
-  }
-
-}
-
-@media (max-width: 600px) {
   .game-container {
     padding: 5px;
   }
@@ -1837,19 +1871,11 @@ button:active:not(:disabled) {
     font-size: 16px;
   }
 
-  .selected-category-box {
-    width: calc(100% - 24px);
-    padding: 15px 16px;
-    gap: 12px;
-    flex-direction: column;
-  }
-
   .play-again-button,
-  .selected-category-box,
   .results-back-button,
   .change-category-button {
     width: 100%;
-    font-size: 16px;
+    font-size: 20px;
     padding: 12px 16px;
   }
 
@@ -1876,6 +1902,7 @@ button:active:not(:disabled) {
   .save-button,
   .cancel-button {
     width: 100%;
+    font-size: 15px;
   }
 
   .print-vocabulary-button {
@@ -1892,6 +1919,36 @@ button:active:not(:disabled) {
   .image-modal-content>img {
     max-width: 100%;
     max-height: 55vh;
+  }
+}
+
+/* =========================================================
+   CELULAR
+========================================================= */
+
+@media (max-width: 600px) {
+
+  .selected-category-box {
+    width: calc(100% - 20px);
+    padding: 14px;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .selected-category-box > span {
+    width: 100%;
+    flex: none;
+    text-align: center;
+  }
+
+  .selected-category-box .change-category-button,
+  .selected-category-box .results-back-button {
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+    flex: none;
+
+    font-size: 17px;
   }
 }
 

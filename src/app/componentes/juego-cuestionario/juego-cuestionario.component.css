@@ -1,7 +1,8 @@
 .quiz-container {
   width: 100%;
   min-height: 100vh;
-  padding: 24px;
+  padding: 20px;
+  background: #f2f2f2;
 }
 
 /* =========================================================
@@ -369,24 +370,6 @@
 .previous-button:disabled {
   opacity: 0.45;
   cursor: not-allowed;
-}
-
-/* =========================================================
-   INFORMACIÓN INFERIOR DEL JUEGO
-========================================================= */
-.quiz-footer-info {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 18px;
-  margin-top: 18px;
-  padding: 14px 18px;
-  color: black;
-  background: #ffffff;
-  border: 1px solid #e0e6ea;
-  border-radius: 12px;
-  font-size: large;
 }
 
 /* =========================================================
@@ -808,16 +791,6 @@
 }
 
 /* =========================================================
-   INSTRUCCIÓN DE PRÁCTICA
-========================================================= */
-.practice-instruction {
-  margin: 15px 0 12px;
-  color: #455a64;
-  font-size: 14px;
-  font-weight: 700;
-}
-
-/* =========================================================
    OPCIONES DE PRÁCTICA
 ========================================================= */
 .practice-options {
@@ -1058,11 +1031,6 @@
 
   .previous-button{
     width: 100%;
-  }
-
-  .quiz-footer-info {
-    flex-direction: column;
-    gap: 8px;
   }
 
   .results-container {
