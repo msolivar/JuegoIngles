@@ -32,7 +32,7 @@ export class JuegoCuestionarioComponent implements OnInit, OnDestroy {
   cuestionariosCategoria: CuestionarioFirebase[] = [];
   selectedQuestionnaireId = '';
 
-  selectedQuestionCount = 8;
+  selectedQuestionCount = 12;
   questionOrder: 'random' | 'ordered' | 'ascending' | 'descending' = 'random';
 
   cuestionarioActual: CuestionarioFirebase | null = null;
@@ -118,8 +118,7 @@ export class JuegoCuestionarioComponent implements OnInit, OnDestroy {
     this.loadError = '';
     this.selectedQuestionnaireId = '';
     this.cuestionarioActual = null;
-    this.selectedQuestionCount = 8;
-    this.questionOrder = 'random';
+    this.selectedQuestionCount = 12;
 
     this.cuestionariosCategoria = this.cuestionarios.filter(
       (cuestionario) =>
@@ -143,8 +142,7 @@ export class JuegoCuestionarioComponent implements OnInit, OnDestroy {
 
     if (!cuestionario) {
       this.cuestionarioActual = null;
-      this.selectedQuestionCount = 8;
-      this.questionOrder = 'random';
+      this.selectedQuestionCount = 12;
       return;
     }
 
@@ -152,8 +150,7 @@ export class JuegoCuestionarioComponent implements OnInit, OnDestroy {
 
     const totalPreguntas = cuestionario.preguntas?.length ?? 0;
 
-    this.selectedQuestionCount = Math.min(8, totalPreguntas);
-    this.questionOrder = 'random';
+    this.selectedQuestionCount = Math.min(12, totalPreguntas);
   }
 
   imprimirPreguntas(): void {
@@ -1139,8 +1136,7 @@ export class JuegoCuestionarioComponent implements OnInit, OnDestroy {
     this.resultsView = 'all';
 
     this.selectedQuestionnaireId = '';
-    this.selectedQuestionCount = 8;
-    this.questionOrder = 'random';
+    this.selectedQuestionCount = 12;
 
     this.onCategoryChange();
   }
@@ -1173,8 +1169,7 @@ export class JuegoCuestionarioComponent implements OnInit, OnDestroy {
     this.showResultsDetail = false;
     this.resultsView = 'all';
 
-    this.selectedQuestionCount = 8;
-    this.questionOrder = 'random';
+    this.selectedQuestionCount = 12;
   }
 
   get formattedTime(): string {

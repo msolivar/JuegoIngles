@@ -558,6 +558,7 @@
   font-size: 17px;
   font-weight: 700;
   cursor: pointer;
+  background: #78909c;
   transition:
     transform 0.2s ease,
     box-shadow 0.2s ease;
@@ -566,6 +567,11 @@
 .result-detail-button:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
+}
+
+.result-detail-button :disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
 }
 
 .result-detail-button strong {
@@ -986,8 +992,15 @@
 }
 
 /* EFECTO DEL BOTÓN */
-.selected-category-box .change-category-button:hover,
-.selected-category-box .results-back-button:hover {
+.selected-category-box .results-back-button:hover{
+  /* Morado más claro */
+  background: #8746df;
+
+  transform: translateY(-2px);
+  box-shadow: 0 6px 13px rgba(112, 36, 216, 0.28);  
+}
+
+.selected-category-box .change-category-button:hover {
   background: #2b75bd;
   transform: translateY(-2px);
   box-shadow: 0 4px 10px rgba(21, 101, 192, 0.18);
@@ -1621,20 +1634,7 @@ button:active:not(:disabled) {
   transform: none;
 }
 
-.pagination button {
-  padding: 10px 16px;
-  border: 1px solid #cccccc;
-  border-radius: 7px;
-  background: white;
-  cursor: pointer;
-}
 
-.pagination button:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
-}
-
-.pagination button,
 .pagination>span {
   font-size: 21px;
 }
@@ -1970,7 +1970,6 @@ button:active:not(:disabled) {
     font-size: 28px;
   }
 
-  .pagination button,
   .pagination>span {
     font-size: 21px;
   }

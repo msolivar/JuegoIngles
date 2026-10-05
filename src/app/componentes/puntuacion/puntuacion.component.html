@@ -173,10 +173,34 @@
 
         <p>Guarda el primer resultado para comenzar la clasificación.</p>
       </div>
+
+      <!-- ===================================================
+           PAGINACIÓN
+      ==================================================== -->
+      <div class="pagination" *ngIf="!cargandoRanking && jugadores.length > 15">
+        <button type="button" class="result-detail-button" (click)="paginaAnterior()" [disabled]="paginaActual === 1">
+          ← Anterior
+        </button>
+        <span>
+          Página
+          <strong>
+            {{ paginaActual }}
+          </strong>
+          de
+          <strong>
+            {{ totalPaginas }}
+          </strong>
+        </span>
+        <button type="button" class="result-detail-button" (click)="paginaSiguiente()"
+          [disabled]="paginaActual === totalPaginas">
+          Siguiente →
+        </button>
+      </div>
+
       <!-- ===================================================
            TABLA DEL RANKING
       ==================================================== -->
-      <div class="ranking-table-container" *ngIf="!cargandoRanking && jugadores.length > 0">
+      <div #rankingTable class="ranking-table-container" *ngIf="!cargandoRanking && jugadores.length > 0">
         <table>
           <thead>
             <tr>
@@ -244,8 +268,8 @@
       <!-- ===================================================
            PAGINACIÓN
       ==================================================== -->
-      <div class="pagination" *ngIf="!cargandoRanking && jugadores.length > 0">
-        <button type="button" (click)="paginaAnterior()" [disabled]="paginaActual === 1">
+      <div class="pagination" *ngIf="!cargandoRanking && jugadores.length > 15">
+        <button type="button" class="result-detail-button" (click)="paginaAnterior()" [disabled]="paginaActual === 1">
           ← Anterior
         </button>
         <span>
@@ -258,7 +282,8 @@
             {{ totalPaginas }}
           </strong>
         </span>
-        <button type="button" (click)="paginaSiguiente()" [disabled]="paginaActual === totalPaginas">
+        <button type="button" class="result-detail-button" (click)="paginaSiguiente()"
+          [disabled]="paginaActual === totalPaginas">
           Siguiente →
         </button>
       </div>
@@ -271,7 +296,7 @@
           jugador(es) en la clasificación
         </span>
 
-        <span> 30 puestos por página </span>
+        <span> {{ jugadoresPorPagina }} puestos por página </span>
       </div>
     </section>
   </main>
@@ -308,13 +333,9 @@
 
       <span> ⏱️ Tiempo </span>
 
-      <span>
-        👥 {{ cantidadJugadoresGrafica }} jugadores
-      </span>
+      <span> 👥 {{ cantidadJugadoresGrafica }} jugadores </span>
 
-      <span>
-        🎮 {{ nombreJuego }}
-      </span>
+      <span> 🎮 {{ nombreJuego }} </span>
     </div>
     <!-- =====================================================
          GRÁFICA
@@ -327,15 +348,18 @@
     ====================================================== -->
     <div class="chart-description">
       <p>
-        La gráfica representa a los {{ cantidadJugadoresGrafica }} mejores jugadores de la clasificación.
+        La gráfica representa a los {{ cantidadJugadoresGrafica }} mejores
+        jugadores de la clasificación.
       </p>
 
       <p>
-        La posición se determina considerando los aciertos, la puntuación y el tiempo empleado.
+        La posición se determina considerando los aciertos, la puntuación y el
+        tiempo empleado.
       </p>
 
       <p>
-        En caso de resultados similares, un menor tiempo permite diferenciar el desempeño de los jugadores.
+        En caso de resultados similares, un menor tiempo permite diferenciar el
+        desempeño de los jugadores.
       </p>
     </div>
   </section>

@@ -11,19 +11,11 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 
-import {
-  FirebasePuntuacionService,
-} from '../../servicios/firebase-puntuacion.service';
+import { FirebasePuntuacionService } from '../../servicios/firebase-puntuacion.service';
 
-import type {
-  TipoJuego,
-} from '../../servicios/firebase-puntuacion.service';
+import type { TipoJuego } from '../../servicios/firebase-puntuacion.service';
 
-import {
-  Chart,
-  ChartConfiguration,
-  registerables,
-} from 'chart.js';
+import { Chart, ChartConfiguration, registerables } from 'chart.js';
 
 Chart.register(...registerables);
 
@@ -50,21 +42,19 @@ interface PuntoFrecuencia {
 @Component({
   selector: 'app-puntuacion',
   standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-  ],
+  imports: [CommonModule, FormsModule],
   templateUrl: './puntuacion.component.html',
   styleUrl: './puntuacion.component.css',
 })
-export class PuntuacionComponent
-  implements OnInit, AfterViewInit, OnDestroy
-{
+export class PuntuacionComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('graficaProgreso')
   graficaProgreso?: ElementRef<HTMLCanvasElement>;
 
   @ViewChild('playerNameInput')
   playerNameInput?: ElementRef<HTMLInputElement>;
+
+  @ViewChild('rankingTable')
+  rankingTable?: ElementRef<HTMLDivElement>;
 
   private grafica?: Chart;
 
@@ -102,7 +92,7 @@ export class PuntuacionComponent
 
   paginaActual = 1;
 
-  readonly jugadoresPorPagina = 30;
+  readonly jugadoresPorPagina = 15;
 
   jugadores: JugadorRanking[] = [];
 
@@ -110,21 +100,14 @@ export class PuntuacionComponent
     private router: Router,
     private puntuacionService: FirebasePuntuacionService,
   ) {
-    const navigation =
-      this.router.getCurrentNavigation();
+    const navigation = this.router.getCurrentNavigation();
 
-    const state =
-      navigation?.extras?.state ??
-      window.history.state;
+    const state = navigation?.extras?.state ?? window.history.state;
 
-    console.log(
-      'Datos recibidos en puntuación:',
-      state,
-    );
+    console.log('Datos recibidos en puntuación:', state);
 
     if (state) {
-      const juegoRecibido =
-        state['juego'] ?? '';
+      const juegoRecibido = state['juego'] ?? '';
 
       if (
         juegoRecibido === 'unir-palabra' ||
@@ -134,32 +117,19 @@ export class PuntuacionComponent
         this.juego = juegoRecibido;
       }
 
-      this.categoria = String(
-        state['categoria'] ?? '',
-      );
+      this.categoria = String(state['categoria'] ?? '');
 
-      this.repaso = String(
-        state['repaso'] ?? '',
-      );
+      this.repaso = String(state['repaso'] ?? '');
 
-      this.categoriaRanking =
-        this.categoria;
+      this.categoriaRanking = this.categoria;
 
-      this.correctas = Number(
-        state['correctas'] ?? 0,
-      );
+      this.correctas = Number(state['correctas'] ?? 0);
 
-      this.total = Number(
-        state['total'] ?? 0,
-      );
+      this.total = Number(state['total'] ?? 0);
 
-      this.errores = Number(
-        state['errores'] ?? 0,
-      );
+      this.errores = Number(state['errores'] ?? 0);
 
-      this.tiempoSegundos = Number(
-        state['tiempoSegundos'] ?? 0,
-      );
+      this.tiempoSegundos = Number(state['tiempoSegundos'] ?? 0);
     }
 
     if (!Number.isFinite(this.correctas)) {
@@ -174,10 +144,7 @@ export class PuntuacionComponent
       this.errores = 0;
     }
 
-    if (
-      !Number.isFinite(this.tiempoSegundos) ||
-      this.tiempoSegundos < 0
-    ) {
+    if (!Number.isFinite(this.tiempoSegundos) || this.tiempoSegundos < 0) {
       this.tiempoSegundos = 0;
     }
   }
@@ -227,9 +194,7 @@ export class PuntuacionComponent
       return 0;
     }
 
-    return Math.round(
-      (this.correctas / this.total) * 100,
-    );
+    return Math.round((this.correctas / this.total) * 100);
   }
 
   get puntuacion(): number {
@@ -237,9 +202,7 @@ export class PuntuacionComponent
   }
 
   get tiempoFormateado(): string {
-    return this.formatearTiempo(
-      this.tiempoSegundos,
-    );
+    return this.formatearTiempo(this.tiempoSegundos);
   }
 
   get tieneResultado(): boolean {
@@ -249,72 +212,43 @@ export class PuntuacionComponent
   get totalPaginas(): number {
     return Math.max(
       1,
-      Math.ceil(
-        this.jugadores.length /
-          this.jugadoresPorPagina,
-      ),
+      Math.ceil(this.jugadores.length / this.jugadoresPorPagina),
     );
   }
 
   get jugadoresPagina(): JugadorRanking[] {
-    const inicio =
-      (this.paginaActual - 1) *
-      this.jugadoresPorPagina;
+    const inicio = (this.paginaActual - 1) * this.jugadoresPorPagina;
 
-    const fin =
-      inicio + this.jugadoresPorPagina;
+    const fin = inicio + this.jugadoresPorPagina;
 
-    return this.jugadores.slice(
-      inicio,
-      fin,
-    );
+    return this.jugadores.slice(inicio, fin);
   }
 
   get cantidadJugadoresGrafica(): number {
-    return Math.min(
-      this.jugadores.length,
-      30,
-    );
+    return Math.min(this.jugadores.length, 30);
   }
 
   get puntosPoligonoFrecuencia(): PuntoFrecuencia[] {
-    const mejores30 =
-      this.jugadores.slice(0, 30);
+    const mejores30 = this.jugadores.slice(0, 30);
 
-    const frecuencias =
-      new Map<number, number>();
+    const frecuencias = new Map<number, number>();
 
     mejores30.forEach((jugador) => {
-      const puntuacion = Number(
-        jugador.puntuacion ?? 0,
-      );
+      const puntuacion = Number(jugador.puntuacion ?? 0);
 
-      const cantidadActual =
-        frecuencias.get(puntuacion) ?? 0;
+      const cantidadActual = frecuencias.get(puntuacion) ?? 0;
 
-      frecuencias.set(
-        puntuacion,
-        cantidadActual + 1,
-      );
+      frecuencias.set(puntuacion, cantidadActual + 1);
     });
 
-    const puntos: PuntoFrecuencia[] =
-      Array.from(
-        frecuencias.entries(),
-      ).map(
-        ([
-          puntuacion,
-          cantidadJugadores,
-        ]) => ({
-          puntuacion,
-          cantidadJugadores,
-        }),
-      );
-
-    puntos.sort(
-      (a, b) =>
-        a.puntuacion - b.puntuacion,
+    const puntos: PuntoFrecuencia[] = Array.from(frecuencias.entries()).map(
+      ([puntuacion, cantidadJugadores]) => ({
+        puntuacion,
+        cantidadJugadores,
+      }),
     );
+
+    puntos.sort((a, b) => a.puntuacion - b.puntuacion);
 
     return puntos;
   }
@@ -338,12 +272,10 @@ export class PuntuacionComponent
 
     this.errorNombre = '';
 
-    const nombre =
-      this.nombreJugador.trim();
+    const nombre = this.nombreJugador.trim();
 
     if (!nombre) {
-      this.errorNombre =
-        'El nombre del jugador es obligatorio.';
+      this.errorNombre = 'El nombre del jugador es obligatorio.';
 
       setTimeout(() => {
         this.playerNameInput?.nativeElement.focus();
@@ -353,15 +285,13 @@ export class PuntuacionComponent
     }
 
     if (!this.esJuegoValido(this.juego)) {
-      this.mensaje =
-        'No fue posible identificar el juego.';
+      this.mensaje = 'No fue posible identificar el juego.';
 
       return;
     }
 
     if (this.total <= 0) {
-      this.mensaje =
-        'No existe una partida para guardar.';
+      this.mensaje = 'No existe una partida para guardar.';
 
       return;
     }
@@ -369,58 +299,43 @@ export class PuntuacionComponent
     try {
       this.guardando = true;
 
-      const id =
-        await this.puntuacionService.guardarPuntuacion({
-          juego: this.juego,
+      const id = await this.puntuacionService.guardarPuntuacion({
+        juego: this.juego,
 
-          jugador: nombre,
+        jugador: nombre,
 
-          categoria:
-            this.categoria || 'General',
+        categoria: this.categoria || 'General',
 
-          repaso:
-            this.repaso || '',
+        repaso: this.repaso || '',
 
-          puntuacion:
-            this.puntuacion,
+        puntuacion: this.puntuacion,
 
-          correctas:
-            this.correctas,
+        correctas: this.correctas,
 
-          total:
-            this.total,
+        total: this.total,
 
-          errores:
-            this.errores,
+        errores: this.errores,
 
-          porcentaje:
-            this.porcentaje,
+        porcentaje: this.porcentaje,
 
-          tiempoSegundos:
-            this.tiempoSegundos,
-        });
+        tiempoSegundos: this.tiempoSegundos,
+      });
 
       this.ultimoPuntajeId = id;
 
-      this.categoriaRanking =
-        this.categoria || 'General';
+      this.categoriaRanking = this.categoria || 'General';
 
       this.puntajeGuardado = true;
 
-      this.mensaje =
-        'Puntaje guardado correctamente.';
+      this.mensaje = 'Puntaje guardado correctamente.';
 
       await this.cargarRanking();
     } catch (error) {
-      console.error(
-        'Error guardando puntuación:',
-        error,
-      );
+      console.error('Error guardando puntuación:', error);
 
       this.puntajeGuardado = false;
 
-      this.mensaje =
-        'No fue posible guardar el puntaje.';
+      this.mensaje = 'No fue posible guardar el puntaje.';
     } finally {
       this.guardando = false;
     }
@@ -438,15 +353,11 @@ export class PuntuacionComponent
     try {
       this.cargandoRanking = true;
 
-      const registros =
-        await this.puntuacionService.obtenerPuntuaciones(
-          this.juego,
-        );
-
-      console.log(
-        'Ranking completo recibido:',
-        registros,
+      const registros = await this.puntuacionService.obtenerPuntuaciones(
+        this.juego,
       );
+
+      console.log('Ranking completo recibido:', registros);
 
       const categoriaActual = (
         this.categoriaRanking ||
@@ -456,128 +367,79 @@ export class PuntuacionComponent
         .trim()
         .toLowerCase();
 
-      const registrosCategoria =
-        registros.filter((registro) => {
-          const categoriaRegistro = (
-            registro.categoria ||
-            'General'
-          )
-            .trim()
-            .toLowerCase();
+      const registrosCategoria = registros.filter((registro) => {
+        const categoriaRegistro = (registro.categoria || 'General')
+          .trim()
+          .toLowerCase();
 
-          return (
-            categoriaRegistro ===
-            categoriaActual
-          );
-        });
+        return categoriaRegistro === categoriaActual;
+      });
 
-      console.log(
-        'Categoría del ranking:',
-        categoriaActual,
-      );
+      console.log('Categoría del ranking:', categoriaActual);
 
-      console.log(
-        'Ranking filtrado por categoría:',
-        registrosCategoria,
-      );
+      console.log('Ranking filtrado por categoría:', registrosCategoria);
 
-      this.jugadores =
-        registrosCategoria.map(
-          (registro, index) => ({
-            id:
-              registro.id ?? '',
+      this.jugadores = registrosCategoria.map((registro, index) => ({
+        id: registro.id ?? '',
 
-            posicion:
-              index + 1,
+        posicion: index + 1,
 
-            jugador:
-              registro.jugador,
+        jugador: registro.jugador,
 
-            puntuacion:
-              Number(
-                registro.puntuacion ?? 0,
-              ),
+        puntuacion: Number(registro.puntuacion ?? 0),
 
-            categoria:
-              registro.categoria ??
-              'General',
+        categoria: registro.categoria ?? 'General',
 
-            repaso:
-              registro.repaso ?? '',
+        repaso: registro.repaso ?? '',
 
-            correctas:
-              Number(
-                registro.correctas ?? 0,
-              ),
+        correctas: Number(registro.correctas ?? 0),
 
-            total:
-              Number(
-                registro.total ?? 0,
-              ),
+        total: Number(registro.total ?? 0),
 
-            errores:
-              Number(
-                registro.errores ?? 0,
-              ),
+        errores: Number(registro.errores ?? 0),
 
-            porcentaje:
-              Number(
-                registro.porcentaje ?? 0,
-              ),
+        porcentaje: Number(registro.porcentaje ?? 0),
 
-            tiempoSegundos:
-              Number(
-                registro.tiempoSegundos ?? 0,
-              ),
+        tiempoSegundos: Number(registro.tiempoSegundos ?? 0),
 
-            fecha:
-              this.formatearFecha(
-                registro.fechaYHoraDeCreacion,
-              ),
-          }),
-        );
+        fecha: this.formatearFecha(registro.fechaYHoraDeCreacion),
+      }));
 
       if (this.ultimoPuntajeId) {
-        const indice =
-          this.jugadores.findIndex(
-            (jugador) =>
-              jugador.id ===
-              this.ultimoPuntajeId,
-          );
+        const indice = this.jugadores.findIndex(
+          (jugador) => jugador.id === this.ultimoPuntajeId,
+        );
 
         if (indice >= 0) {
-          this.paginaActual =
-            Math.floor(
-              indice /
-                this.jugadoresPorPagina,
-            ) + 1;
+          this.paginaActual = Math.floor(indice / this.jugadoresPorPagina) + 1;
         }
       }
 
-      if (
-        this.paginaActual >
-        this.totalPaginas
-      ) {
-        this.paginaActual =
-          this.totalPaginas;
+      if (this.paginaActual > this.totalPaginas) {
+        this.paginaActual = this.totalPaginas;
       }
     } catch (error) {
-      console.error(
-        'Error cargando ranking:',
-        error,
-      );
+      console.error('Error cargando ranking:', error);
 
       this.jugadores = [];
 
       if (!this.mensaje) {
-        this.mensaje =
-          'No fue posible cargar la tabla de posiciones.';
+        this.mensaje = 'No fue posible cargar la tabla de posiciones.';
       }
     } finally {
       this.cargandoRanking = false;
 
       this.actualizarGrafica();
     }
+  }
+
+  private enfocarTabla(): void {
+    setTimeout(() => {
+      this.rankingTable?.nativeElement.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      });
+    }, 0);
   }
 
   private actualizarGrafica(): void {
@@ -597,25 +459,22 @@ export class PuntuacionComponent
       return;
     }
 
-    const canvas =
-      this.graficaProgreso?.nativeElement;
+    const canvas = this.graficaProgreso?.nativeElement;
 
     if (!canvas) {
       return;
     }
 
-    const puntos =
-      this.puntosPoligonoFrecuencia;
+    const puntos = this.puntosPoligonoFrecuencia;
 
     if (puntos.length === 0) {
       return;
     }
 
-    const datosGrafica =
-      puntos.map((punto) => ({
-        x: punto.cantidadJugadores,
-        y: punto.puntuacion,
-      }));
+    const datosGrafica = puntos.map((punto) => ({
+      x: punto.cantidadJugadores,
+      y: punto.puntuacion,
+    }));
 
     const configuracion: ChartConfiguration<'line'> = {
       type: 'line',
@@ -665,55 +524,36 @@ export class PuntuacionComponent
           tooltip: {
             callbacks: {
               title: (elementos) => {
-                if (
-                  elementos.length === 0
-                ) {
+                if (elementos.length === 0) {
                   return '';
                 }
 
-                const indice =
-                  elementos[0].dataIndex;
+                const indice = elementos[0].dataIndex;
 
-                const punto =
-                  puntos[indice];
+                const punto = puntos[indice];
 
                 return `${punto.puntuacion} puntos`;
               },
 
               label: (contexto) => {
-                const indice =
-                  contexto.dataIndex;
+                const indice = contexto.dataIndex;
 
-                const punto =
-                  puntos[indice];
+                const punto = puntos[indice];
 
-                if (
-                  punto.cantidadJugadores ===
-                  1
-                ) {
+                if (punto.cantidadJugadores === 1) {
                   return '1 jugador';
                 }
 
                 return `${punto.cantidadJugadores} jugadores`;
               },
 
-              afterLabel: (
-                contexto,
-              ) => {
-                const indice =
-                  contexto.dataIndex;
+              afterLabel: (contexto) => {
+                const indice = contexto.dataIndex;
 
-                const punto =
-                  puntos[indice];
+                const punto = puntos[indice];
 
-                if (
-                  punto.cantidadJugadores ===
-                  1
-                ) {
-                  return (
-                    `1 jugador obtuvo ` +
-                    `${punto.puntuacion} puntos`
-                  );
+                if (punto.cantidadJugadores === 1) {
+                  return `1 jugador obtuvo ` + `${punto.puntuacion} puntos`;
                 }
 
                 return (
@@ -760,10 +600,7 @@ export class PuntuacionComponent
       },
     };
 
-    this.grafica = new Chart(
-      canvas,
-      configuracion,
-    );
+    this.grafica = new Chart(canvas, configuracion);
   }
 
   private destruirGrafica(): void {
@@ -774,55 +611,32 @@ export class PuntuacionComponent
     }
   }
 
-  formatearTiempo(
-    segundos: number,
-  ): string {
-    const totalSegundos = Math.max(
-      0,
-      Math.floor(
-        Number(segundos) || 0,
-      ),
-    );
+  formatearTiempo(segundos: number): string {
+    const totalSegundos = Math.max(0, Math.floor(Number(segundos) || 0));
 
-    const minutos = Math.floor(
-      totalSegundos / 60,
-    );
+    const minutos = Math.floor(totalSegundos / 60);
 
-    const segundosRestantes =
-      totalSegundos % 60;
+    const segundosRestantes = totalSegundos % 60;
 
     return (
-      `${minutos
-        .toString()
-        .padStart(2, '0')}:` +
-      `${segundosRestantes
-        .toString()
-        .padStart(2, '0')}`
+      `${minutos.toString().padStart(2, '0')}:` +
+      `${segundosRestantes.toString().padStart(2, '0')}`
     );
   }
 
-  private formatearFecha(
-    timestamp: number,
-  ): string {
+  private formatearFecha(timestamp: number): string {
     if (!timestamp) {
       return '';
     }
 
-    return new Date(
-      timestamp,
-    ).toLocaleDateString(
-      'es-CO',
-      {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-      },
-    );
+    return new Date(timestamp).toLocaleDateString('es-CO', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    });
   }
 
-  private esJuegoValido(
-    juego: string,
-  ): juego is TipoJuego {
+  private esJuegoValido(juego: string): juego is TipoJuego {
     return (
       juego === 'unir-palabra' ||
       juego === 'completar-palabra' ||
@@ -833,21 +647,18 @@ export class PuntuacionComponent
   paginaAnterior(): void {
     if (this.paginaActual > 1) {
       this.paginaActual--;
+      this.enfocarTabla();
     }
   }
 
   paginaSiguiente(): void {
-    if (
-      this.paginaActual <
-      this.totalPaginas
-    ) {
+    if (this.paginaActual < this.totalPaginas) {
       this.paginaActual++;
+      this.enfocarTabla();
     }
   }
 
-  async seleccionarJuego(
-    juego: TipoJuego,
-  ): Promise<void> {
+  async seleccionarJuego(juego: TipoJuego): Promise<void> {
     this.juego = juego;
 
     this.paginaActual = 1;
@@ -860,27 +671,19 @@ export class PuntuacionComponent
 
     this.destruirGrafica();
 
-    if (
-      juego !==
-      this.obtenerJuegoPartidaActual()
-    ) {
+    if (juego !== this.obtenerJuegoPartidaActual()) {
       this.categoriaRanking = '';
     } else {
-      this.categoriaRanking =
-        this.categoria;
+      this.categoriaRanking = this.categoria;
     }
 
     await this.cargarRanking();
   }
 
-  private obtenerJuegoPartidaActual():
-    | TipoJuego
-    | '' {
-    const state =
-      window.history.state;
+  private obtenerJuegoPartidaActual(): TipoJuego | '' {
+    const state = window.history.state;
 
-    const juego =
-      state?.['juego'] ?? '';
+    const juego = state?.['juego'] ?? '';
 
     if (
       juego === 'unir-palabra' ||
@@ -898,21 +701,15 @@ export class PuntuacionComponent
 
     switch (this.juego) {
       case 'unir-palabra':
-        this.router.navigate([
-          '/relation-game',
-        ]);
+        this.router.navigate(['/relation-game']);
         break;
 
       case 'completar-palabra':
-        this.router.navigate([
-          '/completar-palabras',
-        ]);
+        this.router.navigate(['/completar-palabras']);
         break;
 
       case 'cuestionario':
-        this.router.navigate([
-          '/cuestionario-game',
-        ]);
+        this.router.navigate(['/cuestionario-game']);
         break;
 
       default:
