@@ -23,13 +23,12 @@
   box-sizing: border-box;
 }
 
-.save-button,
-.cancel-button {
+.save-button, .cancel-button {
   min-height: 50px;
   padding: 11px 20px;
   border: none;
   border-radius: 28px;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 800;
   cursor: pointer;
 }
@@ -112,10 +111,10 @@
   height: 65px;
 }
 
-.change-category-button:hover {
-  background: #6f42c1;
+.change-category-button:hover:not(:disabled) {
+  background: #1565c0;
   transform: translateY(-2px);
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.22);
+  box-shadow: 0 4px 12px rgba(21, 101, 192, 0.18);
 }
 
 .change-category-button:active {
@@ -852,21 +851,31 @@
 .results-back-button {
   display: block;
   min-width: 245px;
-  /* margin: 25px auto 0; */
   padding: 12px 20px;
   border: none;
   border-radius: 22px;
-  background: #1565c0;
+
+  /* Morado */
+  background: #7024d8;
+
   color: black;
   font-size: 20px;
   font-weight: 700;
   cursor: pointer;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.16);
+
+  box-shadow: 0 4px 10px rgba(112, 36, 216, 0.22);
   height: 64px;
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .results-back-button:hover {
-  background: #1976d2;
+  background: #8746df;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 13px rgba(112, 36, 216, 0.28);
 }
 
 /* =========================================================
@@ -979,8 +988,9 @@
 /* EFECTO DEL BOTÓN */
 .selected-category-box .change-category-button:hover,
 .selected-category-box .results-back-button:hover {
-  background: #5b34a5;
+  background: #2b75bd;
   transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(21, 101, 192, 0.18);
 }
 
 /* JUGAR NUEVAMENTE */
@@ -1041,7 +1051,7 @@
 /* LABEL */
 .category-selector label {
   display: block;
-  font-size: 17px;
+  font-size: 20px;
   font-weight: 600;
   color: #444;
   text-align: left;
@@ -1892,17 +1902,16 @@ button:active:not(:disabled) {
   }
 
   .category-selector label {
-    font-size: 16px;
+    font-size: 22px;
   }
 
   .category-selector select {
-    font-size: 15px;
+    font-size: 20px;
   }
 
-  .save-button,
-  .cancel-button {
+  .save-button, .cancel-button {
     width: 100%;
-    font-size: 15px;
+    font-size: 20px;
   }
 
   .print-vocabulary-button {

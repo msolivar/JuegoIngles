@@ -669,21 +669,6 @@
   margin-top: 25px;
 }
 
-.back-results-button {
-  padding: 11px 20px;
-  color: #ffffff;
-  background: #1976d2;
-  border: 1px solid #1976d2;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 800;
-  cursor: pointer;
-}
-
-.back-results-button:hover {
-  background: #1565c0;
-}
-
 /* =========================================================
    MODAL PRÁCTICA DE ERRORES
 ========================================================= */
@@ -1084,7 +1069,7 @@
     flex-direction: column;
   }
 
-  .back-results-button,
+  .results-back-button,
   .results-modal-actions{
     width: 100%;
   }
