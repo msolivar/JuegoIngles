@@ -531,18 +531,6 @@
 }
 
 /* =========================================================
-   BOTONES DE DETALLE DEL RESULTADO
-========================================================= */
-.result-detail-buttons {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 14px;
-  margin: 22px 0 26px;
-}
-
-/* =========================================================
    BOTÓN GENERAL
 ========================================================= */
 .result-detail-button {
@@ -554,7 +542,7 @@
   gap: 8px;
   padding: 12px 20px;
   border: none;
-  border-radius: 18px;
+  border-radius: 30px;
   font-size: 17px;
   font-weight: 700;
   cursor: pointer;
@@ -594,7 +582,7 @@
   margin: 0;
   padding: 12px 22px;
   border: none;
-  border-radius: 22px;
+  border-radius: 30px;
   background: #f57c00;
   color: black;
   font-size: 20px;
@@ -615,19 +603,6 @@
   background: #e9f8df;
   color: #286900;
   border: 2px solid #66bb2e;
-}
-
-/* =========================================================
-   ACCIONES FINALES
-========================================================= */
-.final-actions {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 10px;
-  border-top: 1px solid #eceff1;
 }
 
 /* =========================================================
@@ -672,7 +647,7 @@
    RESUMEN
 ========================================================= */
 .results-summary {
-  margin-bottom: 22px;
+  margin-bottom: 0px;
   text-align: center;
   font-size: 17px;
 }
@@ -761,7 +736,7 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
-  margin-top: 20px;
+  margin-top: 10px;
 }
 
 /* =========================================================
@@ -859,7 +834,7 @@
   min-width: 245px;
   padding: 12px 20px;
   border: none;
-  border-radius: 22px;
+  border-radius: 30px;
 
   /* Morado */
   background: #7024d8;
@@ -885,26 +860,12 @@
 }
 
 /* =========================================================
-   GUARDAR PUNTAJE / PRACTICAR ERRORES
-========================================================= */
-.score-practice-actions {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 14px;
-  flex-wrap: wrap;
-  margin-top: 18px;
-  margin-bottom: 26px;
-}
-
-/* =========================================================
    BOTÓN GUARDAR PUNTAJE
 ========================================================= */
 .save-score-button {
   padding: 13px 24px;
   border: none;
-  border-radius: 22px;
+  border-radius: 30px;
   background: #ffc107;
   color: #222;
   font-size: 22px;
@@ -930,8 +891,8 @@
 ========================================================= */
 .selected-category-box {
   width: calc(100% - 30px);
-  max-width: 1100px;
-  margin: 18px auto 12px;
+  max-width: 1400px;
+  margin: 18px auto 12px; 
   padding: 17px 25px;
 
   display: flex;
@@ -1068,6 +1029,18 @@
   font-weight: 600;
   color: black;
   text-align: left;
+}
+
+
+/* =========================================================
+   ACCIONES DEL MODAL DE RESULTADOS
+========================================================= */
+.results-modal-actions {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 5px;
 }
 
 /* =========================================================
@@ -1568,17 +1541,7 @@ button:active:not(:disabled) {
 /* =========================================================
    CONTENEDOR DE BOTONES DEL DETALLE
 ========================================================= */
-.results-detail-actions {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 14px;
-  flex-wrap: wrap;
-  margin-top: 24px;
-}
-
-.result-actions,
-.results-detail-actions {
+.result-actions {
   flex-direction: column;
 }
 
@@ -1715,12 +1678,8 @@ button:active:not(:disabled) {
     max-height: 80vh;
   }
 
-  .score-practice-actions {
-    flex-direction: column;
-  }
-
   .save-score-button,
-  .score-practice-actions .practice-errors-button {
+  .practice-errors-button {
     width: 100%;
     box-sizing: border-box;
     text-align: center;
@@ -1832,11 +1791,6 @@ button:active:not(:disabled) {
     flex: 1;
   }
 
-  .result-detail-buttons {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
   .result-detail-button {
     width: 100%;
     min-width: 0;
@@ -1851,8 +1805,7 @@ button:active:not(:disabled) {
     border-radius: 18px;
   }
 
-  .error-word-card,
-  final-actions {
+  .error-word-card{
     flex-direction: column;
     align-items: stretch;
   }
@@ -1935,6 +1888,15 @@ button:active:not(:disabled) {
 ========================================================= */
 
 @media (max-width: 600px) {
+
+  .results-modal-actions {
+    flex-direction: column;
+  }
+
+  .results-back-button,
+  .results-modal-actions {
+    width: 100%;
+  }
 
   .selected-category-box {
     width: calc(100% - 20px);

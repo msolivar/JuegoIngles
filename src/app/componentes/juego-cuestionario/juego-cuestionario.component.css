@@ -1,7 +1,7 @@
 .quiz-container {
   width: 100%;
   min-height: 100vh;
-  padding: 20px;
+  padding: 10px;
   background: #f2f2f2;
 }
 
@@ -10,7 +10,7 @@
 ========================================================= */
 .quiz-game {
   width: 100%;
-  max-width: 1050px;
+  max-width: 1400px;
   margin: 0 auto;
 }
 
@@ -377,7 +377,7 @@
 ========================================================= */
 .results-container {
   width: 100%;
-  max-width: 850px;
+  max-width: 1000px;
   margin: 25px auto;
   padding: 30px;
   background: #ffffff;
@@ -561,18 +561,8 @@
 }
 
 .results-modal-header p {
-  margin: 0 0 25px;
   color: black;
   font-size: 20px;
-}
-
-/* =========================================================
-   LISTA DE RESULTADOS
-========================================================= */
-.result-detail-list {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
 }
 
 .result-detail-card {
@@ -656,17 +646,6 @@
 
 .correct-answer-detail strong {
   margin-right: 5px;
-}
-
-/* =========================================================
-   ACCIONES DEL MODAL DE RESULTADOS
-========================================================= */
-.results-modal-actions {
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin-top: 25px;
 }
 
 /* =========================================================
@@ -1063,15 +1042,6 @@
 
   .result-detail-image {
     max-width: 100%;
-  }
-
-  .results-modal-actions {
-    flex-direction: column;
-  }
-
-  .results-back-button,
-  .results-modal-actions{
-    width: 100%;
   }
 
   .error-practice-modal {

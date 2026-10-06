@@ -25,6 +25,7 @@ interface ResultadoPregunta {
   styleUrls: ['./juego-cuestionario.component.css'],
 })
 export class JuegoCuestionarioComponent implements OnInit, OnDestroy {
+  [x: string]: any;
   cuestionarios: CuestionarioFirebase[] = [];
 
   categorias: string[] = [];
@@ -151,6 +152,17 @@ export class JuegoCuestionarioComponent implements OnInit, OnDestroy {
     const totalPreguntas = cuestionario.preguntas?.length ?? 0;
 
     this.selectedQuestionCount = Math.min(12, totalPreguntas);
+  }
+
+  // =========================================================
+  // MOSTRAR EL CUESTIONARIO SELECCIONADO EN REPASO
+  // =========================================================
+  getCurrentQuestionnaireLabel(): string {
+    if (!this.cuestionarioActual) {
+      return '';
+    }
+
+    return this.getQuestionnaireLabel(this.cuestionarioActual);
   }
 
   imprimirPreguntas(): void {
@@ -1254,10 +1266,10 @@ export class JuegoCuestionarioComponent implements OnInit, OnDestroy {
   get resultsDetailTitle(): string {
     switch (this.resultsView) {
       case 'correct':
-        return 'Respuestas correctas';
+        return '✅ Respuestas correctas';
 
       case 'incorrect':
-        return 'Respuestas incorrectas';
+        return '❌ Respuestas incorrectas';
 
       default:
         return 'Detalle del cuestionario';

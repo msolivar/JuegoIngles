@@ -172,16 +172,25 @@
          BARRA SUPERIOR
     ====================================================== -->
     <div class="selected-category-box" *ngIf="!gameFinished">
-      <div class="playing-category-text">
-        🏷️ Jugando con:
+      <span>
+        🏷️ Categoría:
         <strong>
           {{
           selectedCategory === ALL_CATEGORIES
-          ? "Todas las palabras"
+          ? "Todas las categorías"
           : selectedCategory
           }}
         </strong>
-      </div>
+      </span>
+
+      <span>
+        📚 Repaso:
+        <strong>
+          {{
+          reviewType === "meaning" ? "Verbo → Significado" : "Verbo → Pareja"
+          }}
+        </strong>
+      </span>
 
       <button type="button" class="change-category-button" (click)="changeCategory()">
         🔄 Cambiar categoría
@@ -500,7 +509,7 @@
 
           <p>Has utilizado todos los intentos disponibles.</p>
 
-          <div class="result-detail-buttons">
+          <div class="results-modal-actions">
             <button type="button" class="result-detail-button error-detail-button" (click)="showErrorWords()">
               ❌ Errores:
               <strong>
@@ -516,7 +525,7 @@
             </button>
           </div>
 
-          <div class="final-actions">
+          <div class="results-modal-actions">
             <button type="button" class="play-again-button" (click)="startGame()">
               🔄 Intentar nuevamente
             </button>
@@ -604,10 +613,14 @@
             🎉 ¡No cometiste ningún error!
           </div>
 
-          <div class="results-detail-actions" *ngIf="wordsWithErrors.length > 3">
+          <div class="results-modal-actions" *ngIf="wordsWithErrors.length > 3">
             <button *ngIf="showingErrorWords" type="button" class="result-detail-button practice-errors-button"
               (click)="practiceErrorWords()">
               🎯 Practicar mis errores
+            </button>
+
+            <button type="button" class="results-back-button" (click)="closeResultsDetail()">
+              ← Volver
             </button>
           </div>
 
@@ -653,7 +666,7 @@
         <!-- ===================================================
            BOTONES DEL DETALLE
       ==================================================== -->
-        <div class="results-detail-actions">
+        <div class="results-modal-actions">
           <button *ngIf="showingErrorWords && wordsWithErrors.length > 0" type="button"
             class="result-detail-button practice-errors-button" (click)="practiceErrorWords()">
             🎯 Practicar mis errores

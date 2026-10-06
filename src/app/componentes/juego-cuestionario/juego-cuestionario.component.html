@@ -130,6 +130,31 @@
          INFORMACIÓN INFERIOR
     ====================================================== -->
     <div class="selected-category-box">
+
+      <span>
+        🏷️ Categoría:
+        <strong>
+          {{ cuestionarioActual?.categoria }}
+        </strong>
+      </span>
+
+      <span>
+        📚 Repaso:
+        <strong>
+          {{ getCurrentQuestionnaireLabel() }}
+        </strong>
+      </span>
+
+      <button type="button" class="change-category-button" (click)="changeCategory()">
+        🔄 Cambiar categoría
+      </button>
+
+      <button type="button" class="results-back-button" (click)="submitQuestionnaire()">
+        📝 Entregar ahora
+      </button>
+    </div>
+
+    <div class="attempts">
       <span>
         ✅ Respondidas:
 
@@ -145,14 +170,6 @@
           {{ unansweredQuestions }}
         </strong>
       </span>
-
-      <button type="button" class="change-category-button" (click)="changeCategory()">
-        🏷️ Otra categoría
-      </button>
-
-      <button type="button" class="results-back-button" (click)="submitQuestionnaire()">
-        📝 Entregar ahora
-      </button>
     </div>
     <!-- =====================================================
          ENCABEZADO SUPERIOR
@@ -356,6 +373,7 @@
         📝 Entregar ahora
       </button>
     </div>
+
   </section>
 
   <!-- =======================================================
@@ -438,7 +456,7 @@
     <!-- =====================================================
          VER RESULTADOS
     ====================================================== -->
-    <div class="final-actions">
+    <div class="results-modal-actions">
       <button type="button" class="result-detail-button correct-detail-button" (click)="showCorrectResults()">
         ✓ Correctas ({{ totalCorrectAnswers }})
       </button>
@@ -455,7 +473,7 @@
     <!-- =====================================================
          GUARDAR PUNTAJE / PRACTICAR ERRORES
     ====================================================== -->
-    <div class="score-practice-actions">
+    <div class="results-modal-actions">
       <!-- ===================================================
            GUARDAR PUNTAJE
            SOLO APARECE SI ACERTÓ AL MENOS LA MITAD
@@ -467,16 +485,16 @@
       <!-- ===================================================
            PRACTICAR ERRORES
       ==================================================== -->
-      <button *ngIf="totalIncorrectAnswers > 0" type="button" class="result-detail-button practice-errors-button"
+      <!-- <button *ngIf="totalIncorrectAnswers > 0" type="button" class="result-detail-button practice-errors-button"
         (click)="startErrorPractice()">
         🎯 Practicar mis errores
-      </button>
+      </button> -->
     </div>
 
     <!-- =====================================================
          ACCIONES FINALES
     ====================================================== -->
-    <div class="final-actions">
+    <div class="results-modal-actions">
       <button type="button" class="play-again-button" (click)="retryQuestionnaire()">
         🔄 Intentar nuevamente
       </button>
@@ -486,7 +504,7 @@
       </button>
 
       <button type="button" class="change-category-button" (click)="changeCategory()">
-        🏷️ Otra categoría
+        🏷️ Elegir otra categoría 
       </button>
     </div>
   </section>
@@ -511,7 +529,7 @@
           {{ resultsDetailTitle }}
         </h2>
 
-        <p>
+        <p class="results-summary">
           {{ filteredResults.length }}
           resultado(s)
         </p>
@@ -548,7 +566,7 @@
       <!-- ===================================================
            LISTA DE RESULTADOS
       ==================================================== -->
-      <div class="result-detail-list">
+      <div class="result-word-list">
         <article class="result-detail-card" *ngFor="let resultado of filteredResults; let i = index"
           [class.correct-result-card]="resultado.correcta" [class.incorrect-result-card]="!resultado.correcta">
           <!-- =================================================
@@ -617,7 +635,7 @@
       <!-- ===================================================
            ACCIONES DEL DETALLE
       ==================================================== -->
-      <div class="results-modal-actions">
+      <div class="results-modal-actions" *ngIf="filteredResults.length > 1">
         <!-- =================================================
              PRACTICAR ERRORES
         ================================================== -->
@@ -769,7 +787,7 @@
         <!-- =================================================
              BOTONES FINALES
         ================================================== -->
-        <div class="results-detail-actions">
+        <div class="results-modal-actions">
           <button type="button" class="result-detail-button practice-errors-button" (click)="restartErrorPractice()">
             🔄 Practicar otra vez
           </button>
