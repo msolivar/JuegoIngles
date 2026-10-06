@@ -551,13 +551,14 @@
 .results-modal-header {
   padding-right: 55px;
   text-align: center;
+  text-transform: capitalize;
+  font-weight: bold;
 }
 
 .results-modal-header h2 {
   margin: 0 0 8px;
   color: #263238;
   font-size: 30px;
-  font-weight: 500;
 }
 
 .results-modal-header p {

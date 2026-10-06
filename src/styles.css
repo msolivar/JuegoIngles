@@ -641,6 +641,8 @@
   margin: 0 0 12px;
   text-align: center;
   font-size: 27px;
+  text-transform: capitalize;
+  font-weight: bold;
 }
 
 /* =========================================================
@@ -649,7 +651,7 @@
 .results-summary {
   margin-bottom: 0px;
   text-align: center;
-  font-size: 17px;
+  font-size: 20px;
 }
 
 /* =========================================================
