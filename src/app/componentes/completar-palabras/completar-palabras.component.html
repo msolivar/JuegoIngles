@@ -6,9 +6,7 @@
     <h1><b>Completar palabras en Ingles</b></h1>
     <h2>🎮 Elige una categoría para completar palabras</h2>
 
-    <div class="no-results" *ngIf="loadingWords">
-      ⏳ Cargando categorías...
-    </div>
+    <div class="no-results" *ngIf="loadingWords">⏳ Cargando categorías...</div>
 
     <div class="no-results" *ngIf="loadError && !loadingWords">
       {{ loadError }}
@@ -64,33 +62,20 @@
      ORDEN DE LAS PALABRAS
 ====================================================== -->
         <div class="setup-field">
-
-          <label for="wordOrder">
-            🔀 Orden de las palabras
-          </label>
+          <label for="wordOrder"> 🔀 Orden de las palabras </label>
 
           <select id="wordOrder" [(ngModel)]="wordOrder">
-
             <!-- ALEATORIO -->
-            <option value="random">
-              Aleatorio
-            </option>
+            <option value="random">Aleatorio</option>
 
             <!-- ORDEN ORIGINAL DE FIREBASE -->
-            <option value="original">
-              Orden original
-            </option>
+            <option value="original">Orden original</option>
 
             <!-- ASCENDENTE -->
-            <option value="ascending">
-              Ascendente (A → Z)
-            </option>
+            <option value="ascending">Ascendente (A → Z)</option>
 
             <!-- DESCENDENTE -->
-            <option value="descending">
-              Descendente (Z → A)
-            </option>
-
+            <option value="descending">Descendente (Z → A)</option>
           </select>
 
           <!-- DESCRIPCIÓN -->
@@ -109,7 +94,53 @@
           <small *ngIf="wordOrder === 'descending'">
             Las palabras aparecerán de la Z a la A.
           </small>
+        </div>
+      </div>
 
+      <!-- =====================================================
+        AUDIO / TRADUCTOR Y VELOCIDAD
+      ====================================================== -->
+      <div class="setup-row">
+        <!-- =================================================
+          ACTIVAR / DESACTIVAR AUDIO
+        ================================================== -->
+        <div class="setup-field">
+          <label> 🔊 Traductor de voz </label>
+
+          <select [(ngModel)]="audioEnabled">
+            <option [ngValue]="true">🔊 Activado</option>
+
+            <option [ngValue]="false">🔇 Desactivado</option>
+          </select>
+
+          <small>
+            {{
+            audioEnabled
+            ? "La pronunciación está activada."
+            : "La pronunciación está desactivada."
+            }}
+          </small>
+        </div>
+
+        <!-- =================================================
+          VELOCIDAD DEL AUDIO
+        ================================================== -->
+        <div class="setup-field">
+          <label> ⏱️ Velocidad de voz </label>
+
+          <select [(ngModel)]="audioRate" [disabled]="!audioEnabled">
+            <option [ngValue]="0.6">Muy lenta</option>
+
+            <option [ngValue]="0.8">Lenta</option>
+
+            <option [ngValue]="1">Normal</option>
+
+            <option [ngValue]="1.2">Rápida</option>
+
+            <option [ngValue]="1.5">Muy rápida</option>
+          </select>
+
+          <small> Velocidad de pronunciación. </small>
         </div>
       </div>
 
@@ -141,8 +172,6 @@
           <span class="word-answer" *ngIf="reviewType === 'meaning'">
             {{ pair.meaning }}
           </span>
-
-
         </div>
 
         <div class="no-results" *ngIf="filteredPairs.length === 0">
@@ -235,7 +264,6 @@
          JUEGO
     ====================================================== -->
     <ng-container *ngIf="!gameFinished && pages.length > 0">
-
       <!-- ===================================================
            CAMBIANDO PÁGINA
       ==================================================== -->
@@ -254,7 +282,6 @@
         <div class="column-header">
           {{ reviewType === "meaning" ? "SIGNIFICADO" : "PAREJA" }}
         </div>
-
       </div>
 
       <!-- ===================================================
@@ -274,7 +301,7 @@
           ================================================ -->
           <div class="word-section left-word">
             <div class="letter-row">
-              <ng-container *ngFor="let cell of exercise.leftCells">
+              <ng-container *ngFor="let cell of exercise.leftCells; let cellIndex = index">
                 <!-- ESPACIO -->
                 <span *ngIf="cell.isSpace" class="visible-letter">
                   &nbsp;
@@ -290,8 +317,9 @@
                     exercise.completed ||
                     changingPage ||
                     gameFinished ||
-                    showHints
-                  " [(ngModel)]="cell.value" (input)="onLetterInput(cell, $event, exercise)" autocomplete="off" />
+                    showHints" [(ngModel)]="cell.value" (focus)="isFirstHiddenCellIndex(exercise.leftCells, cellIndex) 
+                  && playAudio(exercise.leftOriginal, 'en-US')" (input)="onLetterInput(cell, $event, exercise)"
+                  autocomplete="off" />
               </ng-container>
             </div>
           </div>
@@ -305,7 +333,7 @@
           ================================================ -->
           <div class="word-section right-word">
             <div class="letter-row">
-              <ng-container *ngFor="let cell of exercise.rightCells">
+              <ng-container *ngFor="let cell of exercise.rightCells; let cellIndex = index">
                 <!-- ESPACIO -->
                 <span *ngIf="cell.isSpace" class="visible-letter">
                   &nbsp;
@@ -321,8 +349,9 @@
                     exercise.completed ||
                     changingPage ||
                     gameFinished ||
-                    showHints
-                  " [(ngModel)]="cell.value" (input)="onLetterInput(cell, $event, exercise)" autocomplete="off" />
+                    showHints" [(ngModel)]="cell.value" (focus)="isFirstHiddenCellIndex(exercise.rightCells, cellIndex) 
+                  && playAudio(exercise.rightOriginal, reviewType === 'meaning'? 'es-ES' : 'en-US')"
+                  (input)="onLetterInput(cell, $event, exercise)" autocomplete="off" />
               </ng-container>
             </div>
           </div>
@@ -367,9 +396,8 @@
         <h2>💡 Pistas</h2>
 
         <p class="hint-description">
-          Observa las parejas.
-          Esta ventana se cerrará
-          automáticamente en 5 segundos.
+          Observa las parejas. Esta ventana se cerrará automáticamente en 5
+          segundos.
         </p>
 
         <div class="hint-list">
@@ -381,11 +409,7 @@
             <span class="hint-arrow"> ➜ </span>
 
             <span class="hint-right">
-              {{
-              reviewType === 'meaning'
-              ? hint.meaning
-              : hint.right
-              }}
+              {{ reviewType === "meaning" ? hint.meaning : hint.right }}
             </span>
 
             <!-- SIGNIFICADO -->
@@ -395,9 +419,7 @@
           </div>
         </div>
 
-        <div class="hint-time">
-          ⏳ 5 segundos
-        </div>
+        <div class="hint-time">⏳ 5 segundos</div>
 
         <button type="button" class="results-back-button" (click)="closeHints()">
           Cerrar
@@ -581,7 +603,6 @@
                   <span class="result-word-right">
                     {{ exercise.rightOriginal }}
                   </span>
-
                 </div>
 
                 <!-- =================================================
@@ -640,7 +661,6 @@
                   <span class="result-word-right">
                     {{ exercise.rightOriginal }}
                   </span>
-
                 </div>
 
                 <!-- =================================================

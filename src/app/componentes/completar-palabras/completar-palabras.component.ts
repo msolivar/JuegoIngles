@@ -6,6 +6,7 @@ import {
   FirebaseWordsService,
   PairFirebase,
 } from '../../servicios/firebase-words.service';
+import { SpeechService } from '../../servicios/speech.service';
 
 /* =========================================================
    TIPO DE PAREJA PARA EL JUEGO
@@ -130,6 +131,14 @@ export class CompletarPalabrasComponent {
   tiempoSegundos = 0;
 
   // =========================================================
+  // CONFIGURACIÓN DEL TRADUCTOR DE VOZ
+  // =========================================================
+  audioEnabled = false;
+
+  // Velocidad normal por defecto
+  audioRate = 1;
+
+  // =========================================================
   // EJERCICIOS
   // =========================================================
   exercises: ExercisePair[] = [];
@@ -194,6 +203,7 @@ export class CompletarPalabrasComponent {
   constructor(
     private wordsService: FirebaseWordsService,
     private router: Router,
+    private speechService: SpeechService,
   ) {
     this.loadWords();
   }
@@ -289,6 +299,34 @@ export class CompletarPalabrasComponent {
 
       this.selectedPairCount = Math.min(12, this.allPairs.length);
     });
+  }
+
+  // =========================================================
+  // SABER SI ES EL PRIMER CUADRO OCULTO DE LA PALABRA
+  // =========================================================
+  isFirstHiddenCellIndex(cells: LetterCell[], currentIndex: number): boolean {
+    const firstHiddenIndex = cells.findIndex(
+      (cell) => !cell.isSpace && cell.hidden,
+    );
+
+    return currentIndex === firstHiddenIndex;
+  }
+
+  // =========================================================
+  // REPRODUCIR AUDIO EN INGLÉS Y ESPAÑOL
+  // =========================================================
+  playAudio(text: string, language: 'en-US' | 'es-ES' = 'en-US'): void {
+    // ---------------------------------------------------------
+    // SI EL TRADUCTOR ESTÁ DESACTIVADO, NO HACER NADA
+    // ---------------------------------------------------------
+    if (!this.audioEnabled) {
+      return;
+    }
+
+    // ---------------------------------------------------------
+    // USAR EL SERVICIO GENÉRICO DE VOZ
+    // ---------------------------------------------------------
+    this.speechService.playAudio(text, language, this.audioRate);
   }
 
   // =========================================================

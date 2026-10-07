@@ -219,19 +219,6 @@
 }
 
 /* =========================================================
-   TEXTO DE LA PREGUNTA
-========================================================= */
-.question-text {
-  margin: 0 0 22px;
-  color: #263238;
-  font-size: 20px;
-  font-weight: 500;
-  line-height: 1.65;
-  white-space: pre-line;
-  text-align: justify;
-}
-
-/* =========================================================
    IMAGEN DE LA PREGUNTA
 ========================================================= */
 .question-image-container {
@@ -970,10 +957,6 @@
 
   .question-card {
     padding: 20px 14px;
-  }
-
-  .question-text {
-    font-size: 17px;
   }
 
   .question-image {

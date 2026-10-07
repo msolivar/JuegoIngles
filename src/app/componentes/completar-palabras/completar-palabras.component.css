@@ -88,7 +88,7 @@
 ====================================================== */
 .letter-input {
   width: 60px;
-  height: 45px;
+  height: 50px;
   padding: 0;
   text-align: center;
   font-size: 23px;
@@ -141,6 +141,27 @@
 /* =========================================================
    RESPONSIVE - TABLET
    ========================================================= */
+@media (max-width: 1200px) {
+  .exercise-header,
+  .exercise-pair {
+    grid-template-columns: 45px minmax(0, 1fr) 60px minmax(0, 1fr) 45px;
+    gap: 10px;
+  }
+
+  .letter-input {
+    font-size: 25px;
+  }
+
+  .pair-arrow {
+    font-size: 35px;
+  }
+  
+  .visible-letter, .visible-letter1 {
+    height: 40px;
+    width: 18px;
+  }
+}
+
 @media (max-width: 900px) {
 
   .exercise-header,
@@ -154,17 +175,16 @@
   }
 
   .letter-row {
-    gap: 3px;
-  }
-
-  .letter-input {
-    width: 60px;
-    height: 42px;
-    font-size: 21px;
+    gap: 1px;
   }
 
   .pair-arrow {
     font-size: 30px;
+  }
+  
+  .visible-letter, .visible-letter1 {
+    height: 38px;
+    width: 15px;
   }
 }
 
@@ -173,37 +193,12 @@
 ====================================================== */
 @media (max-width:800px) {
   
-  .visible-letter, .visible-letter1 {
-    height: 38px;
-    width: 15px;
-  }
-}
-
-@media (max-width: 700px) {
-
-  .exercise-header,
-  .exercise-pair {
+  .exercise-header {
     grid-template-columns: 35px minmax(0, 1fr) 35px minmax(0, 1fr) 30px;
     gap: 5px;
     padding-left: 5px;
     padding-right: 5px;
-  }
-
-  .letter-input {
-    width: 60px;
-    font-size: 18px;
-  }
-
-  .letter-input {
-    height: 38px;
-  }
-
-  .letter-row {
-    gap: 1px;
-  }
-
-  .pair-arrow {
-    font-size: 25px;
+    display: none;
   }
 
   .column-header {
@@ -212,20 +207,6 @@
 
   .result-statistics {
     flex-direction: column;
-  }
-}
-
-/* =========================================================
-   RESPONSIVE - CELULAR
-   ========================================================= */
-@media (max-width: 600px) {
-
-  /* ---------------------------------------------------------
-     OCULTAR CABECERA VERBO / PAREJA
-     En móvil usamos cada tarjeta individual
-     --------------------------------------------------------- */
-  .exercise-header {
-    display: none;
   }
 
   /* ---------------------------------------------------------
@@ -245,7 +226,7 @@
     gap: 7px;
     border-radius: 18px;
   }
-
+  
   /* Número */
   .pair-number {
     grid-area: number;
@@ -254,7 +235,7 @@
     font-size: 16px;
     font-weight: bold;
   }
-
+  
   /* VERBO */
   .left-word {
     grid-area: left;
@@ -268,6 +249,7 @@
     line-height: 24px;
     transform: rotate(90deg);
     margin: 2px 0;
+    font-size: 25px;
   }
 
   /* PAREJA */
@@ -302,15 +284,19 @@
     flex-wrap: nowrap;
   }
 
+}
+
+/* =========================================================
+   RESPONSIVE - CELULAR
+   ========================================================= */
+@media (max-width: 600px) {
+  
   /* ---------------------------------------------------------
      LETRAS
      --------------------------------------------------------- */
-  .visible-letter,
-  .letter-input {
-    width: 60px;
-    /* min-width: 60px; */
-    height: 40px;
-    font-size: 20px;
+  .visible-letter, .visible-letter1 {
+    width: 20px;
+    height: 15px;
   }
 
   .letter-input {
@@ -336,8 +322,7 @@
   .letter-input {
     width: 60px;
     /* min-width: 60px; */
-    height: 38px;
-    font-size: 18px;
+    height: 42px;
   }
 }
 

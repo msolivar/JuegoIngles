@@ -78,8 +78,8 @@
         </div>
 
         <!-- =================================================
-     ORDEN DE LAS PREGUNTAS
-================================================== -->
+        ORDEN DE LAS PREGUNTAS
+        ================================================== -->
         <div class="setup-field">
           <label for="questionOrder"> 🔀 Orden de las preguntas </label>
 
@@ -105,6 +105,84 @@
             }}
           </small>
         </div>
+      </div>
+
+      <!-- =====================================================
+     CONFIGURACIÓN DEL TRADUCTOR DE VOZ
+====================================================== -->
+      <div class="setup-row" *ngIf="cuestionarioActual">
+
+        <!-- =================================================
+       ACTIVAR / DESACTIVAR TRADUCTOR
+  ================================================== -->
+        <div class="setup-field">
+
+          <label for="audioEnabled">
+            🔊 Traductor de voz
+          </label>
+
+          <select id="audioEnabled" [(ngModel)]="audioEnabled">
+            <option [ngValue]="true">
+              🔊 Activado
+            </option>
+
+            <option [ngValue]="false">
+              🔇 Desactivado
+            </option>
+          </select>
+
+          <small>
+            {{
+            audioEnabled
+            ? "La pronunciación está activada."
+            : "La pronunciación está desactivada."
+            }}
+          </small>
+
+        </div>
+
+
+        <!-- =================================================
+       VELOCIDAD
+  ================================================== -->
+        <div class="setup-field">
+
+          <label for="audioRate">
+            ⏱️ Velocidad de voz
+          </label>
+
+          <select id="audioRate" [(ngModel)]="audioRate" [disabled]="!audioEnabled">
+            <option [ngValue]="0.6">
+              Muy lenta
+            </option>
+
+            <option [ngValue]="0.8">
+              Lenta
+            </option>
+
+            <option [ngValue]="1">
+              Normal
+            </option>
+
+            <option [ngValue]="1.2">
+              Rápida
+            </option>
+
+            <option [ngValue]="1.5">
+              Muy rápida
+            </option>
+          </select>
+
+          <small>
+            {{
+            audioEnabled
+            ? "Velocidad de pronunciación."
+            : "Activa el traductor para seleccionar la velocidad."
+            }}
+          </small>
+
+        </div>
+
       </div>
     </div>
 
@@ -240,8 +318,8 @@
     ====================================================== -->
     <div class="question-navigation">
       <button type="button" class="question-navigation-button" *ngFor="let pregunta of preguntas; let i = index"
-        [class.current-question]="i === currentQuestionIndex" [class.answered-question]="isQuestionAnswered(i)"
-        (click)="goToQuestion(i)">
+        [attr.id]="'question-button-' + i" [class.current-question]="i === currentQuestionIndex"
+        [class.answered-question]="isQuestionAnswered(i)" (focus)="goToQuestionAndSpeak(i)">
         {{ i + 1 }}
 
         <span class="answered-dot" *ngIf="isQuestionAnswered(i) && i !== currentQuestionIndex">
@@ -269,8 +347,9 @@
       <!-- ===================================================
            PREGUNTA
       ==================================================== -->
-      <h2 class="question-text">
-        {{ currentQuestion.pregunta }}
+      <h2 class="question-text speakable-text" title="Haz clic para escuchar"
+        (click)="playAudio(currentQuestion.pregunta)">
+        🔊 {{ currentQuestion.pregunta }}
       </h2>
 
       <!-- ===================================================
@@ -306,14 +385,15 @@
       ==================================================== -->
       <div class="hint-list">
         <label class="answer-option" *ngFor="let opcion of currentOptions"
-          [class.selected-option]="isOptionSelected(opcion.id)">
+          [class.selected-option]="isOptionSelected(opcion.id)" (click)="playAudio(opcion.texto)">
+
           <input type="radio" [name]="'pregunta-' + currentQuestionId" [value]="opcion.id"
             [checked]="isOptionSelected(opcion.id)" (change)="selectAnswer(opcion.id)" />
 
           <span class="option-radio"></span>
 
           <span class="option-text">
-            {{ opcion.texto }}
+            🔊 {{ opcion.texto }}
           </span>
         </label>
       </div>
@@ -504,7 +584,7 @@
       </button>
 
       <button type="button" class="change-category-button" (click)="changeCategory()">
-        🏷️ Elegir otra categoría 
+        🏷️ Elegir otra categoría
       </button>
     </div>
   </section>

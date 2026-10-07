@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+
 import {
   AfterViewInit,
   Component,
@@ -9,10 +10,13 @@ import {
   QueryList,
   ViewChildren,
 } from '@angular/core';
+
 import {
   FirebaseWordsService,
   PairFirebase,
 } from '../../servicios/firebase-words.service';
+
+import { SpeechService } from '../../servicios/speech.service';
 
 /* =========================================================
    TIPO DE PAREJA UTILIZADA DENTRO DEL JUEGO
@@ -137,6 +141,14 @@ export class RelationGameComponent implements AfterViewInit {
   // ORDEN DE LAS PALABRAS
   // =========================================================
   wordOrder: 'random' | 'original' | 'ascending' | 'descending' = 'random';
+
+  // =========================================================
+  // CONFIGURACIÓN DEL TRADUCTOR DE VOZ
+  // =========================================================
+  audioEnabled = false;
+
+  // Normal por defecto
+  audioRate = 1;
 
   // =========================================================
   // CONTROL DEL TIEMPO DE LA PARTIDA
@@ -265,6 +277,7 @@ export class RelationGameComponent implements AfterViewInit {
   constructor(
     private wordsService: FirebaseWordsService,
     private router: Router,
+    private speechService: SpeechService,
   ) {
     this.loadWords();
   }
@@ -717,6 +730,23 @@ export class RelationGameComponent implements AfterViewInit {
   }
 
   // =========================================================
+  // REPRODUCIR AUDIO EN INGLÉS Y ESPAÑOL
+  // =========================================================
+  playAudio(text: string, language: 'en-US' | 'es-ES' = 'en-US'): void {
+    // ---------------------------------------------------------
+    // SI EL TRADUCTOR ESTÁ DESACTIVADO, NO HACER NADA
+    // ---------------------------------------------------------
+    if (!this.audioEnabled) {
+      return;
+    }
+
+    // ---------------------------------------------------------
+    // USAR EL SERVICIO GENÉRICO DE VOZ
+    // ---------------------------------------------------------
+    this.speechService.playAudio(text, language, this.audioRate);
+  }
+
+  // =========================================================
   // SELECCIONAR PALABRA IZQUIERDA
   // =========================================================
   selectLeft(word: WordItem): void {
@@ -733,6 +763,14 @@ export class RelationGameComponent implements AfterViewInit {
       return;
     }
 
+    // =========================================================
+    // PRONUNCIAR VERBO EN INGLÉS
+    // =========================================================
+    this.playAudio(word.text, 'en-US');
+
+    // =========================================================
+    // SELECCIONAR PALABRA
+    // =========================================================
     this.selectedLeft = word;
   }
 
@@ -752,6 +790,22 @@ export class RelationGameComponent implements AfterViewInit {
 
     if (this.isRightConnected(word.id)) {
       return;
+    }
+
+    // =========================================================
+    // PRONUNCIAR PALABRA DERECHA
+    // =========================================================
+
+    // Verbo → Significado:
+    // la columna derecha está en español.
+    if (this.reviewType === 'meaning') {
+      this.playAudio(word.text, 'es-ES');
+    }
+
+    // Verbo → Pareja:
+    // la columna derecha está en inglés.
+    else {
+      this.playAudio(word.text, 'en-US');
     }
 
     const left = this.selectedLeft;

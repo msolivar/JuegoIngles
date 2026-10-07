@@ -1419,20 +1419,6 @@ button:active:not(:disabled) {
 }
 
 /* =========================================================
-   REDUCIR ANIMACIONES SI EL SISTEMA LO SOLICITA
-========================================================= */
-@media (prefers-reduced-motion: reduce) {
-
-  *,
-  *::before,
-  *::after {
-    scroll-behavior: auto !important;
-    transition: none !important;
-    animation: none !important;
-  }
-}
-
-/* =========================================================
    IMAGEN CLICABLE
 ========================================================= */
 .clickable-image {
@@ -1611,6 +1597,63 @@ button:active:not(:disabled) {
   text-align: center;
   font-size: 15px;
   color: #444444;
+}
+
+/* =========================================================
+   TEXTO DE LA PREGUNTA
+========================================================= */
+.question-text {
+  margin: 0 0 22px;
+  color: #263238;
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 1.65;
+  white-space: pre-line;
+  text-align: justify;
+}
+
+/* =========================================================
+   TRADUCTOR DE VOZ - TEXTOS PRONUNCIABLES
+   ========================================================= */
+.speakable-text {
+  cursor: pointer;
+  transition:
+    color 0.2s ease,
+    transform 0.15s ease;
+}
+
+.speakable-text:hover {
+  color: #1565c0;
+}
+
+/* =========================================================
+   INDICADOR VISUAL DE AUDIO EN LAS RESPUESTAS
+   ========================================================= */
+.option-text {
+  cursor: pointer;
+}
+
+/* =========================================================
+   SELECT DESACTIVADO DEL TRADUCTOR
+   ========================================================= */
+.setup-field select:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  background: #eeeeee;
+}
+
+/* =========================================================
+   REDUCIR ANIMACIONES SI EL SISTEMA LO SOLICITA
+========================================================= */
+@media (prefers-reduced-motion: reduce) {
+
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition: none !important;
+    animation: none !important;
+  }
 }
 
 /* =========================================================
@@ -1890,6 +1933,10 @@ button:active:not(:disabled) {
 ========================================================= */
 
 @media (max-width: 600px) {
+
+  .question-text {
+    font-size: 17px;
+  }
 
   .results-modal-actions {
     flex-direction: column;

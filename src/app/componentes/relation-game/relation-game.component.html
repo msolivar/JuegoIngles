@@ -86,6 +86,80 @@
       </div>
 
       <!-- =====================================================
+     CONFIGURACIÓN DEL TRADUCTOR DE VOZ
+====================================================== -->
+      <div class="setup-row">
+
+        <!-- =================================================
+       ACTIVAR / DESACTIVAR TRADUCTOR
+  ================================================== -->
+        <div class="setup-field">
+          <label for="audioEnabled">
+            🔊 Traductor de voz
+          </label>
+
+          <select id="audioEnabled" [(ngModel)]="audioEnabled">
+            <option [ngValue]="true">
+              🔊 Activado
+            </option>
+
+            <option [ngValue]="false">
+              🔇 Desactivado
+            </option>
+          </select>
+
+          <small>
+            {{
+            audioEnabled
+            ? "La pronunciación está activada."
+            : "La pronunciación está desactivada."
+            }}
+          </small>
+        </div>
+
+
+        <!-- =================================================
+       VELOCIDAD DEL TRADUCTOR
+  ================================================== -->
+        <div class="setup-field">
+          <label for="audioRate">
+            ⏱️ Velocidad de voz
+          </label>
+
+          <select id="audioRate" [(ngModel)]="audioRate" [disabled]="!audioEnabled">
+            <option [ngValue]="0.6">
+              Muy lenta
+            </option>
+
+            <option [ngValue]="0.8">
+              Lenta
+            </option>
+
+            <option [ngValue]="1">
+              Normal
+            </option>
+
+            <option [ngValue]="1.2">
+              Rápida
+            </option>
+
+            <option [ngValue]="1.5">
+              Muy rápida
+            </option>
+          </select>
+
+          <small>
+            {{
+            audioEnabled
+            ? "Velocidad de pronunciación."
+            : "Activa el traductor para seleccionar la velocidad."
+            }}
+          </small>
+        </div>
+
+      </div>
+
+      <!-- =====================================================
          BUSCADOR
       ====================================================== -->
       <div class="setup-field full-width search-setup">
@@ -232,8 +306,7 @@
       <div class="column">
         <button #leftButton *ngFor="let word of leftWords[currentPage]" type="button" class="word-card left-card"
           [attr.data-id]="word.id" [class.selected]="isSelected(word.id)" [class.connected]="isLeftConnected(word.id)"
-          [disabled]="
-            finished || changingPage || showHints || isLeftConnected(word.id)
+          [disabled]=" finished || changingPage || showHints || isLeftConnected(word.id)
           " (click)="selectLeft(word)">
           <!-- =================================================
                IMAGEN PEQUEÑA DEL JUEGO
@@ -647,7 +720,7 @@
           ================================================== -->
           <button *ngIf="showingErrorWords && wordsWithErrors.length > 0" type="button"
             class="result-detail-button practice-errors-button" (click)="practiceErrorWords()">
-            🎯 Practicar mis errores 
+            🎯 Practicar mis errores
           </button>
 
           <!-- =================================================

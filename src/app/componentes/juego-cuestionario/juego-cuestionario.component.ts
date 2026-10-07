@@ -1,5 +1,7 @@
 import { Router } from '@angular/router';
+
 import { Component, OnDestroy, OnInit } from '@angular/core';
+
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -9,6 +11,8 @@ import {
   PreguntaCuestionario,
   OpcionCuestionario,
 } from '../../servicios/firebase-cuestionario.service';
+
+import { SpeechService } from '../../servicios/speech.service';
 
 interface ResultadoPregunta {
   pregunta: PreguntaCuestionario;
@@ -35,6 +39,14 @@ export class JuegoCuestionarioComponent implements OnInit, OnDestroy {
 
   selectedQuestionCount = 12;
   questionOrder: 'random' | 'ordered' | 'ascending' | 'descending' = 'random';
+
+  // =========================================================
+  // CONFIGURACIÓN DEL TRADUCTOR DE VOZ
+  // =========================================================
+  audioEnabled = false;
+
+  // Velocidad normal por defecto
+  audioRate = 1;
 
   cuestionarioActual: CuestionarioFirebase | null = null;
 
@@ -77,6 +89,7 @@ export class JuegoCuestionarioComponent implements OnInit, OnDestroy {
   constructor(
     private cuestionarioService: FirebaseCuestionarioService,
     private router: Router,
+    private speechService: SpeechService,
   ) {}
 
   ngOnInit(): void {
@@ -84,6 +97,7 @@ export class JuegoCuestionarioComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.speechService.stopAudio();
     this.stopTimer();
     this.clearErrorPracticeTimeout();
   }
@@ -479,6 +493,49 @@ export class JuegoCuestionarioComponent implements OnInit, OnDestroy {
       .replace(/'/g, '&#039;');
   }
 
+  // =========================================================
+  // REPRODUCIR AUDIO EN INGLÉS Y ESPAÑOL
+  // =========================================================
+  playAudio(text: string, language: 'en-US' | 'es-ES' = 'en-US'): void {
+    // ---------------------------------------------------------
+    // SI EL TRADUCTOR ESTÁ DESACTIVADO, NO HACER NADA
+    // ---------------------------------------------------------
+    if (!this.audioEnabled) {
+      return;
+    }
+
+    // ---------------------------------------------------------
+    // REPRODUCIR MEDIANTE EL SERVICIO
+    // ---------------------------------------------------------
+    this.speechService.playAudio(text, language, this.audioRate);
+  }
+
+  // =========================================================
+  // IR A UNA PREGUNTA Y PRONUNCIARLA
+  // =========================================================
+  goToQuestionAndSpeak(index: number): void {
+    // ---------------------------------------------------------
+    // IR A LA PREGUNTA
+    // ---------------------------------------------------------
+    this.goToQuestion(index);
+
+    // ---------------------------------------------------------
+    // OBTENER PREGUNTA
+    // ---------------------------------------------------------
+    const pregunta = this.preguntas[index];
+
+    if (!pregunta) {
+      return;
+    }
+
+    // ---------------------------------------------------------
+    // PRONUNCIARLA
+    // ---------------------------------------------------------
+    setTimeout(() => {
+      this.playAudio(pregunta.pregunta, 'en-US');
+    }, 100);
+  }
+
   startGame(): void {
     if (!this.selectedCategory || this.selectedCategory.trim() === '') {
       this.selectionMessage =
@@ -589,6 +646,11 @@ export class JuegoCuestionarioComponent implements OnInit, OnDestroy {
 
     this.calculateGameTime();
     this.startTimer();
+
+    // =========================================================
+    // DAR FOCO AL BOTÓN DE LA PRIMERA PREGUNTA
+    // =========================================================
+    this.focusCurrentQuestionButton();
   }
 
   private calculateGameTime(): void {
@@ -728,20 +790,29 @@ export class JuegoCuestionarioComponent implements OnInit, OnDestroy {
     return this.currentAnswer !== '';
   }
 
+  // =========================================================
+  // PREGUNTA ANTERIOR
+  // =========================================================
   previousQuestion(): void {
     if (this.currentQuestionIndex <= 0) {
       return;
     }
 
     this.currentQuestionIndex--;
+    this.focusCurrentQuestionButton();
   }
 
+  // =========================================================
+  // SIGUIENTE PREGUNTA
+  // =========================================================
   nextQuestion(): void {
     if (this.currentQuestionIndex >= this.preguntas.length - 1) {
       return;
     }
 
     this.currentQuestionIndex++;
+
+    this.focusCurrentQuestionButton();
   }
 
   goToQuestion(index: number): void {
@@ -811,6 +882,11 @@ export class JuegoCuestionarioComponent implements OnInit, OnDestroy {
     }
 
     this.finishGame(false);
+
+    // =======================================================
+    // DETENER TRADUCTOR DE VOZ
+    // =======================================================
+    this.speechService.stopAudio();
   }
 
   finishGame(porTiempo: boolean = false): void {
@@ -1126,7 +1202,14 @@ export class JuegoCuestionarioComponent implements OnInit, OnDestroy {
   }
 
   changeQuestionnaire(): void {
+    // =======================================================
+    // DETENER TEMPORIZADOR
+    // =======================================================
     this.stopTimer();
+
+    // =======================================================
+    // REINICIAR PRÁCTICA DE ERRORES
+    // =======================================================
     this.resetErrorPractice();
 
     this.gameStarted = false;
@@ -1153,13 +1236,37 @@ export class JuegoCuestionarioComponent implements OnInit, OnDestroy {
     this.onCategoryChange();
   }
 
+  // =========================================================
+  // DAR FOCO AL BOTÓN DE LA PREGUNTA ACTUAL
+  // =========================================================
+  focusCurrentQuestionButton(): void {
+    setTimeout(() => {
+      const button = document.getElementById(
+        `question-button-${this.currentQuestionIndex}`,
+      ) as HTMLButtonElement | null;
+
+      if (!button) {
+        return;
+      }
+
+      button.focus();
+    }, 0);
+  }
+
   changeCategory(): void {
+    // =======================================================
+    // DETENER TRADUCTOR DE VOZ
+    // =======================================================
+    this.speechService.stopAudio();
+
     this.stopTimer();
     this.resetErrorPractice();
 
     this.gameStarted = false;
     this.gameFinished = false;
     this.timeExpired = false;
+
+    this.focusCurrentQuestionButton();
 
     this.cuestionarioActual = null;
 
