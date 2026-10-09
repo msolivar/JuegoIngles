@@ -333,7 +333,7 @@
       ==================================================== -->
       <div class="column">
         <button #rightButton *ngFor="let word of rightWords[currentPage]" type="button" class="word-card right-card"
-          [attr.data-id]="word.id" [class.connected]="isRightConnected(word.id)" [disabled]="
+          [attr.data-id]="word.id" [class.selected]="selectedRight?.id === word.id" [class.connected]="isRightConnected(word.id)" [disabled]="
             finished || changingPage || showHints || isRightConnected(word.id)
           " (click)="selectRight(word)">
           <!-- PUNTO DE CONEXIÓN -->

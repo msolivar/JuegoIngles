@@ -197,6 +197,11 @@ export class RelationGameComponent implements AfterViewInit {
   selectedLeft: WordItem | null = null;
 
   // =========================================================
+  // PALABRA DERECHA SELECCIONADA
+  // =========================================================
+  selectedRight: WordItem | null = null;
+
+  // =========================================================
   // LÍNEAS
   // =========================================================
   lines: Line[] = [];
@@ -324,6 +329,8 @@ export class RelationGameComponent implements AfterViewInit {
 
       this.selectedLeft = null;
 
+      this.selectedRight = null;
+
       this.selectedImage = null;
 
       this.selectedImageWord = '';
@@ -381,6 +388,7 @@ export class RelationGameComponent implements AfterViewInit {
     // =========================================================
     if (this.selectedCategory === this.ALL_CATEGORIES) {
       this.pairs = [...this.allPairs];
+      this.selectedPairCount = this.pairs.length;
     } else {
       // =======================================================
       // UNA CATEGORÍA ESPECÍFICA
@@ -390,6 +398,7 @@ export class RelationGameComponent implements AfterViewInit {
           pair.categoriaPalabra?.trim().toLowerCase() ===
           this.selectedCategory.trim().toLowerCase(),
       );
+      this.selectedPairCount = Math.min(12, this.pairs.length);
     }
 
     // =========================================================
@@ -405,8 +414,6 @@ export class RelationGameComponent implements AfterViewInit {
     // PREPARAR CONFIGURACIÓN
     // =========================================================
     this.categorySelected = true;
-
-    this.selectedPairCount = Math.min(12, this.pairs.length);
 
     this.reviewType = 'right';
 
@@ -430,6 +437,8 @@ export class RelationGameComponent implements AfterViewInit {
     this.lines = [];
 
     this.selectedLeft = null;
+
+    this.selectedRight = null;
 
     this.errors = 0;
 
@@ -500,6 +509,7 @@ export class RelationGameComponent implements AfterViewInit {
     this.connections = [];
     this.lines = [];
     this.selectedLeft = null;
+    this.selectedRight = null;
     this.finished = false;
     this.gameWon = false;
     this.changingPage = false;
@@ -637,6 +647,7 @@ export class RelationGameComponent implements AfterViewInit {
     this.currentPage = 0;
     this.connections = [];
     this.selectedLeft = null;
+    this.selectedRight = null;
     this.finished = false;
     this.gameWon = false;
     this.changingPage = false;
@@ -754,24 +765,24 @@ export class RelationGameComponent implements AfterViewInit {
       this.finished ||
       this.changingPage ||
       this.showHints ||
-      this.selectedImage
+      this.selectedImage ||
+      this.isLeftConnected(word.id)
     ) {
       return;
     }
 
-    if (this.isLeftConnected(word.id)) {
+    this.playAudio(word.text, 'en-US');
+
+    // Si ya se seleccionó una palabra derecha, comprobar.
+    if (this.selectedRight) {
+      const right = this.selectedRight;
+      this.selectedRight = null;
+      this.comprobarRelacion(word, right);
       return;
     }
 
-    // =========================================================
-    // PRONUNCIAR VERBO EN INGLÉS
-    // =========================================================
-    this.playAudio(word.text, 'en-US');
-
-    // =========================================================
-    // SELECCIONAR PALABRA
-    // =========================================================
-    this.selectedLeft = word;
+    // Seleccionar o desmarcar la izquierda.
+    this.selectedLeft = this.selectedLeft?.id === word.id ? null : word;
   }
 
   // =========================================================
@@ -783,34 +794,45 @@ export class RelationGameComponent implements AfterViewInit {
       this.changingPage ||
       this.showHints ||
       this.selectedImage ||
-      !this.selectedLeft
+      this.isRightConnected(word.id)
     ) {
       return;
     }
 
-    if (this.isRightConnected(word.id)) {
-      return;
-    }
-
-    // =========================================================
-    // PRONUNCIAR PALABRA DERECHA
-    // =========================================================
-
-    // Verbo → Significado:
-    // la columna derecha está en español.
     if (this.reviewType === 'meaning') {
       this.playAudio(word.text, 'es-ES');
-    }
-
-    // Verbo → Pareja:
-    // la columna derecha está en inglés.
-    else {
+    } else {
       this.playAudio(word.text, 'en-US');
     }
 
-    const left = this.selectedLeft;
+    // Si ya se seleccionó una izquierda, comprobar.
+    if (this.selectedLeft) {
+      const left = this.selectedLeft;
+      this.selectedLeft = null;
+      this.comprobarRelacion(left, word);
+      return;
+    }
 
-    const correct = left.id === word.id;
+    // Seleccionar o desmarcar la derecha.
+    this.selectedRight = this.selectedRight?.id === word.id ? null : word;
+  }
+
+  // =========================================================
+  // COMPROBAR RELACIÓN ENTRE PALABRAS
+  // =========================================================
+  comprobarRelacion(left: WordItem, right: WordItem): void {
+    if (
+      this.finished ||
+      this.changingPage ||
+      this.showHints ||
+      this.selectedImage ||
+      this.isLeftConnected(left.id) ||
+      this.isRightConnected(right.id)
+    ) {
+      return;
+    }
+
+    const correct = left.id === right.id;
 
     // =========================================================
     // RESPUESTA CORRECTA
@@ -818,11 +840,12 @@ export class RelationGameComponent implements AfterViewInit {
     if (correct) {
       this.connections.push({
         leftId: left.id,
-        rightId: word.id,
+        rightId: right.id,
         correct: true,
       });
 
       this.selectedLeft = null;
+      this.selectedRight = null;
 
       setTimeout(() => {
         this.drawLines();
@@ -837,18 +860,18 @@ export class RelationGameComponent implements AfterViewInit {
     // =========================================================
     this.errors++;
 
-    // =========================================================
-    // ERROR DE ESTA PAREJA
-    // =========================================================
     this.pairErrors[left.id] = (this.pairErrors[left.id] ?? 0) + 1;
 
-    this.connections.push({
+    const wrongConnection: Connection = {
       leftId: left.id,
-      rightId: word.id,
+      rightId: right.id,
       correct: false,
-    });
+    };
+
+    this.connections.push(wrongConnection);
 
     this.selectedLeft = null;
+    this.selectedRight = null;
 
     setTimeout(() => {
       this.drawLines();
@@ -859,27 +882,19 @@ export class RelationGameComponent implements AfterViewInit {
     // =========================================================
     setTimeout(() => {
       this.connections = this.connections.filter(
-        (connection) =>
-          !(
-            connection.leftId === left.id &&
-            connection.rightId === word.id &&
-            connection.correct === false
-          ),
+        (connection) => connection !== wrongConnection,
       );
 
       this.drawLines();
     }, 700);
 
     // =========================================================
-    // PERDER AL LLEGAR A 10 ERRORES
+    // FINALIZAR SI SE AGOTAN LOS INTENTOS
     // =========================================================
     if (this.errors >= this.maxErrors) {
       setTimeout(() => {
         this.finished = true;
         this.gameWon = false;
-        // =====================================================
-        // DETENER CRONÓMETRO
-        // =====================================================
         this.detenerCronometro();
       }, 750);
     }
@@ -946,6 +961,8 @@ export class RelationGameComponent implements AfterViewInit {
       this.currentPage++;
 
       this.selectedLeft = null;
+
+      this.selectedRight = null;
 
       this.lines = [];
 

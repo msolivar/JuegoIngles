@@ -351,26 +351,41 @@ export class CompletarPalabrasComponent {
   }
 
   private applySelectedCategory(): void {
+    // =========================================================
+    // TODAS LAS PALABRAS
+    // =========================================================
     if (this.selectedCategory === this.ALL_CATEGORIES) {
       this.pairs = [...this.allPairs];
+      this.selectedPairCount = this.pairs.length;
     } else {
+      // =======================================================
+      // UNA CATEGORÍA ESPECÍFICA
+      // =======================================================
       this.pairs = this.allPairs.filter(
         (pair) =>
           pair.categoriaPalabra?.trim().toLowerCase() ===
           this.selectedCategory.trim().toLowerCase(),
       );
+      this.selectedPairCount = Math.min(12, this.pairs.length);
     }
 
+    // =========================================================
+    // VALIDAR QUE EXISTAN PALABRAS
+    // =========================================================
     if (this.pairs.length === 0) {
       this.loadError = 'No hay palabras disponibles en esta categoría.';
       this.categorySelected = false;
       return;
     }
 
+    // =========================================================
+    // PREPARAR CONFIGURACIÓN
+    // =========================================================
     this.categorySelected = true;
-    this.selectedPairCount = Math.min(12, this.pairs.length);
+
     this.searchTerm = '';
   }
+
   // =========================================================
   // SELECCIONAR CATEGORÍA E INICIAR
   // =========================================================
@@ -681,16 +696,24 @@ export class CompletarPalabrasComponent {
       return;
     }
 
-    // =====================================================
-    // CORRECTA
-    // =====================================================
+    // =========================================================
+    // LETRA CORRECTA
+    // =========================================================
     if (value === cell.letter.toLowerCase()) {
       cell.correct = true;
 
+      // =======================================================
+      // VERIFICAR SI LA PAREJA YA ESTÁ COMPLETA
+      // =======================================================
       this.checkExerciseComplete(exercise);
 
+      // =======================================================
+      // ESPERAR A QUE ANGULAR ACTUALICE LOS INPUTS
+      // =======================================================
       setTimeout(() => {
-        this.focusNextLetter(input);
+        if (!this.gameFinished && !this.changingPage) {
+          this.focusNextLetter(input);
+        }
       }, 50);
 
       return;
@@ -735,27 +758,65 @@ export class CompletarPalabrasComponent {
   }
 
   // =========================================================
-  // SIGUIENTE CASILLA
+  // FOCO AUTOMÁTICO EN LA SIGUIENTE LETRA PENDIENTE
   // =========================================================
   focusNextLetter(currentInput: HTMLInputElement): void {
+    // =======================================================
+    // NO CAMBIAR FOCO SI EL JUEGO TERMINÓ O CAMBIA DE PÁGINA
+    // =======================================================
+    if (this.gameFinished || this.changingPage || this.showHints) {
+      return;
+    }
+
+    // =======================================================
+    // OBTENER TODOS LOS INPUTS EN ORDEN VISUAL
+    // INCLUYE LOS DESHABILITADOS PARA CONSERVAR LA POSICIÓN
+    // =======================================================
     const inputs = Array.from(
       document.querySelectorAll<HTMLInputElement>(
-        '.letter-input:not(:disabled)',
+        '.exercise-list .letter-input',
       ),
     );
 
     const currentIndex = inputs.indexOf(currentInput);
 
-    if (currentIndex !== -1 && currentIndex < inputs.length - 1) {
-      const nextInput = inputs[currentIndex + 1];
+    // =======================================================
+    // BUSCAR LA SIGUIENTE LETRA PENDIENTE
+    // =======================================================
+    const isPending = (input: HTMLInputElement): boolean => {
+      return !input.disabled && !input.classList.contains('correct-letter');
+    };
 
+    let nextInput: HTMLInputElement | undefined;
+
+    // =======================================================
+    // PRIMERO BUSCAR HACIA ADELANTE
+    // =======================================================
+    if (currentIndex !== -1) {
+      nextInput = inputs.slice(currentIndex + 1).find(isPending);
+    }
+
+    // =======================================================
+    // SI NO HAY MÁS ADELANTE, BUSCAR UNA LETRA PENDIENTE
+    // EN LA PANTALLA ACTUAL
+    // =======================================================
+    if (!nextInput) {
+      nextInput = inputs.find(isPending);
+    }
+
+    // =======================================================
+    // COLOCAR FOCO EN LA SIGUIENTE LETRA
+    // =======================================================
+    if (nextInput) {
       nextInput.focus();
-
       nextInput.select();
 
       return;
     }
 
+    // =======================================================
+    // SI NO QUEDAN LETRAS PENDIENTES
+    // =======================================================
     currentInput.blur();
   }
 

@@ -14,6 +14,8 @@ import {
   PairFirebase,
 } from '../../servicios/firebase-words.service';
 
+import { SpeechService } from '../../servicios/speech.service';
+
 @Component({
   selector: 'app-administrar-palabras',
   standalone: true,
@@ -94,6 +96,7 @@ export class AdministrarPalabrasComponent {
   constructor(
     private wordsService: FirebaseWordsService,
     private fb: FormBuilder,
+    private speechService: SpeechService,
   ) {
     // =====================================================
     // CREAR FORMULARIO REACTIVO
@@ -105,7 +108,7 @@ export class AdministrarPalabrasComponent {
       // =================================================
       left: [
         this.palabrasDTO.left,
-        [Validators.required, Validators.minLength(2)],
+        [Validators.required, Validators.minLength(2), Validators.max(15)],
       ],
 
       // =================================================
@@ -113,7 +116,7 @@ export class AdministrarPalabrasComponent {
       // =================================================
       right: [
         this.palabrasDTO.right,
-        [Validators.required, Validators.minLength(2)],
+        [Validators.required, Validators.minLength(2), Validators.max(15) ],
       ],
 
       // =================================================
@@ -122,7 +125,7 @@ export class AdministrarPalabrasComponent {
 
       meaning: [
         this.palabrasDTO.meaning,
-        [Validators.required, Validators.minLength(2)],
+        [Validators.required, Validators.minLength(2), Validators.max(15)],
       ],
 
       // =================================================
@@ -410,7 +413,9 @@ export class AdministrarPalabrasComponent {
     // =====================================================
     // NORMALIZAR SIGNIFICADO
     // =====================================================
-    const meaning = String(formValue.meaning || '').trim();
+    const meaning = String(formValue.meaning || '')
+      .trim()
+      .toLowerCase();
 
     // =====================================================
     // NORMALIZAR CATEGORÍA
@@ -717,6 +722,42 @@ export class AdministrarPalabrasComponent {
     // SALIR DE EDICIÓN
     // =====================================================
     this.editingId = null;
+  }
+
+  // =========================================================
+  // TRADUCTOR DE VOZ DE LA TARJETA
+  // =========================================================
+  playPairAudio(pair: PairFirebase): void {
+    let velocidad = 1;
+
+    this.speechService.playSequence([
+      // -------------------------------------------------------
+      // SIGNIFICADO - ESPAÑOL
+      // -------------------------------------------------------
+      {
+        text: pair.meaning,
+        language: 'es-ES',
+        rate: velocidad,
+      },
+
+      // -------------------------------------------------------
+      // VERBO - INGLÉS
+      // -------------------------------------------------------
+      {
+        text: pair.left,
+        language: 'en-US',
+        rate: velocidad,
+      },
+
+      // -------------------------------------------------------
+      // PAREJA - INGLÉS
+      // -------------------------------------------------------
+      {
+        text: pair.right,
+        language: 'en-US',
+        rate: velocidad,
+      },
+    ]);
   }
 
   printQuestionnaire(): void {

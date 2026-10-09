@@ -13,6 +13,48 @@
 }
 
 /* ======================================================
+   SELECCIONAR PALABRAS EN CUALQUIER PARTE DE LA TARJETA
+====================================================== */
+.game-board .word-card {
+  cursor: pointer;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ======================================================
+   PERMITIR SELECCIONAR LA TARJETA COMPLETA
+   SIN BLOQUEAR LA AMPLIACIÓN DE IMÁGENES
+====================================================== */
+.game-board .word-text,
+.game-board .connector {
+  pointer-events: none;
+}
+
+/* ======================================================
+   PERMITIR AMPLIAR IMÁGENES
+====================================================== */
+.game-board .word-image {
+  pointer-events: auto;
+  cursor: zoom-in;
+}
+
+/* ======================================================
+   MANTENER LAS LÍNEAS SIN BLOQUEAR LOS CLICS
+====================================================== */
+.game-board .connections-layer {
+  pointer-events: none;
+}
+
+/* ======================================================
+   EFECTO VISUAL AL PRESIONAR UNA TARJETA
+====================================================== */
+.game-board .word-card:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+/* ======================================================
    COLUMNAS IZQUIERDA Y DERECHA
 \====================================================== */
 .column {

@@ -72,7 +72,8 @@
 /* ======================================================
    LETRAS VISIBLES
 ====================================================== */
-.visible-letter, .visible-letter1 {
+.visible-letter,
+.visible-letter1 {
   display: inline-flex;
   justify-content: center;
   align-items: center;
@@ -85,19 +86,43 @@
 
 /* ======================================================
    ESPACIOS PARA ESCRIBIR
+   OPTIMIZADO PARA PC, TABLET Y CELULAR
 ====================================================== */
 .letter-input {
   width: 60px;
   height: 50px;
+
+  min-height: 48px;
+  flex-shrink: 0;
+  box-sizing: border-box;
+
+  display: inline-block;
   padding: 0;
+  margin: 0;
+
   text-align: center;
   font-size: 23px;
   font-weight: bold;
+  line-height: normal;
+
   border: none;
   border-bottom: 3px solid #555;
   outline: none;
+
   background: #f5f5f5;
   border-radius: 5px 5px 0 0;
+
+  cursor: text;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ======================================================
+   INPUT SELECCIONADO
+====================================================== */
+.letter-input:focus {
+  border-bottom-color: #1976d2;
+  background: #e3f2fd;
 }
 
 /* ======================================================
@@ -142,6 +167,7 @@
    RESPONSIVE - TABLET
    ========================================================= */
 @media (max-width: 1200px) {
+
   .exercise-header,
   .exercise-pair {
     grid-template-columns: 45px minmax(0, 1fr) 60px minmax(0, 1fr) 45px;
@@ -155,8 +181,9 @@
   .pair-arrow {
     font-size: 35px;
   }
-  
-  .visible-letter, .visible-letter1 {
+
+  .visible-letter,
+  .visible-letter1 {
     height: 40px;
     width: 18px;
   }
@@ -181,8 +208,9 @@
   .pair-arrow {
     font-size: 30px;
   }
-  
-  .visible-letter, .visible-letter1 {
+
+  .visible-letter,
+  .visible-letter1 {
     height: 38px;
     width: 15px;
   }
@@ -191,8 +219,7 @@
 /* ======================================================
    PANTALLAS PEQUEÑAS
 ====================================================== */
-@media (max-width:800px) {
-  
+@media (max-width: 800px) {
   .exercise-header {
     grid-template-columns: 35px minmax(0, 1fr) 35px minmax(0, 1fr) 30px;
     gap: 5px;
@@ -226,7 +253,7 @@
     gap: 7px;
     border-radius: 18px;
   }
-  
+
   /* Número */
   .pair-number {
     grid-area: number;
@@ -235,7 +262,7 @@
     font-size: 16px;
     font-weight: bold;
   }
-  
+
   /* VERBO */
   .left-word {
     grid-area: left;
@@ -283,32 +310,40 @@
     gap: 3px;
     flex-wrap: nowrap;
   }
-
 }
 
 /* =========================================================
    RESPONSIVE - CELULAR
    ========================================================= */
 @media (max-width: 600px) {
-  
+
   /* ---------------------------------------------------------
      LETRAS
      --------------------------------------------------------- */
-  .visible-letter, .visible-letter1 {
+  .visible-letter,
+  .visible-letter1 {
     width: 20px;
-    height: 15px;
+    height: 45px;
   }
 
   .letter-input {
+    width: 60px;
+    height: 50px;
+    min-height: 48px;
+
     padding: 0;
     text-align: center;
+
+    font-size: 23px;
+    touch-action: manipulation;
   }
 }
 
 /* =========================================================
    CELULARES MUY PEQUEÑOS
-   ========================================================= */
+========================================================= */
 @media (max-width: 390px) {
+
   .exercise-pair {
     grid-template-columns: 28px minmax(0, 1fr) 28px;
     padding: 12px 4px;
@@ -319,10 +354,19 @@
   }
 
   .visible-letter,
-  .letter-input {
-    width: 60px;
-    /* min-width: 60px; */
+  .visible-letter1 {
+    width: 18px;
     height: 42px;
+  }
+
+  .letter-input {
+    width: 48px;
+    height: 48px;
+    min-height: 48px;
+
+    padding: 0;
+    font-size: 22px;
+    text-align: center;
   }
 }
 
