@@ -300,11 +300,11 @@
                PALABRA IZQUIERDA
           ================================================ -->
           <div class="word-section left-word">
-            <div class="letter-row">
+            <div class="letter-row" [style.--cell-count]="exercise.leftCells.length">
               <ng-container *ngFor="let cell of exercise.leftCells; let cellIndex = index">
                 <!-- ESPACIO -->
                 <span *ngIf="cell.isSpace" class="visible-letter">
-                  &nbsp;
+                  &nbsp; &nbsp; &nbsp;
                 </span>
                 <!-- LETRA VISIBLE -->
                 <span *ngIf="!cell.isSpace && !cell.hidden" class="visible-letter1">
@@ -332,11 +332,11 @@
                PALABRA DERECHA
           ================================================ -->
           <div class="word-section right-word">
-            <div class="letter-row">
+            <div class="letter-row" [style.--cell-count]="exercise.rightCells.length">
               <ng-container *ngFor="let cell of exercise.rightCells; let cellIndex = index">
                 <!-- ESPACIO -->
                 <span *ngIf="cell.isSpace" class="visible-letter">
-                  &nbsp;
+                  &nbsp; &nbsp; &nbsp;
                 </span>
                 <!-- LETRA VISIBLE -->
                 <span *ngIf="!cell.isSpace && !cell.hidden" class="visible-letter1">
