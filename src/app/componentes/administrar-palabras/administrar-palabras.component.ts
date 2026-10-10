@@ -45,6 +45,8 @@ export class AdministrarPalabrasComponent {
   // =========================================================
   pairs: PairFirebase[] = [];
 
+  pairsLoaded = false;
+
   // =========================================================
   // BUSCADOR
   // =========================================================
@@ -108,7 +110,11 @@ export class AdministrarPalabrasComponent {
       // =================================================
       left: [
         this.palabrasDTO.left,
-        [Validators.required, Validators.minLength(2), Validators.max(15)],
+        [
+          Validators.required,
+          Validators.minLength(2),
+          Validators.maxLength(20),
+        ],
       ],
 
       // =================================================
@@ -116,7 +122,11 @@ export class AdministrarPalabrasComponent {
       // =================================================
       right: [
         this.palabrasDTO.right,
-        [Validators.required, Validators.minLength(2), Validators.max(15) ],
+        [
+          Validators.required,
+          Validators.minLength(2),
+          Validators.maxLength(17),
+        ],
       ],
 
       // =================================================
@@ -125,7 +135,11 @@ export class AdministrarPalabrasComponent {
 
       meaning: [
         this.palabrasDTO.meaning,
-        [Validators.required, Validators.minLength(2), Validators.max(15)],
+        [
+          Validators.required,
+          Validators.minLength(2),
+          Validators.maxLength(17),
+        ],
       ],
 
       // =================================================
@@ -133,7 +147,11 @@ export class AdministrarPalabrasComponent {
       // =================================================
       categoriaPalabra: [
         this.palabrasDTO.categoriaPalabra,
-        [Validators.required, Validators.minLength(2)],
+        [
+          Validators.required,
+          Validators.minLength(2),
+          Validators.maxLength(20),
+        ],
       ],
 
       // =================================================
@@ -321,6 +339,88 @@ export class AdministrarPalabrasComponent {
   }
 
   // =========================================================
+  // COMPROBAR SI LA PALABRA BUSCADA NO EXISTE
+  // =========================================================
+  // =========================================================
+  // VERIFICAR SI LA PALABRA NO EXISTE EN LA BASE DE DATOS
+  // =========================================================
+  get palabraNoExiste(): boolean {
+    const term = this.searchTerm.trim().toLowerCase();
+
+    // ---------------------------------------------------------
+    // MÍNIMO 2 CARACTERES PARA VERIFICAR
+    // ---------------------------------------------------------
+    if (term.length < 2) {
+      return false;
+    }
+
+    // ---------------------------------------------------------
+    // ESPERAR CARGA DE FIREBASE
+    // ---------------------------------------------------------
+    if (!this.pairsLoaded) {
+      return false;
+    }
+
+    // ---------------------------------------------------------
+    // BUSCAR EN TODOS LOS CAMPOS
+    // COINCIDENCIAS PARCIALES O EXACTAS
+    // ---------------------------------------------------------
+    const existe = this.pairs.some((pair) => {
+      return (
+        (pair.left || '').toLowerCase().includes(term) ||
+        (pair.right || '').toLowerCase().includes(term) ||
+        (pair.meaning || '').toLowerCase().includes(term) ||
+        (pair.categoriaPalabra || '').toLowerCase().includes(term)
+      );
+    });
+
+    // ---------------------------------------------------------
+    // MOSTRAR BOTÓN SOLO SI NO EXISTE
+    // ---------------------------------------------------------
+    return !existe;
+  }
+
+  // =========================================================
+  // AGREGAR PALABRA BUSCADA AL FORMULARIO
+  // =========================================================
+  agregarPalabraAlFormulario(): void {
+    const palabra = this.searchTerm.trim();
+
+    if (!palabra || !this.palabraNoExiste) {
+      return;
+    }
+
+    // Salir del modo edición.
+    this.editingId = null;
+
+    // Preparar formulario para una palabra nueva.
+    this.registroForm.reset({
+      left: palabra,
+      right: '',
+      meaning: '',
+      categoriaPalabra: 'vocabulario',
+      image: '',
+    });
+
+    this.registroForm.markAsPristine();
+    this.registroForm.markAsUntouched();
+
+    this.message = '';
+    this.messageType = '';
+
+    // Subir al formulario.
+    document.getElementById('left')?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'center',
+    });
+
+    // Seleccionar el siguiente campo por completar.
+    setTimeout(() => {
+      document.getElementById('right')?.focus();
+    }, 350);
+  }
+
+  // =========================================================
   // BUSCAR Y CARGAR PALABRA
   // =========================================================
   searchAndLoad(): void {
@@ -371,7 +471,7 @@ export class AdministrarPalabrasComponent {
     // VALIDAR FORMULARIO
     // =====================================================
     if (this.registroForm.invalid) {
-      this.showMessage('Debes completar el formulario.', 'error');
+      this.showMessage('⚠️ Debes completar el formulario.', 'error');
       // ===================================================
       // LLEVAR FOCO AL PRIMER CAMPO INVÁLIDO
       // ===================================================
@@ -433,7 +533,7 @@ export class AdministrarPalabrasComponent {
     // VALIDACIÓN EXTRA
     // =====================================================
     if (!left || !right || !meaning || !categoriaPalabra || !image) {
-      this.showMessage('Debes completar el formulario.', 'error');
+      this.showMessage('⚠️ Debes completar el formulario.', 'error');
       return;
     }
 
@@ -604,6 +704,8 @@ export class AdministrarPalabrasComponent {
       // CARGAR PALABRAS
       // =================================================
       this.pairs = pairs;
+
+      this.pairsLoaded = true;
       // =================================================
       // EVITAR PÁGINA INVÁLIDA
       // =================================================

@@ -226,7 +226,7 @@
   }
 
   .letter-row {
-    gap: 1px;
+    gap: 3px;
   }
 
   .pair-arrow {
@@ -245,15 +245,10 @@
 ====================================================== */
 @media (max-width: 800px) {
   .exercise-header {
-    grid-template-columns: 35px minmax(0, 1fr) 35px minmax(0, 1fr) 30px;
+    grid-template-columns: 30px minmax(0, 1fr) 35px minmax(0, 1fr) 30px;
     gap: 5px;
     padding-left: 5px;
     padding-right: 5px;
-    display: none;
-  }
-
-  .column-header {
-    font-size: 14px;
   }
 
   .result-statistics {
@@ -297,7 +292,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 3px;
+    gap: 1px;
     flex-wrap: nowrap;
   }
 }
@@ -310,16 +305,19 @@
   /* ---------------------------------------------------------
      LETRAS
      --------------------------------------------------------- */
-  .visible-letter,
+  .visible-letter{
+    width: 5px;
+  }
+
   .visible-letter1 {
-    width: 20px;
+    width: 15px;
     height: 45px;
   }
 
   .letter-input {
-    width: 60px;
+    width: 40px;
     height: 50px;
-    min-height: 48px;
+    min-height: 50px;
 
     padding: 0;
     text-align: center;
@@ -332,7 +330,7 @@
 /* =========================================================
    CELULARES MUY PEQUEÑOS
 ========================================================= */
-@media (max-width: 390px) {
+@media (max-width: 350px) {
 
   .exercise-pair {
     grid-template-columns: 28px minmax(0, 1fr) 28px;
@@ -340,7 +338,7 @@
   }
 
   .letter-row {
-    gap: 2px;
+    gap: 1px;
   }
 
   .visible-letter,

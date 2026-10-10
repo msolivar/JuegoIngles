@@ -58,10 +58,10 @@ export class WordsService {
     { id: 35, left: 'Lend', right: 'Lent', meaning: 'Prestar', image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQpsKpcyNSKAOm_pMcSZg0OkZBS-yGaInYuBZ-cDnbDTg&s=10'},
     { id: 36, left: 'Buy', right: 'Bought', meaning: 'Comprar', image: 'https://play-lh.googleusercontent.com/arv05CZQcDEvPokS_O7Y6mR0EMrFAkOI533dBhaKhJEPR5Ksw7Sct5s3W_3kiBLjuNH8rBjlHtzYVd3VeRLsb3k'},
 
-    // { id: 24, left: 'Forget', right: 'Forgot', meaning: 'Olvidar'},
-    // { id: 25, left: 'Find', right: 'Found', meaning: 'Encontrar'},    
-    // { id: 27, left: 'Bring', right: 'Brought', meaning: 'Traer Llevar'},
-    // { id: 28, left: 'Think', right: 'Thought', meaning: 'Pensar'}
+    { id: 24, left: 'Forget', right: 'Forgot', meaning: 'Olvidar'},
+    { id: 25, left: 'Find', right: 'Found', meaning: 'Encontrar'},    
+    { id: 27, left: 'Bring', right: 'Brought', meaning: 'Traer Llevar'},
+    { id: 28, left: 'Think', right: 'Thought', meaning: 'Pensar'}
 
   ];
 

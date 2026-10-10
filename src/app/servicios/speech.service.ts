@@ -19,9 +19,9 @@ export class SpeechService {
     rate: number = 1,
   ): void {
     // ---------------------------------------------------------
-    // VALIDAR TEXTO
+    // LIMPIAR ESPACIOS DE RESPUESTA PARA LA PRONUNCIACIÓN
     // ---------------------------------------------------------
-    const cleanText = text?.trim();
+    const cleanText = text?.replace(/_{2,}/g, ' ').replace(/\s+/g, ' ').trim();
 
     if (!cleanText) {
       return;
@@ -96,7 +96,12 @@ export class SpeechService {
 
       const item = validItems[index];
 
-      const audio = new SpeechSynthesisUtterance(item.text.trim());
+      // ---------------------------------------------------------
+      // OMITIR ESPACIOS DE RESPUESTA AL PRONUNCIAR
+      // ---------------------------------------------------------
+      const cleanText = item.text.replace(/_{2,}/g, ' ').replace(/\s+/g, ' ').trim();
+
+      const audio = new SpeechSynthesisUtterance(cleanText);
 
       audio.lang = item.language;
       audio.rate = item.rate ?? 1;

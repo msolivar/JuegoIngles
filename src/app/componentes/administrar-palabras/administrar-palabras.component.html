@@ -30,6 +30,9 @@
         <div class="no-results" *ngIf="leftControl?.touched && leftControl?.hasError('minlength')">
           ⚠️ El verbo debe tener mínimo 2 caracteres.
         </div>
+        <div class="no-results" *ngIf="leftControl?.touched && leftControl?.hasError('maxlength')">
+          ⚠️ El verbo debe tener maximo 17 caracteres.
+        </div>
       </div>
 
       <!-- ===================================================
@@ -46,6 +49,10 @@
 
         <div class="no-results" *ngIf="rightControl?.touched && rightControl?.hasError('minlength')">
           ⚠️ La pareja debe tener mínimo 2 caracteres.
+        </div>
+
+        <div class="no-results" *ngIf="rightControl?.touched && rightControl?.hasError('maxlength')">
+          ⚠️ La pareja debe tener maximo 17 caracteres.
         </div>
       </div>
     </div>
@@ -66,6 +73,10 @@
         <div class="no-results" *ngIf="meaningControl?.touched && meaningControl?.hasError('minlength')">
           ⚠️ El significado debe tener mínimo 2 caracteres.
         </div>
+
+        <div class="no-results" *ngIf="meaningControl?.touched && meaningControl?.hasError('maxlength')">
+          ⚠️ El significado debe tener maximo 17 caracteres.
+        </div>
       </div>
 
       <div class="setup-field">
@@ -79,6 +90,10 @@
 
         <div class="no-results" *ngIf="categoriaControl?.touched && categoriaControl?.hasError('minlength')">
           ⚠️ La categoría debe tener mínimo 2 caracteres.
+        </div>
+
+        <div class="no-results" *ngIf="categoriaControl?.touched && categoriaControl?.hasError('maxlength')">
+          ⚠️ La categoria debe tener maximo 20 caracteres.
         </div>
       </div>
     </div>
@@ -141,9 +156,9 @@
     <!-- ===================================================
          MENSAJE GENERAL
     ==================================================== -->
-    <div *ngIf="message" class="no-results" [class.success-message]="messageType === 'success'"
+    <div *ngIf="message" class="no-results" [class.correct-detail-button]="messageType === 'success'"
       [class.delete-button]="messageType === 'error'">
-      ⚠️ {{ message }}
+       {{ message }}
     </div>
   </form>
 
@@ -151,9 +166,29 @@
        BUSCADOR AUTOMÁTICO
   ====================================================== -->
   <div class="game-setup-dashboard">
+    <!-- =====================================================
+     BUSCADOR AUTOMÁTICO
+====================================================== -->
     <div class="setup-field full-width search-setup">
-      <h2>🔎 Buscar palabra</h2>
 
+      <!-- ===================================================
+       TÍTULO Y BOTÓN AGREGAR
+  ==================================================== -->
+      <div class="search-title-row">
+
+        <h2>🔎 Buscar palabra</h2>
+
+        <!-- MOSTRAR SOLO SI LA PALABRA NO EXISTE -->
+        <button *ngIf="palabraNoExiste" type="button" class="save-button add-search-word-button"
+          (click)="agregarPalabraAlFormulario()">
+          ➕ Agregar palabra al formulario
+        </button>
+
+      </div>
+
+      <!-- ===================================================
+       CAMPO DE BÚSQUEDA
+  ==================================================== -->
       <input type="text" [(ngModel)]="searchTerm" (ngModelChange)="onSearchChange()"
         placeholder="Buscar por verbo, pareja, significado o categoría..." autocomplete="off" />
 
