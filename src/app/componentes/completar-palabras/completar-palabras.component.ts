@@ -592,47 +592,96 @@ export class CompletarPalabrasComponent {
   }
 
   // =========================================================
-  // CREAR CELDAS
+  // CREAR CELDAS DE CADA PALABRA
+  // CANTIDAD ALEATORIA DE LETRAS OCULTAS
+  // MÁXIMO 6 CUADROS POR PALABRA
   // =========================================================
   createWordCells(word: string): LetterCell[] {
+    // =========================================================
+    // SEPARAR LA PALABRA EN CARACTERES
+    // =========================================================
     const characters = word.split('');
 
+    // =========================================================
+    // OBTENER POSICIONES VÁLIDAS
+    // NO INCLUIR ESPACIOS
+    // =========================================================
     const validIndexes = characters
-
       .map((character, index) => ({
         character,
         index,
       }))
-
       .filter((item) => !/\s/.test(item.character))
-
       .map((item) => item.index);
 
-    let numberToHide = Math.round(validIndexes.length * this.hiddenPercentage);
+    // =========================================================
+    // CONTAR LETRAS DE LA PALABRA
+    // =========================================================
+    const totalLetters = validIndexes.length;
 
-    if (numberToHide < 1 && validIndexes.length > 0) {
-      numberToHide = 1;
+    // =========================================================
+    // DEFINIR CANTIDAD MÍNIMA Y MÁXIMA DE CUADROS
+    // SEGÚN LA LONGITUD DE LA PALABRA
+    // =========================================================
+    let minHidden = 1;
+    let maxHidden = 1;
+
+    if (totalLetters >= 15) {
+      // 15 LETRAS O MÁS: 3, 4, 5 O 6 CUADROS
+      minHidden = 3;
+      maxHidden = 6;
+    } else if (totalLetters >= 8) {
+      // 8 A 14 LETRAS: 3, 4 O 5 CUADROS
+      minHidden = 3;
+      maxHidden = 5;
+    } else if (totalLetters >= 5) {
+      // 5 A 7 LETRAS: 2 O 3 CUADROS
+      minHidden = 2;
+      maxHidden = 3;
+    } else if (totalLetters >= 2) {
+      // 2 A 4 LETRAS: 1 O 2 CUADROS
+      minHidden = 1;
+      maxHidden = 2;
     }
 
-    if (numberToHide >= validIndexes.length && validIndexes.length > 1) {
-      numberToHide = validIndexes.length - 1;
+    // =========================================================
+    // DEJAR AL MENOS UNA LETRA VISIBLE
+    // =========================================================
+    if (totalLetters > 1) {
+      maxHidden = Math.min(maxHidden, totalLetters - 1);
     }
 
-    if (validIndexes.length === 1) {
-      numberToHide = 1;
-    }
+    // =========================================================
+    // EVITAR QUE EL MÍNIMO SUPERE AL MÁXIMO
+    // =========================================================
+    minHidden = Math.min(minHidden, maxHidden);
 
+    // =========================================================
+    // ELEGIR CANTIDAD ALEATORIA DE CUADROS
+    // INCLUYE EL MÍNIMO Y EL MÁXIMO
+    // =========================================================
+    const numberToHide =
+      totalLetters === 0
+        ? 0
+        : Math.floor(Math.random() * (maxHidden - minHidden + 1)) + minHidden;
+
+    // =========================================================
+    // MEZCLAR ALEATORIAMENTE LAS POSICIONES
+    // =========================================================
     const shuffledIndexes = this.shuffle(validIndexes);
 
-    const hiddenIndexes = new Set(
-      shuffledIndexes.slice(
-        0,
+    // =========================================================
+    // SELECCIONAR LAS LETRAS QUE SE OCULTARÁN
+    // =========================================================
+    const hiddenIndexes = new Set(shuffledIndexes.slice(0, numberToHide));
 
-        numberToHide,
-      ),
-    );
-
+    // =========================================================
+    // CREAR LAS CELDAS DE LA PALABRA
+    // =========================================================
     return characters.map((character, index) => {
+      // -------------------------------------------------------
+      // CONSERVAR ESPACIOS SIN OCULTARLOS
+      // -------------------------------------------------------
       if (/\s/.test(character)) {
         return {
           letter: character,
@@ -643,6 +692,9 @@ export class CompletarPalabrasComponent {
         };
       }
 
+      // -------------------------------------------------------
+      // CREAR LETRAS VISIBLES Y OCULTAS
+      // -------------------------------------------------------
       return {
         letter: character,
         hidden: hiddenIndexes.has(index),

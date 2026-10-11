@@ -457,6 +457,15 @@ export class AdministrarPalabrasComponent {
     // =====================================================
     this.loadForEdit(pair);
   }
+  
+  // =========================================================
+  // ELIMINAR TILDES DE UN TEXTO
+  // =========================================================
+  private quitarTildes(texto: string): string {
+    return texto
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '');
+  }
 
   // =========================================================
   // GUARDAR O ACTUALIZAR
@@ -496,33 +505,33 @@ export class AdministrarPalabrasComponent {
     // =====================================================
     const formValue = this.registroForm.getRawValue();
 
-    // =====================================================
-    // NORMALIZAR VERBO
-    // =====================================================
-    const left = String(formValue.left || '')
-      .trim()
-      .toLowerCase();
+    // =========================================================
+    // NORMALIZAR VERBO - SIN TILDES
+    // =========================================================
+    const left = this.quitarTildes(
+      String(formValue.left || '').trim().toLowerCase()
+    );
 
-    // =====================================================
-    // NORMALIZAR PAREJA
-    // =====================================================
-    const right = String(formValue.right || '')
-      .trim()
-      .toLowerCase();
+    // =========================================================
+    // NORMALIZAR PAREJA - SIN TILDES
+    // =========================================================
+    const right = this.quitarTildes(
+      String(formValue.right || '').trim().toLowerCase()
+    );
 
-    // =====================================================
-    // NORMALIZAR SIGNIFICADO
-    // =====================================================
-    const meaning = String(formValue.meaning || '')
-      .trim()
-      .toLowerCase();
+    // =========================================================
+    // NORMALIZAR SIGNIFICADO - SIN TILDES
+    // =========================================================
+    const meaning = this.quitarTildes(
+      String(formValue.meaning || '').trim().toLowerCase()
+    );
 
-    // =====================================================
-    // NORMALIZAR CATEGORÍA
-    // =====================================================
-    const categoriaPalabra = String(formValue.categoriaPalabra || '')
-      .trim()
-      .toLowerCase();
+    // =========================================================
+    // NORMALIZAR CATEGORÍA - SIN TILDES
+    // =========================================================
+    const categoriaPalabra = this.quitarTildes(
+      String(formValue.categoriaPalabra || '').trim().toLowerCase()
+    );
 
     // =====================================================
     // NORMALIZAR IMAGEN

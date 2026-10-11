@@ -276,7 +276,7 @@
   <!-- =====================================================
        INFORMACIÓN DE LA PÁGINA ACTUAL
   ====================================================== -->
-  <div class="pagination-info" *ngIf="pageSize !== 'all' && sortedPairs.length > 0">
+  <div class="pagination-info" *ngIf="pageSize !== 'all' && totalPages > 1">
     Página
 
     <strong>
@@ -371,7 +371,7 @@
   <!-- =====================================================
        PAGINACIÓN INFERIOR
   ====================================================== -->
-  <div class="pagination" *ngIf="pageSize !== 'all' && sortedPairs.length > 0">
+  <div class="pagination" *ngIf="pageSize !== 'all' && totalPages > 1">
     <!-- ===================================================
          ANTERIOR
     ==================================================== -->
