@@ -11,6 +11,7 @@ import { UsuariosComponent } from './componentes/usuarios/usuarios.component';
 import { CrudCuestionarioComponent } from './componentes/crud-cuestionario/crud-cuestionario.component'; 
 import { JuegoCuestionarioComponent } from './componentes/juego-cuestionario/juego-cuestionario.component';
 import { PuntuacionComponent } from './componentes/puntuacion/puntuacion.component' 
+import { OrdenarPalabrasComponent } from './componentes/ordenar-palabras/ordenar-palabras.component';
 
 import { ItilDashboardComponent } from './componentes/itil-dashboard/itil-dashboard.component' 
 
@@ -24,6 +25,7 @@ export const routes: Routes = [
     { path: 'detalle-evento/:id', component: DetalleEventoComponent },
     { path: 'relation-game', component: RelationGameComponent},
     { path: 'completar-palabras', component: CompletarPalabrasComponent },
+    { path: 'ordenar-palabras', component: OrdenarPalabrasComponent },
     { path: 'administrar-palabras', component: AdministrarPalabrasComponent },
     { path: 'administrar-cuestionario', component: CrudCuestionarioComponent },
     { path: 'cuestionario-game', component: JuegoCuestionarioComponent },

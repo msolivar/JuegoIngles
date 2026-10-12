@@ -8,5 +8,5 @@ import { RouterModule } from '@angular/router'; // Importar RouterModule
   styleUrl: './header.component.css'
 })
 export class HeaderComponent {
-  title = 'Verbos Irregulares';
+  title = 'Aprende Inglés Jugando';
 }

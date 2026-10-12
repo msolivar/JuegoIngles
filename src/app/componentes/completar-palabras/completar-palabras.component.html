@@ -13,16 +13,58 @@
     </div>
 
     <div class="category-selection-content" *ngIf="!loadingWords">
-      <label for="categorySelect"> 🏷️ Categoría de palabras </label>
 
-      <select id="categorySelect" [(ngModel)]="selectedCategory" (change)="onCategoryChange()">
-        <option value="">Selecciona una categoría</option>
-        <option [value]="ALL_CATEGORIES">Todas las palabras</option>
+      <!-- =====================================================
+     SELECTOR MÚLTIPLE DE CATEGORÍAS
+====================================================== -->
+      <label id="categoryLabel">🏷️ Categorías de palabras</label>
 
-        <option *ngFor="let category of categories" [value]="category">
-          {{ category }}
-        </option>
-      </select>
+      <div class="category-dropdown">
+
+        <!-- BOTÓN PRINCIPAL -->
+        <button type="button" class="category-dropdown-trigger" aria-labelledby="categoryLabel"
+          [attr.aria-expanded]="categoryDropdownOpen" (click)="categoryDropdownOpen = !categoryDropdownOpen">
+          <span class="category-dropdown-text">
+            {{ selectedCategoriesLabel }}
+          </span>
+
+          <span class="category-dropdown-arrow">
+            {{ categoryDropdownOpen ? '▲' : '▼' }}
+          </span>
+        </button>
+
+        <!-- LISTA DESPLEGABLE -->
+        <div class="category-dropdown-menu" *ngIf="categoryDropdownOpen">
+
+          <!-- TODAS LAS PALABRAS -->
+          <label class="category-dropdown-option select-all-option">
+            <input type="checkbox" [checked]="allCategoriesSelected"
+              (change)="toggleAllCategories($any($event.target).checked)" />
+
+            <span>Todas las palabras</span>
+          </label>
+
+          <!-- CATEGORÍAS INDIVIDUALES -->
+          <label class="category-dropdown-option" *ngFor="let category of categories">
+            <input type="checkbox" [checked]="selectedCategories.includes(category)"
+              (change)="toggleCategory(category, $any($event.target).checked)" />
+
+            <span>{{ category | titlecase }}</span>
+          </label>
+
+          <!-- CONFIRMAR SELECCIÓN -->
+          <button type="button" class="category-dropdown-done" (click)="categoryDropdownOpen = false">
+            ✓ Listo
+          </button>
+
+        </div>
+      </div>
+
+      <!-- CONTADOR -->
+      <div class="category-selection-count">
+        {{ selectedCategories.length }} de
+        {{ categories.length }} categorías seleccionadas
+      </div>
 
       <!-- MENSAJE -->
       <div class="no-results" *ngIf="categoryMessage">
@@ -204,11 +246,7 @@
       <span>
         🏷️ Categoría:
         <strong>
-          {{
-          selectedCategory === ALL_CATEGORIES
-          ? "Todas las categorías"
-          : selectedCategory
-          }}
+          {{ categoryDisplayName }}
         </strong>
       </span>
 
@@ -442,13 +480,8 @@
 
           <p>
             Categoría:
-
             <strong>
-              {{
-              selectedCategory === ALL_CATEGORIES
-              ? "Todas las palabras"
-              : selectedCategory
-              }}
+              {{ categoryDisplayName }}
             </strong>
           </p>
 

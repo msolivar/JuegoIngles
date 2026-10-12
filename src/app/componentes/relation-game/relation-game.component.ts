@@ -84,6 +84,18 @@ export class RelationGameComponent implements AfterViewInit {
   selectedCategory = '';
 
   // =========================================================
+  // SELECCIÓN MÚLTIPLE DE CATEGORÍAS
+  // =========================================================
+
+  selectedCategories: string[] = [];
+
+  // =========================================================
+  // CONTROLAR APERTURA DEL SELECTOR DE CATEGORÍAS
+  // =========================================================
+
+  categoryDropdownOpen = false;
+
+  // =========================================================
   // MENSAJE DE VALIDACIÓN DE CATEGORÍA
   // =========================================================
   categoryMessage = '';
@@ -341,6 +353,8 @@ export class RelationGameComponent implements AfterViewInit {
 
       this.selectedCategory = '';
 
+      this.selectedCategories = [];
+
       this.categoryMessage = '';
 
       this.pairErrors = {};
@@ -368,86 +382,83 @@ export class RelationGameComponent implements AfterViewInit {
   }
 
   // =========================================================
-  // CAMBIO EN EL SELECTOR DE CATEGORÍA
+  // CAMBIO EN LA SELECCIÓN DE CATEGORÍAS
   // =========================================================
+
   onCategoryChange(): void {
     this.categoryMessage = '';
     this.loadError = '';
 
-    // =========================================================
-    // NO HAY CATEGORÍA SELECCIONADA
-    // =========================================================
-    if (!this.selectedCategory || this.selectedCategory.trim() === '') {
+    // ---------------------------------------------------------
+    // NINGUNA CATEGORÍA SELECCIONADA
+    // ---------------------------------------------------------
+
+    if (this.selectedCategories.length === 0) {
       this.categorySelected = false;
+      this.selectedCategory = '';
       this.pairs = [];
+      this.selectedPairCount = 0;
       return;
     }
 
-    // =========================================================
-    // TODAS LAS PALABRAS
-    // =========================================================
-    if (this.selectedCategory === this.ALL_CATEGORIES) {
-      this.pairs = [...this.allPairs];
-      this.selectedPairCount = this.pairs.length;
-    } else {
-      // =======================================================
-      // UNA CATEGORÍA ESPECÍFICA
-      // =======================================================
-      this.pairs = this.allPairs.filter(
-        (pair) =>
-          pair.categoriaPalabra?.trim().toLowerCase() ===
-          this.selectedCategory.trim().toLowerCase(),
-      );
-      this.selectedPairCount = Math.min(12, this.pairs.length);
-    }
+    // ---------------------------------------------------------
+    // FILTRAR CATEGORÍAS SELECCIONADAS
+    // ---------------------------------------------------------
 
-    // =========================================================
-    // VALIDAR QUE EXISTAN PALABRAS
-    // =========================================================
+    this.pairs = this.getSelectedCategoryPairs();
+
+    // ---------------------------------------------------------
+    // ACTUALIZAR CATEGORÍA PARA RESULTADOS
+    // ---------------------------------------------------------
+
+    this.selectedCategory = this.allCategoriesSelected
+      ? this.ALL_CATEGORIES
+      : this.selectedCategories.join(', ');
+
+    // ---------------------------------------------------------
+    // VALIDAR PALABRAS DISPONIBLES
+    // ---------------------------------------------------------
+
     if (this.pairs.length === 0) {
       this.categorySelected = false;
-      this.loadError = 'No hay palabras disponibles en esta categoría.';
+      this.selectedPairCount = 0;
+
+      this.categoryMessage =
+        'No hay palabras disponibles en las categorías seleccionadas.';
+
       return;
     }
 
-    // =========================================================
-    // PREPARAR CONFIGURACIÓN
-    // =========================================================
+    // ---------------------------------------------------------
+    // CONFIGURACIÓN DEL JUEGO
+    // ---------------------------------------------------------
+
+    this.selectedPairCount = Math.min(12, this.pairs.length);
+
     this.categorySelected = true;
-
     this.reviewType = 'right';
-
     this.searchTerm = '';
-
     this.practicingOnlyErrors = false;
 
-    // =========================================================
-    // REINICIAR ESTADO DEL JUEGO
-    // =========================================================
+    // ---------------------------------------------------------
+    // REINICIAR PARTIDA
+    // ---------------------------------------------------------
+
     this.gamePairs = [];
-
     this.pages = [];
-
     this.leftWords = [];
-
     this.rightWords = [];
-
     this.connections = [];
-
     this.lines = [];
 
     this.selectedLeft = null;
-
     this.selectedRight = null;
 
     this.errors = 0;
-
     this.currentPage = 0;
 
     this.finished = false;
-
     this.gameWon = false;
-
     this.changingPage = false;
 
     this.pairErrors = {};
@@ -456,38 +467,44 @@ export class RelationGameComponent implements AfterViewInit {
   }
 
   // =========================================================
-  // SELECCIONAR CATEGORÍA E INICIAR
+  // CONFIRMAR CATEGORÍAS SELECCIONADAS
   // =========================================================
+
   selectCategoryAndStart(): void {
-    if (!this.selectedCategory || this.selectedCategory.trim() === '') {
+    if (this.selectedCategories.length === 0) {
       this.categoryMessage =
-        'Por favor seleccione una categoría de palabra para continuar.';
+        'Selecciona al menos una categoría para continuar.';
       return;
     }
 
     this.categoryMessage = '';
+    this.categoryDropdownOpen = false;
     this.applySelectedCategory();
   }
 
+  // =========================================================
+  // APLICAR CATEGORÍAS SELECCIONADAS
+  // =========================================================
+
   private applySelectedCategory(): void {
-    if (this.selectedCategory === this.ALL_CATEGORIES) {
-      this.pairs = [...this.allPairs];
-    } else {
-      this.pairs = this.allPairs.filter(
-        (pair) =>
-          pair.categoriaPalabra?.trim().toLowerCase() ===
-          this.selectedCategory.trim().toLowerCase(),
-      );
-    }
+    this.pairs = this.getSelectedCategoryPairs();
 
     if (this.pairs.length === 0) {
-      this.loadError = 'No hay palabras disponibles en esta categoría.';
+      this.loadError =
+        'No hay palabras disponibles en las categorías seleccionadas.';
+
       this.categorySelected = false;
       return;
     }
 
+    this.selectedCategory = this.allCategoriesSelected
+      ? this.ALL_CATEGORIES
+      : this.selectedCategories.join(', ');
+
     this.categorySelected = true;
+
     this.selectedPairCount = Math.min(12, this.pairs.length);
+
     this.searchTerm = '';
   }
 
@@ -500,6 +517,8 @@ export class RelationGameComponent implements AfterViewInit {
     this.closeResultsDetail();
     this.categorySelected = false;
     this.selectedCategory = '';
+    this.selectedCategories = [];
+    this.categoryDropdownOpen = false;
     this.categoryMessage = '';
     this.pairs = [];
     this.gamePairs = [];
@@ -1224,19 +1243,7 @@ export class RelationGameComponent implements AfterViewInit {
   // RESTAURAR JUEGO NORMAL
   // =========================================================
   restoreNormalGame(): void {
-    this.pairs = this.allPairs.filter(
-      (pair) =>
-        pair.categoriaPalabra
-
-          ?.trim()
-
-          .toLowerCase() ===
-        this.selectedCategory
-
-          .trim()
-
-          .toLowerCase(),
-    );
+    this.pairs = this.getSelectedCategoryPairs();
 
     this.selectedPairCount = this.pairs.length;
 
@@ -1420,12 +1427,26 @@ export class RelationGameComponent implements AfterViewInit {
     const tiempoFinal = Math.max(0, this.tiempoSegundos);
 
     // =======================================================
+    // ORDENAR CATEGORÍAS ANTES DE ENVIAR EL PUNTAJE
+    // =======================================================
+
+    const categoriasOrdenadas = this.allCategoriesSelected
+      ? 'Todas las categorías'
+      : [...this.selectedCategories]
+          .sort((a, b) =>
+            a.localeCompare(b, 'es', {
+              sensitivity: 'base',
+            }),
+          )
+          .join(', ');
+
+    // =======================================================
     // INFORMACIÓN DE DEPURACIÓN
     // =======================================================
 
     console.log('🏆 Enviando resultado a puntuación:', {
       juego: 'unir-palabra',
-      categoria: this.selectedCategory,
+      categoria: categoriasOrdenadas,
       correctas: this.totalCorrectWords,
       total: this.gamePairs.length,
       errores: this.errors,
@@ -1445,10 +1466,7 @@ export class RelationGameComponent implements AfterViewInit {
         state: {
           juego: 'unir-palabra',
 
-          categoria:
-            this.selectedCategory === this.ALL_CATEGORIES
-              ? 'Todas las categorías'
-              : this.selectedCategory,
+          categoria: categoriasOrdenadas,
 
           repaso: repasoParaPuntuacion,
 
@@ -1461,6 +1479,84 @@ export class RelationGameComponent implements AfterViewInit {
           tiempoSegundos: tiempoFinal,
         },
       },
+    );
+  }
+
+  // =========================================================
+  // COMPROBAR SI ESTÁN TODAS SELECCIONADAS
+  // =========================================================
+
+  get allCategoriesSelected(): boolean {
+    return (
+      this.categories.length > 0 &&
+      this.selectedCategories.length === this.categories.length
+    );
+  }
+
+  // =========================================================
+  // TEXTO DE LAS CATEGORÍAS SELECCIONADAS
+  // =========================================================
+
+  get selectedCategoriesLabel(): string {
+    if (this.allCategoriesSelected) {
+      return 'Todas las categorías';
+    }
+
+    return this.selectedCategories.join(', ');
+  }
+
+  // =========================================================
+  // SELECCIONAR O DESMARCAR TODAS LAS CATEGORÍAS
+  // =========================================================
+  toggleAllCategories(checked: boolean): void {
+    // =========================================================
+    // SELECCIONAR O DESMARCAR TODAS
+    // =========================================================
+    this.selectedCategories = checked ? [...this.categories] : [];
+
+    // =========================================================
+    // ACTUALIZAR LAS PALABRAS DISPONIBLES
+    // =========================================================
+    this.onCategoryChange();
+
+    // =========================================================
+    // CERRAR EL DESPLEGABLE AUTOMÁTICAMENTE
+    // SOLO CUANDO SE SELECCIONAN TODAS
+    // =========================================================
+    if (checked) {
+      this.categoryDropdownOpen = false;
+    }
+  }
+
+  // =========================================================
+  // SELECCIONAR O DESMARCAR UNA CATEGORÍA
+  // =========================================================
+
+  toggleCategory(category: string, checked: boolean): void {
+    if (checked) {
+      if (!this.selectedCategories.includes(category)) {
+        this.selectedCategories = [...this.selectedCategories, category];
+      }
+    } else {
+      this.selectedCategories = this.selectedCategories.filter(
+        (item) => item !== category,
+      );
+    }
+
+    this.onCategoryChange();
+  }
+
+  // =========================================================
+  // FILTRAR PALABRAS SEGÚN LAS CATEGORÍAS MARCADAS
+  // =========================================================
+
+  private getSelectedCategoryPairs(): GamePair[] {
+    const selected = new Set(
+      this.selectedCategories.map((category) => category.trim().toLowerCase()),
+    );
+
+    return this.allPairs.filter((pair) =>
+      selected.has((pair.categoriaPalabra ?? '').trim().toLowerCase()),
     );
   }
 

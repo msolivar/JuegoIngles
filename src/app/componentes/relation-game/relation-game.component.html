@@ -15,16 +15,66 @@
     </div>
 
     <div class="category-selection-content" *ngIf="!loadingWords">
-      <label for="categorySelect">🏷️ Categoría de palabras</label>
 
-      <select id="categorySelect" [(ngModel)]="selectedCategory" (ngModelChange)="onCategoryChange()">
-        <option value="">Selecciona una categoría</option>
-        <option [value]="ALL_CATEGORIES">Todas las palabras</option>
+      <!-- =====================================================
+     SELECTOR DESPLEGABLE DE CATEGORÍAS MÚLTIPLES
+====================================================== -->
 
-        <option *ngFor="let category of categories" [value]="category">
-          {{ category }}
-        </option>
-      </select>
+      <label>🏷️ Categorías de palabras</label>
+
+      <div class="category-dropdown">
+
+        <!-- BOTÓN QUE ABRE Y CIERRA EL SELECTOR -->
+        <button type="button" class="category-dropdown-trigger" [class.dropdown-open]="categoryDropdownOpen"
+          (click)="categoryDropdownOpen = !categoryDropdownOpen">
+          <span class="category-dropdown-text">
+            {{
+            selectedCategories.length === 0
+            ? 'Selecciona una o varias categorías'
+            : allCategoriesSelected
+            ? 'Todas las palabras'
+            : selectedCategories.join(', ')
+            }}
+          </span>
+
+          <span class="category-dropdown-arrow">
+            {{ categoryDropdownOpen ? '▲' : '▼' }}
+          </span>
+        </button>
+
+        <!-- OPCIONES DESPLEGABLES -->
+        <div class="category-dropdown-menu" *ngIf="categoryDropdownOpen">
+
+          <!-- TODAS LAS PALABRAS -->
+          <label class="category-dropdown-option select-all-option">
+            <input type="checkbox" [checked]="allCategoriesSelected"
+              (change)="toggleAllCategories($any($event.target).checked)" />
+
+            <span>Todas las palabras</span>
+          </label>
+
+          <!-- CATEGORÍAS DE FIREBASE -->
+          <label class="category-dropdown-option" *ngFor="let category of categories">
+            <input type="checkbox" [checked]="selectedCategories.includes(category)"
+              (change)="toggleCategory(category, $any($event.target).checked)" />
+
+            <span>{{ category }}</span>
+          </label>
+
+          <!-- CERRAR SELECTOR -->
+          <button type="button" class="category-dropdown-done" (click)="categoryDropdownOpen = false">
+            ✓ Listo
+          </button>
+
+        </div>
+
+      </div>
+
+      <!-- CONTADOR -->
+      <small class="category-selection-count">
+        {{ selectedCategories.length }} de
+        {{ categories.length }} categorías seleccionadas
+      </small>
 
       <div class="no-results" *ngIf="categoryMessage">
         ⚠️ {{ categoryMessage }}
@@ -216,11 +266,7 @@
       <span>
         🏷️ Categoría:
         <strong>
-          {{
-          selectedCategory === ALL_CATEGORIES
-          ? "Todas las categorías"
-          : selectedCategory
-          }}
+          {{ selectedCategoriesLabel }}
         </strong>
       </span>
 
@@ -333,7 +379,8 @@
       ==================================================== -->
       <div class="column">
         <button #rightButton *ngFor="let word of rightWords[currentPage]" type="button" class="word-card right-card"
-          [attr.data-id]="word.id" [class.selected]="selectedRight?.id === word.id" [class.connected]="isRightConnected(word.id)" [disabled]="
+          [attr.data-id]="word.id" [class.selected]="selectedRight?.id === word.id"
+          [class.connected]="isRightConnected(word.id)" [disabled]="
             finished || changingPage || showHints || isRightConnected(word.id)
           " (click)="selectRight(word)">
           <!-- PUNTO DE CONEXIÓN -->

@@ -65,6 +65,13 @@ export class CompletarPalabrasComponent {
 
   selectedCategory = '';
 
+  // =========================================================
+  // SELECTOR MÚLTIPLE DE CATEGORÍAS
+  // =========================================================
+  selectedCategories: string[] = [];
+
+  categoryDropdownOpen = false;
+
   categorySelected = false;
 
   // Dashboard de configuración
@@ -260,6 +267,10 @@ export class CompletarPalabrasComponent {
       // =====================================================
       this.selectedCategory = '';
 
+      this.selectedCategories = [];
+
+      this.categoryDropdownOpen = false;
+
       this.categorySelected = false;
 
       this.gameStarted = false;
@@ -302,6 +313,47 @@ export class CompletarPalabrasComponent {
   }
 
   // =========================================================
+  // SELECCIONAR O DESMARCAR TODAS LAS CATEGORÍAS
+  // =========================================================
+  toggleAllCategories(checked: boolean): void {
+    this.selectedCategories = checked ? [...this.categories] : [];
+
+    this.syncSelectedCategories();
+
+    if (checked) {
+      this.categoryDropdownOpen = false;
+    }
+  }
+
+  // =========================================================
+  // SELECCIONAR O DESMARCAR UNA CATEGORÍA
+  // =========================================================
+  toggleCategory(category: string, checked: boolean): void {
+    if (checked) {
+      if (!this.selectedCategories.includes(category)) {
+        this.selectedCategories = [...this.selectedCategories, category];
+      }
+    } else {
+      this.selectedCategories = this.selectedCategories.filter(
+        (item) => item !== category,
+      );
+    }
+
+    this.syncSelectedCategories();
+  }
+
+  // =========================================================
+  // SINCRONIZAR SELECCIÓN CON EL JUEGO
+  // =========================================================
+  private syncSelectedCategories(): void {
+    this.selectedCategory = this.allCategoriesSelected
+      ? this.ALL_CATEGORIES
+      : (this.selectedCategories[0] ?? '');
+
+    this.onCategoryChange();
+  }
+
+  // =========================================================
   // SABER SI ES EL PRIMER CUADRO OCULTO DE LA PALABRA
   // =========================================================
   isFirstHiddenCellIndex(cells: LetterCell[], currentIndex: number): boolean {
@@ -330,73 +382,75 @@ export class CompletarPalabrasComponent {
   }
 
   // =========================================================
-  // CAMBIO EN SELECTOR DE CATEGORÍA
+  // CAMBIO DE CATEGORÍAS SELECCIONADAS
   // =========================================================
   onCategoryChange(): void {
     this.categoryMessage = '';
     this.loadError = '';
+
     this.gameStarted = false;
+
     this.exercises = [];
     this.pages = [];
+
     this.currentPage = 0;
     this.errors = 0;
 
-    if (!this.selectedCategory) {
+    if (this.selectedCategories.length === 0) {
       this.categorySelected = false;
       this.pairs = [];
+      this.selectedPairCount = 0;
       return;
     }
 
     this.applySelectedCategory();
   }
 
+  // =========================================================
+  // FILTRAR PALABRAS DE LAS CATEGORÍAS ELEGIDAS
+  // =========================================================
   private applySelectedCategory(): void {
-    // =========================================================
-    // TODAS LAS PALABRAS
-    // =========================================================
-    if (this.selectedCategory === this.ALL_CATEGORIES) {
-      this.pairs = [...this.allPairs];
-      this.selectedPairCount = this.pairs.length;
-    } else {
-      // =======================================================
-      // UNA CATEGORÍA ESPECÍFICA
-      // =======================================================
-      this.pairs = this.allPairs.filter(
-        (pair) =>
-          pair.categoriaPalabra?.trim().toLowerCase() ===
-          this.selectedCategory.trim().toLowerCase(),
-      );
-      this.selectedPairCount = Math.min(12, this.pairs.length);
-    }
+    const selected = new Set(
+      this.selectedCategories.map((category) => category.trim().toLowerCase()),
+    );
 
-    // =========================================================
-    // VALIDAR QUE EXISTAN PALABRAS
-    // =========================================================
+    this.pairs = this.allCategoriesSelected
+      ? [...this.allPairs]
+      : this.allPairs.filter((pair) =>
+          selected.has((pair.categoriaPalabra ?? '').trim().toLowerCase()),
+        );
+
     if (this.pairs.length === 0) {
-      this.loadError = 'No hay palabras disponibles en esta categoría.';
+      this.loadError =
+        'No hay palabras disponibles en las categorías seleccionadas.';
+
       this.categorySelected = false;
+      this.selectedPairCount = 0;
       return;
     }
 
-    // =========================================================
-    // PREPARAR CONFIGURACIÓN
-    // =========================================================
     this.categorySelected = true;
+
+    this.selectedPairCount = this.allCategoriesSelected
+      ? this.pairs.length
+      : Math.min(12, this.pairs.length);
 
     this.searchTerm = '';
   }
 
   // =========================================================
-  // SELECCIONAR CATEGORÍA E INICIAR
+  // VALIDAR CATEGORÍAS Y MOSTRAR CONFIGURACIÓN
   // =========================================================
   selectCategoryAndStart(): void {
-    if (!this.selectedCategory || this.selectedCategory.trim() === '') {
+    if (this.selectedCategories.length === 0) {
       this.categoryMessage =
-        'Por favor seleccione una categoría de palabra para continuar.';
+        'Por favor selecciona al menos una categoría para continuar.';
       return;
     }
 
     this.categoryMessage = '';
+    this.categoryDropdownOpen = false;
+
     this.applySelectedCategory();
   }
 
@@ -413,6 +467,10 @@ export class CompletarPalabrasComponent {
     this.categorySelected = false;
 
     this.selectedCategory = '';
+
+    this.selectedCategories = [];
+
+    this.categoryDropdownOpen = false;
 
     this.categoryMessage = '';
 
@@ -998,17 +1056,18 @@ export class CompletarPalabrasComponent {
 
   // =========================================================
   // RESTAURAR JUEGO NORMAL
+  // RESPETANDO LAS CATEGORÍAS SELECCIONADAS
   // =========================================================
   restoreNormalGame(): void {
-    if (this.selectedCategory === this.ALL_CATEGORIES) {
-      this.pairs = [...this.allPairs];
-    } else {
-      this.pairs = this.allPairs.filter(
-        (pair) =>
-          pair.categoriaPalabra?.trim().toLowerCase() ===
-          this.selectedCategory.trim().toLowerCase(),
-      );
-    }
+    const selected = new Set(
+      this.selectedCategories.map((category) => category.trim().toLowerCase()),
+    );
+
+    this.pairs = this.allCategoriesSelected
+      ? [...this.allPairs]
+      : this.allPairs.filter((pair) =>
+          selected.has((pair.categoriaPalabra ?? '').trim().toLowerCase()),
+        );
 
     this.selectedPairCount = this.pairs.length;
 
@@ -1196,6 +1255,60 @@ export class CompletarPalabrasComponent {
   }
 
   // =========================================================
+  // COMPROBAR SI ESTÁN SELECCIONADAS TODAS
+  // =========================================================
+  get allCategoriesSelected(): boolean {
+    return (
+      this.categories.length > 0 &&
+      this.selectedCategories.length === this.categories.length
+    );
+  }
+
+  // =========================================================
+  // TEXTO MOSTRADO EN EL SELECTOR
+  // =========================================================
+  get selectedCategoriesLabel(): string {
+    if (this.selectedCategories.length === 0) {
+      return 'Selecciona una categoría';
+    }
+
+    if (this.allCategoriesSelected) {
+      return 'Todas las palabras';
+    }
+
+    return this.selectedCategories
+      .map((category) => category.charAt(0).toUpperCase() + category.slice(1))
+      .join(', ');
+  }
+
+  // =========================================================
+  // MOSTRAR CATEGORÍAS ORDENADAS ALFABÉTICAMENTE
+  // =========================================================
+  get categoryDisplayName(): string {
+    if (this.selectedCategories.length === 0) {
+      return 'Sin categoría';
+    }
+
+    // =========================================================
+    // TODAS LAS CATEGORÍAS SELECCIONADAS
+    // =========================================================
+    if (this.allCategoriesSelected) {
+      return 'Todas las palabras';
+    }
+
+    // =========================================================
+    // ORDENAR ALFABÉTICAMENTE
+    // =========================================================
+    return [...this.selectedCategories]
+      .sort((a, b) =>
+        a.localeCompare(b, 'es', {
+          sensitivity: 'base',
+        }),
+      )
+      .join(', ');
+  }
+
+  // =========================================================
   // MEZCLAR ARRAY
   // =========================================================
   shuffle<T>(array: T[]): T[] {
@@ -1281,10 +1394,7 @@ export class CompletarPalabrasComponent {
     // =====================================================
     // CATEGORÍA
     // =====================================================
-    const categoria =
-      this.selectedCategory === this.ALL_CATEGORIES
-        ? 'Todas las palabras'
-        : this.selectedCategory;
+    const categoriasOrdenadas = this.categoryDisplayName;
 
     const repasoParaPuntuacion =
       this.reviewType === 'meaning' ? 'Verbo → Significado' : 'Verbo → Pareja';
@@ -1298,7 +1408,7 @@ export class CompletarPalabrasComponent {
       {
         state: {
           juego: 'completar-palabra',
-          categoria: categoria,
+          categoria: categoriasOrdenadas,
           // ===============================================
           // ACIERTOS SIN ERRORES
           // ===============================================
@@ -1329,10 +1439,7 @@ export class CompletarPalabrasComponent {
       return;
     }
 
-    const category =
-      this.selectedCategory === this.ALL_CATEGORIES
-        ? 'Todas las palabras'
-        : this.selectedCategory;
+    const category = this.categoryDisplayName;
 
     const vocabularyRows = this.pairs
       .map((pair, index) => {
