@@ -20,7 +20,8 @@
 .exercise-pair .exercise-thumbnail {
   width: 100%;
   height: 65px;
-  object-fit: cover; /* Llena el ancho y alto del cajón */
+  object-fit: cover;
+  /* Llena el ancho y alto del cajón */
   object-position: center;
   display: block;
   border-radius: inherit;
@@ -120,6 +121,11 @@
 }
 
 @media (max-width: 900px) {
+
+  .exercise-pair {
+    padding-top: 84px;
+  }
+
   .exercise-pair .exercise-image-button {
     width: 170px;
     height: 70px;
@@ -133,6 +139,10 @@
 }
 
 @media (max-width: 600px) {
+  .exercise-pair {
+    padding-top: 68px;
+  }
+
   .exercise-pair .exercise-image-button {
     width: 154px;
     height: 54px;
@@ -158,16 +168,4 @@
   left: 50%;
   transform: translateX(-50%);
   grid-column: auto;
-}
-
-@media (max-width: 900px) {
-  .exercise-pair {
-    padding-top: 84px;
-  }
-}
-
-@media (max-width: 600px) {
-  .exercise-pair {
-    padding-top: 68px;
-  }
 }
