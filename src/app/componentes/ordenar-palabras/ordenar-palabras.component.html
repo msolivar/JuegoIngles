@@ -1,510 +1,772 @@
 <div class="game-container">
-  <!-- ======================================================
-
-    SELECCIÓN DE CATEGORÍAS
-
-  ====================================================== -->
-
-  <section class="category-selector" *ngIf="!gameStarted">
-    <p class="notice" *ngIf="loadingWords">Cargando palabras de Firebase...</p>
-
-    <h1>Ordenar palabras en Inglés</h1>
-
+  <!-- =======================================================
+       1. SELECCIÓN DE CATEGORÍA SOLO SE MUESTRA ANTES DE ELEGIR CATEGORÍA
+  ======================================================== -->
+  <div class="category-selector" *ngIf="!loadingWords && !gameStarted">
+    <h1><b>Ordenar palabras en Ingles</b></h1>
     <h2>🎮 Elige una categoría para ordenar palabras</h2>
 
-    <label class="section-label">🏷️ Categorías de palabras</label>
+    <div class="no-results" *ngIf="loadingWords">⏳ Cargando categorías...</div>
 
-    <div class="dropdown-wrap">
-      <button type="button" class="category-trigger" (click)="categoryMenuOpen = !categoryMenuOpen"
-        [attr.aria-expanded]="categoryMenuOpen">
-        <span>{{
-          selectedCategories.length
-          ? categoryDisplayName
-          : "Selecciona una categoría"
-          }}</span>
+    <div class="no-results" *ngIf="loadError && !loadingWords">
+      {{ loadError }}
+    </div>
 
-        <span>{{ categoryMenuOpen ? "▲" : "▼" }}</span>
-      </button>
+    <div class="category-selection-content" *ngIf="!loadingWords">
 
-      <div class="category-menu" *ngIf="categoryMenuOpen">
-        <label class="category-option all-option">
-          <input type="checkbox" [checked]="allCategoriesSelected"
-            (change)="toggleAllCategories($any($event.target).checked)" />
+      <!-- =====================================================
+     SELECTOR MÚLTIPLE DE CATEGORÍAS
+====================================================== -->
+      <label id="categoryLabel">🏷️ Categorías de palabras</label>
 
-          Todas las palabras
-        </label>
+      <div class="category-dropdown">
 
-        <ng-container *ngIf="!allCategoriesSelected">
-          <label class="category-option" *ngFor="let category of categories">
+        <!-- BOTÓN PRINCIPAL -->
+        <button type="button" class="category-dropdown-trigger" aria-labelledby="categoryLabel"
+          [attr.aria-expanded]="categoryDropdownOpen" (click)="categoryDropdownOpen = !categoryDropdownOpen">
+          <span class="category-dropdown-text">
+            {{ selectedCategoriesLabel }}
+          </span>
+
+          <span class="category-dropdown-arrow">
+            {{ categoryDropdownOpen ? '▲' : '▼' }}
+          </span>
+        </button>
+
+        <!-- LISTA DESPLEGABLE -->
+        <div class="category-dropdown-menu" *ngIf="categoryDropdownOpen">
+
+          <!-- TODAS LAS PALABRAS -->
+          <label class="category-dropdown-option select-all-option">
+            <input type="checkbox" [checked]="allCategoriesSelected"
+              (change)="toggleAllCategories($any($event.target).checked)" />
+
+            <span>Todas las palabras</span>
+          </label>
+
+          <!-- CATEGORÍAS INDIVIDUALES -->
+          <label class="category-dropdown-option" *ngFor="let category of categories">
             <input type="checkbox" [checked]="selectedCategories.includes(category)"
               (change)="toggleCategory(category, $any($event.target).checked)" />
 
-            {{ category }}
+            <span>{{ category | titlecase }}</span>
           </label>
-        </ng-container>
 
-        <button type="button" class="done-button" (click)="categoryMenuOpen = false">
-          ✓ Listo
-        </button>
+          <!-- CONFIRMAR SELECCIÓN -->
+          <button type="button" class="category-dropdown-done" (click)="categoryDropdownOpen = false">
+            ✓ Listo
+          </button>
+
+        </div>
       </div>
+
+      <!-- CONTADOR -->
+      <div class="category-selection-count">
+        {{ selectedCategories.length }} de
+        {{ categories.length }} categorías seleccionadas
+      </div>
+
+      <!-- MENSAJE -->
+      <div class="no-results" *ngIf="categoryMessage">
+        ⚠️ {{ categoryMessage }}
+      </div>
+
+      <!-- CONTINUAR -->
+      <button type="button" class="new-game-button" (click)="selectCategoryAndStart()" *ngIf="!categorySelected">
+        ▶ Continuar
+      </button>
     </div>
 
-    <p class="category-count">
-      {{ selectedCategories.length }} de {{ categories.length }} categorías
-      seleccionadas
-    </p>
+    <!-- =======================================================
+      2. APARECE DESPUÉS DE ELEGIR CATEGORÍA
+    ======================================================== -->
+    <div class="game-setup-dashboard" *ngIf="!loadingWords && categorySelected && !gameStarted">
+      <div class="setup-field full-width">
+        <label for="reviewType"> 📚 Qué tema quieres repasar </label>
 
-    <p *ngIf="!loadingWords && !words.length" class="notice">
-      Todavía no se han recibido palabras. Conecta los datos desde el componente
-      padre.
-    </p>
+        <select id="reviewType" [(ngModel)]="reviewType">
+          <option value="right">Verbo → Pareja</option>
 
-    <!-- ======================================================
-
-      ADVERTENCIA DE CATEGORÍAS
-
-    ====================================================== -->
-
-    <p class="category-warning" *ngIf="categoryWarning && !categorySelected && !gameStarted">
-      ⚠️ Por favor selecciona al menos una categoría para continuar.
-    </p>
-
-    <!-- ======================================================
-
-      BOTÓN CONTINUAR
-
-      SOLO VALIDA LAS CATEGORÍAS
-
-    ====================================================== -->
-
-    <button type="button" class="start-button" *ngIf="!categorySelected && !gameStarted"
-      (click)="selectCategoryAndContinue()">
-      ▶ Continuar
-    </button>
-  </section>
-
-  <!-- ======================================================
-
-    CONFIGURACIÓN
-
-  ====================================================== -->
-
-  <section class="setup-card" *ngIf="selectedCategories.length > 0 && !gameStarted">
-    <div class="field full">
-      <label>📚 Qué tema quieres repasar</label>
-
-      <select [(ngModel)]="reviewType" (ngModelChange)="adjustCount()">
-        <option value="right">Verbo → Pareja</option>
-
-        <option value="meaning">Verbo → Significado</option>
-      </select>
-    </div>
-
-    <div class="setup-grid">
-      <div class="field">
-        <label>🎮 Cantidad de parejas</label>
-
-        <input type="number" min="1" [max]="availableWords.length" [(ngModel)]="selectedPairCount" />
-
-        <small>Disponible: {{ availableWords.length }} pregunta(s)</small>
-      </div>
-
-      <div class="field">
-        <label>🔀 Orden de las palabras</label>
-
-        <select [(ngModel)]="wordOrder">
-          <option value="random">Aleatorio</option>
-
-          <option value="original">Orden original</option>
-
-          <option value="ascending">Ascendente (A → Z)</option>
-
-          <option value="descending">Descendente (Z → A)</option>
+          <option value="meaning">Verbo → Significado</option>
         </select>
-
-        <small>Elige cómo aparecerán las palabras.</small>
       </div>
 
-      <div class="field">
-        <label>🔊 Traductor de voz</label>
+      <div class="setup-row">
+        <div class="setup-field">
+          <label for="pairCount"> 🎮 Cantidad de parejas </label>
 
-        <select [(ngModel)]="voiceEnabled">
-          <option [ngValue]="true">Activado</option>
+          <input id="pairCount" type="number" min="1" [max]="pairs.length" [(ngModel)]="selectedPairCount" />
 
-          <option [ngValue]="false">Desactivado</option>
-        </select>
+          <small> Disponible: {{ pairs.length }} pregunta(s) </small>
+        </div>
 
-        <small>Pronunciación de las palabras.</small>
+        <!-- =====================================================
+     ORDEN DE LAS PALABRAS
+====================================================== -->
+        <div class="setup-field">
+          <label for="wordOrder"> 🔀 Orden de las palabras </label>
+
+          <select id="wordOrder" [(ngModel)]="wordOrder">
+            <!-- ALEATORIO -->
+            <option value="random">Aleatorio</option>
+
+            <!-- ORDEN ORIGINAL DE FIREBASE -->
+            <option value="original">Orden original</option>
+
+            <!-- ASCENDENTE -->
+            <option value="ascending">Ascendente (A → Z)</option>
+
+            <!-- DESCENDENTE -->
+            <option value="descending">Descendente (Z → A)</option>
+          </select>
+
+          <!-- DESCRIPCIÓN -->
+          <small *ngIf="wordOrder === 'random'">
+            Las palabras aparecerán mezcladas.
+          </small>
+
+          <small *ngIf="wordOrder === 'original'">
+            Las palabras conservarán su orden original.
+          </small>
+
+          <small *ngIf="wordOrder === 'ascending'">
+            Las palabras aparecerán de la A a la Z.
+          </small>
+
+          <small *ngIf="wordOrder === 'descending'">
+            Las palabras aparecerán de la Z a la A.
+          </small>
+        </div>
       </div>
 
-      <div class="field">
-        <label>⏱️ Velocidad de voz</label>
-
-        <select [(ngModel)]="voiceRate">
-          <option [ngValue]="0.75">Lenta</option>
-
-          <option [ngValue]="1">Normal</option>
-
-          <option [ngValue]="1.25">Rápida</option>
-        </select>
-
-        <small>Velocidad de pronunciación.</small>
-      </div>
-    </div>
-
-    <div class="field full">
-      <!-- ======================================================
-
-        BUSCAR PALABRA
-
+      <!-- =====================================================
+        AUDIO / TRADUCTOR Y VELOCIDAD
       ====================================================== -->
+      <div class="setup-row">
+        <!-- =================================================
+          ACTIVAR / DESACTIVAR AUDIO
+        ================================================== -->
+        <div class="setup-field">
+          <label> 🔊 Traductor de voz </label>
 
-      <label for="searchWord">🔎 Buscar palabra</label>
+          <select [(ngModel)]="audioEnabled">
+            <option [ngValue]="true">🔊 Activado</option>
 
-      <input id="searchWord" type="text" name="searchWord" [(ngModel)]="searchTerm"
-        placeholder="Buscar: take, took, drive..." autocomplete="off" />
-    </div>
+            <option [ngValue]="false">🔇 Desactivado</option>
+          </select>
 
-    <!-- ======================================================
+          <small>
+            {{
+            audioEnabled
+            ? "La pronunciación está activada."
+            : "La pronunciación está desactivada."
+            }}
+          </small>
+        </div>
 
-      RESULTADOS DE LA BÚSQUEDA
+        <!-- =================================================
+          VELOCIDAD DEL AUDIO
+        ================================================== -->
+        <div class="setup-field">
+          <label> ⏱️ Velocidad de voz </label>
 
+          <select [(ngModel)]="audioRate" [disabled]="!audioEnabled">
+            <option [ngValue]="0.6">Muy lenta</option>
+
+            <option [ngValue]="0.8">Lenta</option>
+
+            <option [ngValue]="1">Normal</option>
+
+            <option [ngValue]="1.2">Rápida</option>
+
+            <option [ngValue]="1.5">Muy rápida</option>
+          </select>
+
+          <small> Velocidad de pronunciación. </small>
+        </div>
+      </div>
+
+      <!-- =====================================================
+         BUSCADOR
+      ====================================================== -->
+      <div class="setup-field full-width search-setup">
+        <label for="searchWord"> 🔎 Buscar palabra </label>
+
+        <input id="searchWord" type="text" [(ngModel)]="searchTerm" placeholder="Buscar: take, took, drive..."
+          autocomplete="off" />
+      </div>
+
+      <!-- =====================================================
+         RESULTADOS DEL BUSCADOR
+      ====================================================== -->
+      <div class="word-list" *ngIf="searchTerm.trim()">
+        <div class="word-list-item" *ngFor="let pair of filteredPairs | slice: 0 : 6">
+          <span class="word-original">
+            {{ pair.left }}
+          </span>
+
+          <span> → </span>
+
+          <span class="word-arrow" *ngIf="reviewType === 'right'">
+            {{ pair.right }}
+          </span>
+
+          <span class="word-answer" *ngIf="reviewType === 'meaning'">
+            {{ pair.meaning }}
+          </span>
+        </div>
+
+        <div class="no-results" *ngIf="filteredPairs.length === 0">
+          No se encontraron palabras.
+        </div>
+      </div>
+
+      <button type="button" class="print-vocabulary-button" (click)="printVocabulary()" [disabled]="pairs.length === 0">
+        🖨️ Imprimir vocabulario
+      </button>
+
+      <!-- =====================================================
+         EMPEZAR
     ====================================================== -->
-
-    <div class="search-results" *ngIf="searchTerm.trim()">
-      <div class="search-result" *ngFor="let word of filteredSearchWords">
-        <strong>{{ word.text }}</strong>
-
-        →
-
-        <strong class="search-result-right">
-          {{ word.right }}
-        </strong>
-      </div>
-
-      <p *ngIf="filteredSearchWords.length === 0">
-        No se encontraron palabras.
-      </p>
+      <button type="button" class="new-game-button" (click)="startGame()"
+        [disabled]="selectedPairCount < 1 || selectedPairCount > pairs.length">
+        ▶ Empezar juego
+      </button>
     </div>
+  </div>
 
-    <button type="button" class="print-button" (click)="printVocabulary()">
-      🖨️ Imprimir vocabulario
-    </button>
+  <!-- =======================================================
+       3. JUEGO INICIADO
+  ======================================================== -->
+  <ng-container *ngIf="categorySelected && gameStarted">
+    <!-- =====================================================
+         BARRA SUPERIOR
+    ====================================================== -->
+    <div class="selected-category-box" *ngIf="!gameFinished">
+      <span>
+        🏷️ Categoría:
+        <strong>
+          {{ categoryDisplayName }}
+        </strong>
+      </span>
 
-    <button type="button" class="start-button" [disabled]="!availableWords.length || selectedPairCount < 1"
-      (click)="startGame()">
-      ▶ Empezar juego
-    </button>
-  </section>
+      <span>
+        📚 Repaso:
+        <strong>
+          {{
+          reviewType === "meaning" ? "Verbo → Significado" : "Verbo → Pareja"
+          }}
+        </strong>
+      </span>
 
-  <!-- ======================================================
-
-    JUEGO
-
-  ====================================================== -->
-
-  <ng-container *ngIf="gameStarted">
-    <div class="game-info top-game-controls" *ngIf="!gameFinished">
-      <div class="game-info-line">
-        <span>🏷️ Categoría: <strong>{{ categoryDisplayName }}</strong></span><span>📚 Repaso:
-
-          <strong>{{
-            reviewType === "meaning" ? "Verbo → Significado" : "Verbo → Pareja"
-            }}</strong></span>
-      </div>
-
-      <button type="button" class="change-button" (click)="changeCategory()">
+      <button type="button" class="change-category-button" (click)="changeCategory()">
         🔄 Cambiar categoría
       </button>
     </div>
 
-    <div class="game-stats" *ngIf="!gameFinished">
-      <span>📄 Pantalla:
+    <!-- =====================================================
+         ESTADÍSTICAS
+    ====================================================== -->
+    <div class="attempts" *ngIf="!gameFinished">
+      <span>
+        📄 Pantalla:
+        <strong> {{ currentPage + 1 }}/{{ totalPages }} </strong>
+      </span>
 
-        <strong>{{ currentPage + 1 }}/{{ totalPages }}</strong></span>
+      <span>
+        ✅ Parejas:
+        <strong> {{ completedPairs }}/{{ exercises.length }} </strong>
+      </span>
 
-      <span>✅ Parejas:
+      <span>
+        ❌ Errores:
+        <strong> {{ errors }}/{{ maxErrors }} </strong>
+      </span>
 
-        <strong>{{ completedPairs }}/{{ exercises.length }}</strong></span>
+      <span>
+        ❤️ Intentos restantes:
+        <strong>
+          {{ remainingAttempts }}
+        </strong>
+      </span>
 
-      <span>❌ Errores: <strong>{{ errors }}/{{ maxErrors }}</strong></span>
-
-      <span>❤️ Intentos restantes: <strong>{{ attemptsRemaining }}</strong></span>
+      <span>
+        ✅ Esta pantalla:
+        <strong>
+          {{ currentPageCompleted }}/{{ pages[currentPage].length }}
+        </strong>
+      </span>
     </div>
 
-    <p class="page-progress" *ngIf="!gameFinished">
-      ✅ Esta pantalla:
+    <!-- =====================================================
+         JUEGO
+    ====================================================== -->
+    <ng-container *ngIf="!gameFinished && pages.length > 0">
+      <!-- ===================================================
+           CAMBIANDO PÁGINA
+      ==================================================== -->
+      <div class="changing-page-message" *ngIf="changingPage">
+        Cargando siguiente pantalla...
+      </div>
 
-      <strong>{{ currentPageCompleted }}/{{ pages[currentPage].length }}</strong>
-    </p>
+      <!-- ===================================================
+           ENCABEZADO
+      ==================================================== -->
+      <div class="exercise-header">
+        <div>#</div>
 
-    <p class="feedback" *ngIf="message && !gameFinished" role="status">
-      {{ message }}
-    </p>
+        <div class="column-header">VERBO</div>
 
-    <div class="exercise-list" *ngIf="!gameFinished">
-      <div class="exercise-pair" *ngFor="let exercise of pages[currentPage]; let i = index"
-        [class.completed-pair]="exercise.completed" [class.pareja-activa]="
-          exercise.id === parejaActivaId && !exercise.completed
-        ">
-        <div class="exercise-number pair-number">
-          {{ currentPage * wordsPerPage + i + 1 }}
+        <div class="column-header">
+          {{ reviewType === "meaning" ? "SIGNIFICADO" : "PAREJA" }}
         </div>
+      </div>
 
-        <div class="pair-image">
-          <button *ngIf="exercise.image" type="button" class="image-thumbnail" (click)="
-              openImage(
-                exercise.image!,
-
-                exercise.left.original,
-
-                exercise.meaning
-              )
-            " aria-label="Ampliar imagen">
-            <img [src]="exercise.image" [alt]="exercise.left.original" />
+      <!-- ===================================================
+           LISTADO
+      ==================================================== -->
+      <div class="exercise-list">
+        <div class="exercise-pair" *ngFor="let exercise of pages[currentPage]; let i = index"
+          [class.completed-pair]="exercise.completed">
+          <!-- ===============================================
+               NÚMERO
+          ================================================ -->
+          <div class="exercise-number pair-number">
+            {{ currentPage * wordsPerPage + i + 1 }}
+          </div>
+          <!-- IMAGEN PEQUEÑA; CLIC PARA AMPLIAR -->
+          <button *ngIf="getExerciseImage(exercise.id)" type="button" class="exercise-image-button"
+            (click)="showExerciseImage(exercise)" [attr.aria-label]="'Ampliar imagen de ' + exercise.leftOriginal">
+            <img class="exercise-thumbnail" [src]="getExerciseImage(exercise.id)" [alt]="exercise.leftOriginal"
+              loading="lazy" />
           </button>
-        </div>
-
-        <div class="word-section left-word">
-          <div class="letter-row" [style.--cell-count]="exercise.left.cells.length">
-            <ng-container *ngFor="let cell of exercise.left.cells">
-              <span *ngIf="cell.isSpace" class="visible-letter">&nbsp;</span>
-
-              <span *ngIf="!cell.isSpace && cell.fixed" class="visible-letter1">{{ cell.value }}</span>
-
-              <button *ngIf="!cell.isSpace && !cell.fixed" type="button" class="letter-slot"
-                [class.filled]="!!cell.value" [class.correct-letter]="cell.correct === true"
-                [class.wrong-letter]="cell.correct === false" [class.casilla-activa]="
-                  esCasillaActiva(exercise, exercise.left, cell)
-                " [disabled]="exercise.completed" (focus)="activateSlot(exercise.left, cell, exercise)"
-                (click)="activarAudioPrimerCampo(exercise.left, cell, exercise)" [attr.aria-label]="
-                  cell.value
-                    ? 'Letra colocada ' + cell.value
-                    : 'Casilla para completar palabra'
-                ">
-                {{ cell.value }}
+          <!-- ===============================================
+               PALABRA IZQUIERDA
+          ================================================ -->
+          <div class="word-section left-word">
+            <div class="letter-row" [style.--cell-count]="exercise.leftCells.length">
+              <ng-container *ngFor="let cell of exercise.leftCells; let cellIndex = index">
+                <!-- ESPACIO -->
+                <span *ngIf="cell.isSpace" class="visible-letter">
+                  &nbsp;
+                </span>
+                <!-- LETRA VISIBLE -->
+                <span *ngIf="!cell.isSpace && !cell.hidden" class="visible-letter1">
+                  {{ cell.letter }}
+                </span>
+                <!-- LETRA OCULTA -->
+                <input *ngIf="!cell.isSpace && cell.hidden" type="text" maxlength="1" class="letter-input"
+                  [class.correct-letter]="cell.correct === true" [class.wrong-letter]="cell.correct === false"
+                  [class.selected-slot]="isSelectedSlot(exercise, 'left', cellIndex)"
+                  (click)="selectSlot(exercise, 'left', cellIndex)" [disabled]="
+                    exercise.completed ||
+                    changingPage ||
+                    gameFinished ||
+                    showHints" [(ngModel)]="cell.value" (focus)="isFirstHiddenCellIndex(exercise.leftCells, cellIndex) 
+                  && playAudio(exercise.leftOriginal, 'en-US')" (input)="onLetterInput(cell, $event, exercise)"
+                  autocomplete="off" />
+              </ng-container>
+            </div>
+            <div class="letter-bank" aria-label="Letras disponibles">
+              <button *ngFor="let tile of exercise.leftBank; let bankIndex = index" type="button"
+                class="letter-bank-tile" [class.used]="tile.used"
+                [disabled]="tile.used || exercise.completed || gameFinished || changingPage || showHints"
+                (mousedown)="$event.preventDefault()"
+                (click)="chooseBankLetter(exercise, 'left', bankIndex)">
+                {{ tile.letter }}
               </button>
-            </ng-container>
+            </div>
           </div>
 
-          <div class="letter-bank">
-            <button *ngFor="let letter of exercise.left.bank" type="button" class="bank-letter"
-              [disabled]="letter.used || exercise.completed" [class.used]="letter.used"
-              (click)="placeLetter(exercise.left, letter, exercise)">
-              {{ letter.letter }}
-            </button>
-          </div>
-        </div>
-
-        <div class="pair-arrow">→</div>
-
-        <div class="word-section right-word">
-          <div class="letter-row" [style.--cell-count]="exercise.right.cells.length">
-            <ng-container *ngFor="let cell of exercise.right.cells">
-              <span *ngIf="cell.isSpace" class="visible-letter">&nbsp;</span>
-
-              <span *ngIf="!cell.isSpace && cell.fixed" class="visible-letter1">{{ cell.value }}</span>
-
-              <button *ngIf="!cell.isSpace && !cell.fixed" type="button" class="letter-slot"
-                [class.filled]="!!cell.value" [class.correct-letter]="cell.correct === true"
-                [class.wrong-letter]="cell.correct === false" [class.casilla-activa]="
-                  esCasillaActiva(exercise, exercise.right, cell)
-                " [disabled]="exercise.completed" (focus)="activateSlot(exercise.right, cell, exercise)" (click)="
-                  activarAudioPrimerCampo(exercise.right, cell, exercise)
-                " [attr.aria-label]="
-                  cell.value
-                    ? 'Letra colocada ' + cell.value
-                    : 'Casilla para completar palabra'
-                ">
-                {{ cell.value }}
+          <!-- ===============================================
+               FLECHA
+          ================================================ -->
+          <div class="pair-arrow">→</div>
+          <!-- ===============================================
+               PALABRA DERECHA
+          ================================================ -->
+          <div class="word-section right-word">
+            <div class="letter-row" [style.--cell-count]="exercise.rightCells.length">
+              <ng-container *ngFor="let cell of exercise.rightCells; let cellIndex = index">
+                <!-- ESPACIO -->
+                <span *ngIf="cell.isSpace" class="visible-letter">
+                  &nbsp;
+                </span>
+                <!-- LETRA VISIBLE -->
+                <span *ngIf="!cell.isSpace && !cell.hidden" class="visible-letter1">
+                  {{ cell.letter }}
+                </span>
+                <!-- LETRA OCULTA -->
+                <input *ngIf="!cell.isSpace && cell.hidden" type="text" maxlength="1" class="letter-input"
+                  [class.correct-letter]="cell.correct === true" [class.wrong-letter]="cell.correct === false"
+                  [class.selected-slot]="isSelectedSlot(exercise, 'right', cellIndex)"
+                  (click)="selectSlot(exercise, 'right', cellIndex)" [disabled]="
+                    exercise.completed ||
+                    changingPage ||
+                    gameFinished ||
+                    showHints" [(ngModel)]="cell.value" (focus)="isFirstHiddenCellIndex(exercise.rightCells, cellIndex) 
+                  && playAudio(exercise.rightOriginal, reviewType === 'meaning'? 'es-ES' : 'en-US')"
+                  (input)="onLetterInput(cell, $event, exercise)" autocomplete="off" />
+              </ng-container>
+            </div>
+            <div class="letter-bank" aria-label="Letras disponibles">
+              <button *ngFor="let tile of exercise.rightBank; let bankIndex = index" type="button"
+                class="letter-bank-tile" [class.used]="tile.used"
+                [disabled]="tile.used || exercise.completed || gameFinished || changingPage || showHints"
+                (mousedown)="$event.preventDefault()"
+                (click)="chooseBankLetter(exercise, 'right', bankIndex)">
+                {{ tile.letter }}
               </button>
-            </ng-container>
+            </div>
           </div>
 
-          <div class="letter-bank">
-            <button *ngFor="let letter of exercise.right.bank" type="button" class="bank-letter"
-              [disabled]="letter.used || exercise.completed" [class.used]="letter.used"
-              (click)="placeLetter(exercise.right, letter, exercise)">
-              {{ letter.letter }}
-            </button>
+          <!-- ===============================================
+               ESTADO
+          ================================================ -->
+          <div class="completed-icon pair-status">
+            <span *ngIf="exercise.completed"> ✅ </span>
           </div>
-        </div>
-
-        <div class="pair-status">
-          <span *ngIf="exercise.completed" class="success-icon">✓</span><small *ngIf="exercise.errors">Errores: {{
-            exercise.errors }}</small>
         </div>
       </div>
-    </div>
 
-    <section class="result-box" *ngIf="gameFinished">
-      <h2>
-        {{ gameWon ? "🎉 ¡Excelente trabajo!" : "Se terminaron los intentos" }}
-      </h2>
-
-      <p *ngIf="gameWon">Completaste correctamente todas las palabras.</p>
-
-      <p>
-        Categoría: <strong>{{ categoryDisplayName }}</strong>
-      </p>
-
-      <p>
-        Parejas completadas:
-
-        <strong>{{ completedPairs }}/{{ exercises.length }}</strong>
-      </p>
-
-      <div class="result-summary">
-        <button type="button" class="result-stat errors-stat" (click)="openResultsModal('errors')">
-          ❌ Errores cometidos: <strong>{{ errors }}</strong>
-        </button>
-
-        <button type="button" class="result-stat correct-stat" (click)="openResultsModal('correct')">
-          ✅ Palabras correctas: <strong>{{ correctExercises.length }}</strong>
-        </button>
+      <!-- ===================================================
+           CAMBIANDO PÁGINA
+      ==================================================== -->
+      <div class="changing-page-message" *ngIf="changingPage">
+        Cargando siguiente pantalla...
       </div>
 
-      <p>
-        ❤️ Intentos restantes: <strong>{{ attemptsRemaining }}</strong>
-      </p>
+      <!-- ===================================================
+           VER PISTAS
+      ==================================================== -->
+      <div class="hint-button-container">
+        <button type="button" class="hint-button" (click)="showHintsPanel()"
+          [disabled]="gameFinished || changingPage || showHints">
+          💡 Ver pistas
+        </button>
+      </div>
+    </ng-container>
 
-      <!-- =================================================
-
-        GUARDAR PUNTAJE
-
-        SOLO SI CORRECTAS > ERRORES
-
-      ================================================== -->
-
-      <button *ngIf="puedeGuardarPuntaje" type="button" class="result-action save-score" (click)="guardarPuntaje()">
-        🏆 Guardar puntaje
-      </button>
-
-      <button type="button" class="result-action play-again" (click)="startGame()">
-        🔄 Jugar nuevamente
-      </button>
-
-      <button type="button" class="result-action choose-category" (click)="changeCategory()">
-        🏷️ Elegir otra categoría
-      </button>
-    </section>
-
-    <div class="results-overlay" *ngIf="gameFinished && resultModal" (click)="closeResultsModal()">
-      <section class="results-modal" role="dialog" aria-modal="true" [attr.aria-label]="
-          resultModal === 'errors'
-            ? 'Palabras para practicar'
-            : 'Palabras correctas'
-        " (click)="$event.stopPropagation()">
-        <button type="button" class="results-close" aria-label="Cerrar" (click)="closeResultsModal()">
+    <!-- =====================================================
+         PANEL DE PISTAS
+    ====================================================== -->
+    <div class="hint-overlay" *ngIf="showHints">
+      <div class="hint-panel" (click)="$event.stopPropagation()">
+        <!-- BOTÓN CERRAR -->
+        <button type="button" class="hint-close" (click)="closeHints()">
           ×
         </button>
 
-        <h3>
-          {{
-          resultModal === "errors"
-          ? "❌ Palabras para practicar"
-          : "✅ Palabras correctas"
-          }}
-        </h3>
+        <h2>💡 Pistas</h2>
 
-        <p>
-          {{
-          resultModal === "errors"
-          ? "Estas son las palabras en las que cometiste errores."
-          : "Completaste estas palabras sin cometer errores."
-          }}
+        <p class="hint-description">
+          Observa las parejas. Esta ventana se cerrará automáticamente en 5
+          segundos.
         </p>
 
-        <ng-container *ngIf="resultModal === 'errors'">
-          <p *ngIf="!errorExercises.length">No cometiste errores.</p>
+        <div class="hint-list">
+          <div class="hint-item" *ngFor="let hint of hints">
+            <span class="hint-left">
+              {{ hint.left }}
+            </span>
 
-          <div class="result-word error-word" *ngFor="let item of errorExercises">
-            {{ item.left.original }} → {{ item.right.original }}
+            <span class="hint-arrow"> ➜ </span>
 
-            <strong>{{ item.errors }} error(es)</strong>
+            <span class="hint-right">
+              {{ reviewType === "meaning" ? hint.meaning : hint.right }}
+            </span>
+
+            <!-- SIGNIFICADO -->
+            <div class="contenido-completo" *ngIf="reviewType === 'right'">
+              {{ hint.meaning }}
+            </div>
           </div>
-        </ng-container>
+        </div>
 
-        <ng-container *ngIf="resultModal === 'correct'">
-          <p *ngIf="!correctExercises.length">
-            No hay palabras completadas sin errores.
-          </p>
+        <div class="hint-time">⏳ 5 segundos</div>
 
-          <div class="result-word correct-word" *ngFor="let item of correctExercises">
-            {{ item.left.original }} → {{ item.right.original }}
-          </div>
-        </ng-container>
-
-        <button *ngIf="resultModal === 'errors' && errorExercises.length" type="button" class="practice-errors-button"
-          (click)="practiceErrors()">
-          🎯 Practicar mis errores
+        <button type="button" class="results-back-button" (click)="closeHints()">
+          Cerrar
         </button>
-
-        <button type="button" class="modal-back" (click)="closeResultsModal()">
-          ← Volver
-        </button>
-      </section>
+      </div>
     </div>
 
-    <button type="button" class="hints-button floating-hints-button" *ngIf="!gameFinished" (click)="openHints()">
-      💡 Ver pistas
-    </button>
+    <div class="result-box">
+      <!-- =====================================================
+          4. RESULTADO FINAL
+      ====================================================== -->
+      <div class="winner" *ngIf="gameFinished && !showResultsDetail">
+        <!-- ===================================================
+            GANÓ
+        ==================================================== -->
+        <ng-container *ngIf="gameWon">
+          <h2>🎉 ¡Excelente trabajo!</h2>
+
+          <p>Completaste correctamente todas las palabras.</p>
+
+          <p>
+            Categoría:
+            <strong>
+              {{ categoryDisplayName }}
+            </strong>
+          </p>
+
+          <p>
+            Parejas completadas:
+            <strong> {{ completedPairs }}/{{ exercises.length }} </strong>
+          </p>
+
+          <!-- =================================================
+              RESUMEN
+          ================================================== -->
+          <div class="result-statistics">
+            <button type="button" class="result-detail-button error-detail-button" (click)="showErrorWords()">
+              ❌ Errores cometidos:
+              <strong>
+                {{ errors }}
+              </strong>
+            </button>
+
+            <!-- =================================================
+               PALABRAS CORRECTAS
+            ================================================== -->
+            <button type="button" class="result-detail-button correct-detail-button" (click)="showCorrectWords()">
+              ✅ Palabras correctas:
+              <strong>
+                {{ totalCorrectWords }}
+              </strong>
+            </button>
+          </div>
+
+          <p class="winner">
+            ❤️ Intentos restantes:
+            {{ remainingAttempts }}
+          </p>
+
+          <!-- =================================================
+              GUARDAR PUNTAJE
+              SOLO SI CORRECTAS > ERRORES
+          ================================================== -->
+          <button *ngIf="puedeGuardarPuntaje" type="button" class="save-score-button" (click)="guardarPuntaje()">
+            🏆 Guardar puntaje
+          </button>
+
+          <!-- =================================================
+              BOTONES
+          ================================================== -->
+          <div class="result-actions">
+            <button type="button" class="play-again-button" (click)="startGame()">
+              🔄 Jugar nuevamente
+            </button>
+
+            <button type="button" class="change-category-button" (click)="changeCategory()">
+              🏷️ Elegir otra categoría
+            </button>
+          </div>
+        </ng-container>
+
+        <!-- ===================================================
+            PERDIÓ
+        ==================================================== -->
+        <ng-container *ngIf="!gameWon">
+          <h2>😕 Se agotaron tus oportunidades</h2>
+
+          <p>
+            Has cometido
+
+            <strong>
+              {{ maxErrors }}
+            </strong>
+
+            errores.
+          </p>
+
+          <p>
+            Parejas correctas:
+            <strong> {{ totalCorrectWords }}/{{ exercises.length }} </strong>
+          </p>
+
+          <h2>💪 Sigue practicando</h2>
+
+          <p>Has utilizado todos los intentos disponibles.</p>
+
+          <div class="results-modal-actions">
+            <button type="button" class="result-detail-button error-detail-button" (click)="showErrorWords()">
+              ❌ Errores:
+              <strong>
+                {{ errors }}
+              </strong>
+            </button>
+
+            <button type="button" class="result-detail-button correct-detail-button" (click)="showCorrectWords()">
+              ✅ Palabras correctas:
+              <strong>
+                {{ totalCorrectWords }}
+              </strong>
+            </button>
+          </div>
+
+          <div class="results-modal-actions">
+            <button type="button" class="play-again-button" (click)="startGame()">
+              🔄 Intentar nuevamente
+            </button>
+
+            <button type="button" class="change-category-button" (click)="changeCategory()">
+              🏷️ Elegir otra categoría
+            </button>
+          </div>
+        </ng-container>
+      </div>
+    </div>
+
+    <!-- =====================================================
+         5. DETALLE DE RESULTADOS
+    ====================================================== -->
+    <div class="results-detail-overlay" *ngIf="showResultsDetail" (click)="closeResultsDetail()">
+      <div class="results-detail-panel" *ngIf="gameFinished && showResultsDetail" (click)="$event.stopPropagation()">
+        <!-- =================================================
+             BOTÓN CERRAR
+        ================================================== -->
+        <div class="espacio-100">
+          <button type="button" class="results-detail-close" (click)="closeResultsDetail()" aria-label="Cerrar">
+            ✕
+          </button>
+        </div>
+
+        <!-- ===================================================
+           CORRECTAS
+      ==================================================== -->
+        <div class="winner" *ngIf="showingCorrectWords">
+          <h2>✅ Palabras correctas</h2>
+
+          <p class="results-summary">
+            Completaste estas palabras sin cometer errores.
+          </p>
+
+          <div class="empty-result-message" *ngIf="correctWords.length === 0">
+            No hay palabras completadas sin errores.
+          </div>
+
+          <div class="result-word-list" *ngIf="correctWords.length > 0">
+            <div class="result-word-card correct-word-card" *ngFor="let exercise of correctWords">
+              <div class="winner">
+                <div class="error-word-main">
+                  <span class="result-status-icon"> ✅ </span>
+
+                  <span class="result-word-left">
+                    {{ exercise.leftOriginal }}
+                  </span>
+
+                  <span class="result-word-arrow"> ➜ </span>
+
+                  <span class="result-word-right">
+                    {{ exercise.rightOriginal }}
+                  </span>
+                </div>
+
+                <!-- =================================================
+                     SIGNIFICADO
+                  ================================================== -->
+                <span class="result-word-arrow" *ngIf="reviewType === 'right'">
+                  <strong> Significado: </strong>
+                  {{ exercise.meaning }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===================================================
+           ERRORES
+      ==================================================== -->
+        <div class="winner" *ngIf="showingErrorWords">
+          <h2>❌ Palabras para practicar</h2>
+
+          <p class="results-summary">
+            Estas son las palabras en las que cometiste errores.
+          </p>
+
+          <!-- =================================================
+               SI NO HUBO ERRORES
+          ================================================== -->
+          <div class="empty-result-message success-empty" *ngIf="wordsWithErrors.length === 0">
+            🎉 ¡No cometiste ningún error!
+          </div>
+
+          <div class="results-modal-actions" *ngIf="wordsWithErrors.length > 3">
+            <button *ngIf="showingErrorWords" type="button" class="result-detail-button practice-errors-button"
+              (click)="practiceErrorWords()">
+              🎯 Practicar mis errores
+            </button>
+
+            <button type="button" class="results-back-button" (click)="closeResultsDetail()">
+              ← Volver
+            </button>
+          </div>
+
+          <div class="result-word-list" *ngIf="wordsWithErrors.length > 0">
+            <div class="result-word-card error-word-card" *ngFor="let exercise of wordsWithErrors">
+              <div class="winner">
+                <!-- PALABRA Y PAREJA -->
+                <div class="error-word-main">
+                  <span class="result-status-icon"> ❌ </span>
+
+                  <span class="result-word-left">
+                    {{ exercise.leftOriginal }}
+                  </span>
+
+                  <span class="result-word-arrow"> ➜ </span>
+
+                  <span class="result-word-right">
+                    {{ exercise.rightOriginal }}
+                  </span>
+                </div>
+
+                <!-- =================================================
+                     SIGNIFICADO
+                  ================================================== -->
+                <span class="result-word-arrow" *ngIf="reviewType === 'right'">
+                  <strong> Significado: </strong>
+                  {{ exercise.meaning }}
+                </span>
+              </div>
+
+              <!-- =================================================
+                   CANTIDAD DE ERRORES DE ESTA PALABRA
+                ================================================== -->
+              <div class="word-error-count">
+                {{ exercise.errorCount }}
+                {{ exercise.errorCount === 1 ? "error" : "errores" }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===================================================
+           BOTONES DEL DETALLE
+      ==================================================== -->
+        <div class="results-modal-actions">
+          <button *ngIf="showingErrorWords && wordsWithErrors.length > 0" type="button"
+            class="result-detail-button practice-errors-button" (click)="practiceErrorWords()">
+            🎯 Practicar mis errores
+          </button>
+
+          <button type="button" class="results-back-button" (click)="closeResultsDetail()">
+            ← Volver
+          </button>
+        </div>
+      </div>
+    </div>
   </ng-container>
 
-  <!-- ======================================================
-
-    PISTAS: NO MODIFICAN LAS CASILLAS
-
-  ====================================================== -->
-
-  <div class="hints-overlay" *ngIf="hintsVisible && !gameFinished" (click)="closeHints()">
-    <section class="hints-modal" role="dialog" aria-modal="true" aria-label="Pistas" (click)="$event.stopPropagation()">
-      <button type="button" class="hints-close" (click)="closeHints()" aria-label="Cerrar pistas">
-        ×
-      </button>
-
-      <h2>💡 Pistas</h2>
-
-      <p>
-        Observa las parejas. Esta ventana se cerrará automáticamente en 5
-        segundos.
-      </p>
-
-      <div class="hint-pair" *ngFor="let exercise of pendingHintExercises">
-        <strong>{{ exercise.left.original }}</strong>
-
-        <span>➜</span>
-
-        <strong>{{ exercise.right.original }}</strong>
-      </div>
-
-      <p *ngIf="!pendingHintExercises.length">
-        No hay parejas pendientes en esta pantalla.
-      </p>
-
-      <p class="hint-countdown">⌛ {{ hintsSecondsRemaining }} segundo(s)</p>
-
-      <button type="button" class="hints-back" (click)="closeHints()">
-        Cerrar
-      </button>
-    </section>
-  </div>
-
-  <!-- ======================================================
-
-       IMAGEN AMPLIADA
-
-  ====================================================== -->
-
-  <div class="image-overlay" *ngIf="selectedImage" (click)="closeImage()">
-    <div class="image-modal" (click)="$event.stopPropagation()">
-      <button type="button" class="image-close" (click)="closeImage()" aria-label="Cerrar imagen">
-        ×
-      </button>
-
-      <h2>{{ selectedImageWord }} - {{ selectedImageMeaning }}</h2>
-
-      <img [src]="selectedImage" [alt]="selectedImageWord" class="large-image" />
+  <!-- IMAGEN AMPLIADA DEL EJERCICIO -->
+  <div *ngIf="selectedImage" class="exercise-image-overlay" (click)="closeExerciseImage()" role="presentation">
+    <div class="exercise-image-modal" (click)="$event.stopPropagation()" role="dialog" aria-modal="true"
+      aria-label="Imagen ampliada">
+      <button type="button" class="exercise-image-close" (click)="closeExerciseImage()"
+        aria-label="Cerrar imagen">×</button>
+      <img [src]="selectedImage" [alt]="selectedImageWord" />
+      <strong>{{ selectedImageWord }}</strong>
     </div>
   </div>
 </div>

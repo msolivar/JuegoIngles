@@ -792,7 +792,7 @@ export class CompletarPalabrasComponent {
       .toLowerCase();
 
     value = value.replace(
-      /[^a-záéíóúüñ]/gi,
+      /[^a-záéíóúü]/gi,
 
       '',
     );

@@ -1,350 +1,1250 @@
 import { CommonModule } from '@angular/common';
-
-import {
-  Component,
-  EventEmitter,
-  Output,
-  OnInit,
-  OnDestroy,
-  ChangeDetectorRef,
-  ElementRef,
-} from '@angular/core';
-
+import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-
 import { Router } from '@angular/router';
-
 import {
   FirebaseWordsService,
   PairFirebase,
 } from '../../servicios/firebase-words.service';
+import { SpeechService } from '../../servicios/speech.service';
 
-export interface PalabraOrdenar {
-  id?: string;
+/* =========================================================
+   TIPO DE PAREJA PARA EL JUEGO
+\========================================================= */
+type GamePair = PairFirebase & {
+  id: string;
+};
 
-  text: string;
-
-  right: string;
-
-  meaning: string;
-
-  category: string;
-
-  image?: string;
-}
-
-interface LetraBanco {
-  id: number;
-
+/* =========================================================
+   CELDA DE LETRA
+\========================================================= */
+interface LetterCell {
   letter: string;
-
-  used: boolean;
-}
-
-interface Casilla {
-  letter: string;
-
-  fixed: boolean;
-
-  isSpace: boolean;
-
+  hidden: boolean;
   value: string;
-
-  bankId: number | null;
-
   correct: boolean | null;
+  isSpace: boolean;
+  bankIndex?: number;
 }
 
-interface Tablero {
-  original: string;
-
-  cells: Casilla[];
-
-  bank: LetraBanco[];
-
-  completed: boolean;
-}
-
-interface Ejercicio {
-  id: number;
-
-  image?: string;
-
+/* =========================================================
+   EJERCICIO
+\========================================================= */
+interface ExercisePair {
+  id: string;
+  leftOriginal: string;
+  rightOriginal: string;
   meaning: string;
-
-  left: Tablero;
-
-  right: Tablero;
-
+  leftCells: LetterCell[];
+  rightCells: LetterCell[];
   completed: boolean;
-
-  errors: number;
-
-  source: PalabraOrdenar;
+  errorCount: number;
+  leftBank: { letter: string; used: boolean }[];
+  rightBank: { letter: string; used: boolean }[];
 }
-
-type Repaso = 'right' | 'meaning';
-
-type Orden = 'random' | 'original' | 'ascending' | 'descending';
 
 @Component({
   selector: 'app-ordenar-palabras',
-
   standalone: true,
-
   imports: [CommonModule, FormsModule],
-
   templateUrl: './ordenar-palabras.component.html',
-
-  styleUrl: './ordenar-palabras.component.css',
+  styleUrls: ['./ordenar-palabras.component.css'],
 })
-export class OrdenarPalabrasComponent implements OnInit, OnDestroy {
-  @Output() saveScoreRequested = new EventEmitter<{
-    category: string;
+export class OrdenarPalabrasComponent {
+  // =========================================================
+  // TODAS LAS PALABRAS DE FIREBASE
+  // =========================================================
+  allPairs: GamePair[] = [];
 
-    review: string;
+  // =========================================================
+  // PALABRAS DISPONIBLES SEGÚN LA CATEGORÍA
+  // =========================================================
+  pairs: GamePair[] = [];
 
-    correct: number;
+  // =========================================================
+  // CATEGORÍAS
+  // =========================================================
+  categories: string[] = [];
 
-    total: number;
+  selectedCategory = '';
 
-    errors: number;
-  }>();
+  // =========================================================
+  // SELECTOR MÚLTIPLE DE CATEGORÍAS
+  // =========================================================
+  selectedCategories: string[] = [];
 
-  words: PalabraOrdenar[] = [];
+  categoryDropdownOpen = false;
+
+  categorySelected = false;
+
+  // Dashboard de configuración
+  gameStarted = false;
+  reviewType: 'right' | 'meaning' = 'right';
+  wordOrder: 'random' | 'original' | 'ascending' | 'descending' = 'random';
+
+  // =========================================================
+  // MENSAJE DE VALIDACIÓN DE CATEGORÍA
+  // =========================================================
+  categoryMessage = '';
+
+  // =========================================================
+  // TODAS LAS CATEGORÍAS
+  // =========================================================
+  readonly ALL_CATEGORIES = '__ALL__';
+
+  // =========================================================
+  // ESTADO DE CARGA
+  // =========================================================
 
   loadingWords = true;
 
   loadError = '';
 
-  constructor(
-    private wordsService: FirebaseWordsService,
+  // =========================================================
+  // CONFIGURACIÓN DEL JUEGO
+  // =========================================================
+  readonly wordsPerPage = 6;
 
-    private router: Router,
+  // =========================================================
+  // MÁXIMO DE ERRORES / INTENTOS
+  // =========================================================
+  get maxErrors(): number {
+    const cantidadParejas =
+      this.exercises.length > 0
+        ? this.exercises.length
+        : this.selectedPairCount;
 
-    private cdr: ChangeDetectorRef,
-
-    private host: ElementRef<HTMLElement>,
-  ) {}
-
-  ngOnInit(): void {
-    this.loadingWords = true;
-
-    this.wordsService.getPairs((pairs: PairFirebase[]) => {
-      this.words = pairs.map((pair) => ({
-        id: pair.id,
-
-        text: pair.left ?? '',
-
-        right: pair.right ?? '',
-
-        meaning: pair.meaning ?? '',
-
-        category: pair.categoriaPalabra ?? '',
-
-        image: pair.image ?? '',
-      }));
-
-      this.loadingWords = false;
-
-      this.refreshCategories();
-    });
+    /*
+     * Se permiten aproximadamente 2 intentos
+     * por cada pareja, con un mínimo de 15.
+     * 6 parejas  -> 15 intentos
+     * 12 parejas -> 24 intentos
+     * 18 parejas -> 36 intentos
+     * 24 parejas -> 48 intentos
+     */
+    return Number(Math.round(Math.max(15, cantidadParejas * 1.5)));
   }
-
-  ngOnDestroy(): void {
-    this.stopAudio();
-
-    this.closeHints();
-  }
-
-  categories: string[] = [];
-
-  selectedCategories: string[] = [];
-
-  categoryMenuOpen = false;
-
-  categorySelected = false;
-
-  categoryWarning = false;
-
-  gameStarted = false;
-
-  gameFinished = false;
-
-  reviewType: Repaso = 'right';
-
-  wordOrder: Orden = 'random';
 
   selectedPairCount = 12;
 
-  wordsPerPage = 6;
-
-  voiceEnabled = false;
-
-  voiceRate = 1;
-
-  searchTerm = '';
-
-  exercises: Ejercicio[] = [];
-
-  pages: Ejercicio[][] = [];
-
   currentPage = 0;
-
-  // =========================================================
-
-  // CONTROL DEL FOCO AUTOMÁTICO
-
-  // =========================================================
-
-  parejaActivaId: number | null = null;
-
-  tableroActivo: 'left' | 'right' = 'left';
-
-  casillaActivaIndex = -1;
 
   errors = 0;
 
-  maxErrors = 15;
-
   // =========================================================
-
   // CONTROL DEL TIEMPO
-
   // =========================================================
-
   tiempoInicio = 0;
 
   tiempoFin = 0;
 
   tiempoSegundos = 0;
 
-  hintsVisible = false;
+  // =========================================================
+  // CONFIGURACIÓN DEL TRADUCTOR DE VOZ
+  // =========================================================
+  audioEnabled = false;
 
-  hintsSecondsRemaining = 5;
+  // Velocidad normal por defecto
+  audioRate = 1;
 
-  private hintsTimer: ReturnType<typeof setInterval> | null = null;
+  // =========================================================
+  // EJERCICIOS
+  // =========================================================
+  exercises: ExercisePair[] = [];
 
+  pages: ExercisePair[][] = [];
+
+  // =========================================================
+  // ESTADO DEL JUEGO
+  // =========================================================
+  gameFinished = false;
+
+  gameWon = false;
+
+  changingPage = false;
+
+  // =========================================================
+  // INDICA SI ESTAMOS PRACTICANDO SOLO LOS ERRORES
+  // =========================================================
+  practicingOnlyErrors = false;
+
+  // =========================================================
+  // PANTALLA DE DETALLE DE RESULTADOS
+  // =========================================================
+  showResultsDetail = false;
+
+  // =========================================================
+  // QUÉ DETALLE SE ESTÁ MOSTRANDO
+  // =========================================================
+  resultsView: 'correct' | 'errors' | null = null;
+
+  // =========================================================
+  // BUSCADOR
+  // =========================================================
+  searchTerm = '';
+
+  // =========================================================
+  // PISTAS
+  // =========================================================
+  showHints = false;
+
+  hints: GamePair[] = [];
+
+  private hintTimer: any;
+
+  // =========================================================
+  // IMAGEN AMPLIADA
+  // =========================================================
   selectedImage: string | null = null;
 
   selectedImageWord = '';
 
   selectedImageMeaning = '';
 
-  message = '';
+  // =========================================================
+  // PORCENTAJE DE LETRAS OCULTAS
+  // =========================================================
+  hiddenPercentage = 0.45;
 
-  resultModal: 'errors' | 'correct' | null = null;
-
-  private refreshCategories(): void {
-    this.categories = [
-      ...new Set(
-        this.words
-
-          .map((w) => w.category?.trim())
-
-          .filter((v): v is string => !!v),
-      ),
-    ].sort((a, b) => a.localeCompare(b, 'es'));
-
-    this.selectedCategories = this.selectedCategories.filter((c) =>
-      this.categories.includes(c),
-    );
-
-    this.adjustCount();
+  // =========================================================
+  // CONSTRUCTOR
+  // =========================================================
+  constructor(
+    private wordsService: FirebaseWordsService,
+    private router: Router,
+    private speechService: SpeechService,
+  ) {
+    this.loadWords();
   }
 
-  get allCategoriesSelected(): boolean {
-    return (
-      this.categories.length > 0 &&
-      this.selectedCategories.length === this.categories.length
-    );
-  }
+  // =========================================================
+  // CARGAR PALABRAS DESDE FIREBASE
+  // =========================================================
+  loadWords(): void {
+    this.loadingWords = true;
+    this.loadError = '';
+    this.categoryMessage = '';
 
-  get categoryDisplayName(): string {
-    return this.allCategoriesSelected
-      ? 'Todas las palabras'
-      : this.selectedCategories
-
-          .slice()
-
-          .sort((a, b) => a.localeCompare(b, 'es'))
-
-          .join(', ');
-  }
-
-  get availableWords(): PalabraOrdenar[] {
-    const query = this.normalize(this.searchTerm);
-
-    return this.words.filter(
-      (w) =>
-        this.selectedCategories.includes(w.category?.trim()) &&
-        !!w.text?.trim() &&
-        !!(this.reviewType === 'meaning'
-          ? w.meaning?.trim()
-          : w.right?.trim()) &&
-        (!query ||
-          [w.text, w.right, w.meaning].some((s) =>
-            this.normalize(s).includes(query),
-          )),
-    );
-  }
-
-  // ======================================================
-
-  // FILTRAR PALABRAS PARA LA BÚSQUEDA
-
-  // ======================================================
-
-  get filteredSearchWords(): PalabraOrdenar[] {
-    const query = this.normalize(this.searchTerm);
-
-    if (!query) {
-      return [];
-    }
-
-    return this.words.filter((word) => {
-      const belongsToCategory = this.selectedCategories.includes(
-        word.category?.trim(),
+    this.wordsService.getPairs((firebasePairs: PairFirebase[]) => {
+      // =====================================================
+      // GUARDAR SOLO REGISTROS CON ID VÁLIDO
+      // =====================================================
+      this.allPairs = firebasePairs.filter(
+        (pair): pair is GamePair =>
+          typeof pair.id === 'string' && pair.id.length > 0,
       );
 
-      const matchesSearch =
-        this.normalize(word.text).includes(query) ||
-        this.normalize(word.right).includes(query) ||
-        this.normalize(word.meaning).includes(query);
+      this.loadingWords = false;
 
-      return belongsToCategory && matchesSearch;
+      // =====================================================
+      // SI NO HAY PALABRAS
+      // =====================================================
+      if (this.allPairs.length === 0) {
+        this.loadError = 'No hay palabras disponibles para jugar.';
+
+        this.categories = [];
+
+        this.pairs = [];
+
+        this.exercises = [];
+
+        this.pages = [];
+
+        return;
+      }
+
+      // =====================================================
+      // OBTENER CATEGORÍAS ÚNICAS
+      // =====================================================
+      this.categories = Array.from(
+        new Set(
+          this.allPairs
+            .map((pair) => pair.categoriaPalabra?.trim())
+            .filter((category): category is string => !!category),
+        ),
+      ).sort((a, b) => a.localeCompare(b));
+
+      // =====================================================
+      // REINICIAR JUEGO
+      // =====================================================
+      this.selectedCategory = '';
+
+      this.selectedCategories = [];
+
+      this.categoryDropdownOpen = false;
+
+      this.categorySelected = false;
+
+      this.gameStarted = false;
+
+      this.categoryMessage = '';
+
+      this.pairs = [];
+
+      this.exercises = [];
+
+      this.pages = [];
+
+      this.currentPage = 0;
+
+      this.errors = 0;
+
+      this.gameFinished = false;
+
+      this.gameWon = false;
+
+      this.changingPage = false;
+
+      this.practicingOnlyErrors = false;
+
+      this.showResultsDetail = false;
+
+      this.resultsView = null;
+
+      // =====================================================
+      // REINICIAR TIEMPO
+      // =====================================================
+      this.tiempoInicio = 0;
+
+      this.tiempoFin = 0;
+
+      this.tiempoSegundos = 0;
+
+      this.selectedPairCount = Math.min(12, this.allPairs.length);
     });
   }
 
-  get totalPages(): number {
-    return this.pages.length;
+  // =========================================================
+  // SELECCIONAR O DESMARCAR TODAS LAS CATEGORÍAS
+  // =========================================================
+  toggleAllCategories(checked: boolean): void {
+    this.selectedCategories = checked ? [...this.categories] : [];
+
+    this.syncSelectedCategories();
+
+    if (checked) {
+      this.categoryDropdownOpen = false;
+    }
   }
 
-  get completedPairs(): number {
-    return this.exercises.filter((e) => e.completed).length;
+  // =========================================================
+  // SELECCIONAR O DESMARCAR UNA CATEGORÍA
+  // =========================================================
+  toggleCategory(category: string, checked: boolean): void {
+    if (checked) {
+      if (!this.selectedCategories.includes(category)) {
+        this.selectedCategories = [...this.selectedCategories, category];
+      }
+    } else {
+      this.selectedCategories = this.selectedCategories.filter(
+        (item) => item !== category,
+      );
+    }
+
+    this.syncSelectedCategories();
   }
 
-  get currentPageCompleted(): number {
-    return (this.pages[this.currentPage] || []).filter((e) => e.completed)
-      .length;
+  // =========================================================
+  // SINCRONIZAR SELECCIÓN CON EL JUEGO
+  // =========================================================
+  private syncSelectedCategories(): void {
+    this.selectedCategory = this.allCategoriesSelected
+      ? this.ALL_CATEGORIES
+      : (this.selectedCategories[0] ?? '');
+
+    this.onCategoryChange();
   }
 
-  get attemptsRemaining(): number {
-    return Math.max(0, this.maxErrors - this.errors);
+  // =========================================================
+  // SABER SI ES EL PRIMER CUADRO OCULTO DE LA PALABRA
+  // =========================================================
+  isFirstHiddenCellIndex(cells: LetterCell[], currentIndex: number): boolean {
+    const firstHiddenIndex = cells.findIndex(
+      (cell) => !cell.isSpace && cell.hidden,
+    );
+
+    return currentIndex === firstHiddenIndex;
   }
 
-  get gameWon(): boolean {
+  // =========================================================
+  // REPRODUCIR AUDIO EN INGLÉS Y ESPAÑOL
+  // =========================================================
+  playAudio(text: string, language: 'en-US' | 'es-ES' = 'en-US'): void {
+    // ---------------------------------------------------------
+    // SI EL TRADUCTOR ESTÁ DESACTIVADO, NO HACER NADA
+    // ---------------------------------------------------------
+    if (!this.audioEnabled) {
+      return;
+    }
+
+    // ---------------------------------------------------------
+    // USAR EL SERVICIO GENÉRICO DE VOZ
+    // ---------------------------------------------------------
+    this.speechService.playAudio(text, language, this.audioRate);
+  }
+
+  // =========================================================
+  // CAMBIO DE CATEGORÍAS SELECCIONADAS
+  // =========================================================
+  onCategoryChange(): void {
+    this.categoryMessage = '';
+    this.loadError = '';
+
+    this.gameStarted = false;
+
+    this.exercises = [];
+    this.pages = [];
+
+    this.currentPage = 0;
+    this.errors = 0;
+
+    if (this.selectedCategories.length === 0) {
+      this.categorySelected = false;
+      this.pairs = [];
+      this.selectedPairCount = 0;
+      return;
+    }
+
+    this.applySelectedCategory();
+  }
+
+  // =========================================================
+  // FILTRAR PALABRAS DE LAS CATEGORÍAS ELEGIDAS
+  // =========================================================
+  private applySelectedCategory(): void {
+    const selected = new Set(
+      this.selectedCategories.map((category) => category.trim().toLowerCase()),
+    );
+
+    this.pairs = this.allCategoriesSelected
+      ? [...this.allPairs]
+      : this.allPairs.filter((pair) =>
+          selected.has((pair.categoriaPalabra ?? '').trim().toLowerCase()),
+        );
+
+    if (this.pairs.length === 0) {
+      this.loadError =
+        'No hay palabras disponibles en las categorías seleccionadas.';
+
+      this.categorySelected = false;
+      this.selectedPairCount = 0;
+      return;
+    }
+
+    this.categorySelected = true;
+
+    this.selectedPairCount = this.allCategoriesSelected
+      ? this.pairs.length
+      : Math.min(12, this.pairs.length);
+
+    this.searchTerm = '';
+  }
+
+  // =========================================================
+  // VALIDAR CATEGORÍAS Y MOSTRAR CONFIGURACIÓN
+  // =========================================================
+  selectCategoryAndStart(): void {
+    if (this.selectedCategories.length === 0) {
+      this.categoryMessage =
+        'Por favor selecciona al menos una categoría para continuar.';
+      return;
+    }
+
+    this.categoryMessage = '';
+    this.categoryDropdownOpen = false;
+
+    this.applySelectedCategory();
+  }
+
+  // =========================================================
+  // CAMBIAR CATEGORÍA
+  // =========================================================
+  changeCategory(): void {
+    this.closeHints();
+
+    this.closeResultsDetail();
+
+    this.gameStarted = false;
+
+    this.categorySelected = false;
+
+    this.selectedCategory = '';
+
+    this.selectedCategories = [];
+
+    this.categoryDropdownOpen = false;
+
+    this.categoryMessage = '';
+
+    this.pairs = [];
+
+    this.exercises = [];
+
+    this.pages = [];
+
+    this.currentPage = 0;
+
+    this.errors = 0;
+
+    this.gameFinished = false;
+
+    this.gameWon = false;
+
+    this.changingPage = false;
+
+    this.practicingOnlyErrors = false;
+
+    this.searchTerm = '';
+
+    this.loadError = '';
+
+    // =====================================================
+    // REINICIAR TIEMPO
+    // =====================================================
+
+    this.tiempoInicio = 0;
+
+    this.tiempoFin = 0;
+
+    this.tiempoSegundos = 0;
+  }
+
+  // =========================================================
+  // INICIAR / REINICIAR JUEGO
+  // =========================================================
+  startGame(): void {
+    if (
+      this.loadingWords ||
+      !this.categorySelected ||
+      this.pairs.length === 0
+    ) {
+      return;
+    }
+
+    this.gameStarted = true;
+
+    this.closeHints();
+
+    this.closeResultsDetail();
+
+    this.errors = 0;
+
+    this.currentPage = 0;
+
+    this.gameFinished = false;
+
+    this.gameWon = false;
+
+    this.changingPage = false;
+
+    // =====================================================
+    // INICIAR CRONÓMETRO
+    // =====================================================
+    this.tiempoInicio = Date.now();
+
+    this.tiempoFin = 0;
+
+    this.tiempoSegundos = 0;
+
+    // =====================================================
+    // VALIDAR CANTIDAD
+    // =====================================================
+    if (!this.selectedPairCount || this.selectedPairCount < 1) {
+      this.selectedPairCount = 1;
+    }
+
+    if (this.selectedPairCount > this.pairs.length) {
+      this.selectedPairCount = this.pairs.length;
+    }
+
+    // =====================================================
+    // ORDENAR Y ELEGIR PAREJAS
+    // =====================================================
+    const sourcePairs = [...this.pairs];
+
+    let orderedPairs = [...sourcePairs];
+
+    switch (this.wordOrder) {
+      // ===================================================
+      // ALEATORIO
+      // ===================================================
+      case 'random':
+        orderedPairs = this.shuffle(orderedPairs);
+        break;
+
+      // ===================================================
+      // ORDEN ORIGINAL
+      // ===================================================
+      case 'original':
+        // Conserva el orden original recibido.
+        break;
+
+      // ===================================================
+      // ASCENDENTE A → Z
+      // ===================================================
+      case 'ascending':
+        orderedPairs.sort((a, b) =>
+          a.left.localeCompare(b.left, undefined, {
+            sensitivity: 'base',
+          }),
+        );
+        break;
+
+      // ===================================================
+      // DESCENDENTE Z → A
+      // ===================================================
+      case 'descending':
+        orderedPairs.sort((a, b) =>
+          b.left.localeCompare(a.left, undefined, {
+            sensitivity: 'base',
+          }),
+        );
+        break;
+    }
+
+    // =====================================================
+    // ELEGIR LA CANTIDAD SOLICITADA
+    // =====================================================
+    const selectedPairs = orderedPairs.slice(0, this.selectedPairCount);
+
+    // =====================================================
+    // CREAR EJERCICIOS
+    // =====================================================
+    this.exercises = selectedPairs
+      .map((pair) => ({
+        id: pair.id,
+
+        leftOriginal: pair.left,
+
+        rightOriginal:
+          this.reviewType === 'meaning' ? pair.meaning : pair.right,
+
+        meaning: pair.meaning,
+
+        leftCells: this.createWordCells(pair.left),
+
+        rightCells: this.createWordCells(
+          this.reviewType === 'meaning' ? pair.meaning : pair.right,
+        ),
+
+        completed: false,
+
+        errorCount: 0,
+        leftBank: [],
+        rightBank: [],
+      }))
+      .map((exercise) => ({
+        ...exercise,
+        leftBank: this.makeLetterBank(exercise.leftCells),
+        rightBank: this.makeLetterBank(exercise.rightCells),
+      }));
+
+    // =====================================================
+    // DIVIDIR EN PÁGINAS
+    // =====================================================
+    this.pages = this.chunk(this.exercises, this.wordsPerPage);
+
+    // =========================================================
+    // FOCO INICIAL: PRIMERA PALABRA DE LA PRIMERA PAREJA
+    // =========================================================
+    this.selectedSlot = null;
+    setTimeout(() => {
+      if (!this.gameStarted || this.gameFinished || this.changingPage || this.showHints) return;
+
+      const primeraPareja = this.pages[0]?.[0];
+      if (!primeraPareja || primeraPareja.completed || this.currentPage !== 0) return;
+
+      const primerIndice = primeraPareja.leftCells.findIndex(
+        (cell) => cell.hidden && !cell.isSpace && cell.correct !== true,
+      );
+      if (primerIndice < 0) return;
+
+      this.selectedSlot = {
+        exerciseId: primeraPareja.id,
+        side: 'left',
+        index: primerIndice,
+      };
+      this.enfocarSlotSeleccionado();
+    }, 150);
+  }
+
+  // =========================================================
+  // CREAR CELDAS DE CADA PALABRA
+  // CANTIDAD ALEATORIA DE LETRAS OCULTAS
+  // MÁXIMO 6 CUADROS POR PALABRA
+  // =========================================================
+  createWordCells(word: string): LetterCell[] {
+    // =========================================================
+    // SEPARAR LA PALABRA EN CARACTERES
+    // =========================================================
+    const characters = word.split('');
+
+    // =========================================================
+    // OBTENER POSICIONES VÁLIDAS
+    // NO INCLUIR ESPACIOS
+    // =========================================================
+    const validIndexes = characters
+      .map((character, index) => ({
+        character,
+        index,
+      }))
+      .filter((item) => !/\s/.test(item.character))
+      .map((item) => item.index);
+
+    // =========================================================
+    // CONTAR LETRAS DE LA PALABRA
+    // =========================================================
+    const totalLetters = validIndexes.length;
+
+    // =========================================================
+    // DEFINIR CANTIDAD MÍNIMA Y MÁXIMA DE CUADROS
+    // SEGÚN LA LONGITUD DE LA PALABRA
+    // =========================================================
+    let minHidden = 1;
+    let maxHidden = 1;
+
+    if (totalLetters >= 15) {
+      // 15 LETRAS O MÁS: 3, 4, 5 O 6 CUADROS
+      minHidden = 3;
+      maxHidden = 6;
+    } else if (totalLetters >= 8) {
+      // 8 A 14 LETRAS: 3, 4 O 5 CUADROS
+      minHidden = 3;
+      maxHidden = 5;
+    } else if (totalLetters >= 5) {
+      // 5 A 7 LETRAS: 2 O 3 CUADROS
+      minHidden = 2;
+      maxHidden = 3;
+    } else if (totalLetters >= 2) {
+      // 2 A 4 LETRAS: 1 O 2 CUADROS
+      minHidden = 1;
+      maxHidden = 2;
+    }
+
+    // =========================================================
+    // DEJAR AL MENOS UNA LETRA VISIBLE
+    // =========================================================
+    if (totalLetters > 1) {
+      maxHidden = Math.min(maxHidden, totalLetters - 1);
+    }
+
+    // =========================================================
+    // EVITAR QUE EL MÍNIMO SUPERE AL MÁXIMO
+    // =========================================================
+    minHidden = Math.min(minHidden, maxHidden);
+
+    // =========================================================
+    // ELEGIR CANTIDAD ALEATORIA DE CUADROS
+    // INCLUYE EL MÍNIMO Y EL MÁXIMO
+    // =========================================================
+    const numberToHide =
+      totalLetters === 0
+        ? 0
+        : Math.floor(Math.random() * (maxHidden - minHidden + 1)) + minHidden;
+
+    // =========================================================
+    // MEZCLAR ALEATORIAMENTE LAS POSICIONES
+    // =========================================================
+    const shuffledIndexes = this.shuffle(validIndexes);
+
+    // =========================================================
+    // SELECCIONAR LAS LETRAS QUE SE OCULTARÁN
+    // =========================================================
+    const hiddenIndexes = new Set(shuffledIndexes.slice(0, numberToHide));
+
+    // =========================================================
+    // CREAR LAS CELDAS DE LA PALABRA
+    // =========================================================
+    return characters.map((character, index) => {
+      // -------------------------------------------------------
+      // CONSERVAR ESPACIOS SIN OCULTARLOS
+      // -------------------------------------------------------
+      if (/\s/.test(character)) {
+        return {
+          letter: character,
+          hidden: false,
+          value: '',
+          correct: null,
+          isSpace: true,
+        };
+      }
+
+      // -------------------------------------------------------
+      // CREAR LETRAS VISIBLES Y OCULTAS
+      // -------------------------------------------------------
+      return {
+        letter: character,
+        hidden: hiddenIndexes.has(index),
+        value: '',
+        correct: null,
+        isSpace: false,
+      };
+    });
+  }
+
+  // =========================================================
+  // UIX: ELEGIR LETRAS SIN MODIFICAR LA EVALUACIÓN EXISTENTE
+  // =========================================================
+  selectedSlot: {
+    exerciseId: string;
+    side: 'left' | 'right';
+    index: number;
+  } | null = null;
+
+  makeLetterBank(cells: LetterCell[]): { letter: string; used: boolean }[] {
+    return this.shuffle(
+      cells
+        .filter((c) => c.hidden && !c.isSpace)
+        .map((c) => ({ letter: c.letter.toLowerCase(), used: false })),
+    );
+  }
+
+  selectSlot(
+    exercise: ExercisePair,
+    side: 'left' | 'right',
+    index: number,
+  ): void {
+    if (
+      this.gameFinished ||
+      exercise.completed ||
+      this.showHints ||
+      this.changingPage
+    )
+      return;
+    const cells = side === 'left' ? exercise.leftCells : exercise.rightCells;
+    if (!cells[index]?.hidden || cells[index].correct === true) return;
+    this.selectedSlot = { exerciseId: exercise.id, side, index };
+  }
+
+  isSelectedSlot(
+    exercise: ExercisePair,
+    side: 'left' | 'right',
+    index: number,
+  ): boolean {
     return (
-      this.gameFinished &&
-      this.completedPairs === this.exercises.length &&
-      this.exercises.length > 0
+      this.selectedSlot?.exerciseId === exercise.id &&
+      this.selectedSlot.side === side &&
+      this.selectedSlot.index === index
     );
   }
 
   // =========================================================
+  // MANTENER EL FOCO EN EL INPUT SELECCIONADO
+  // =========================================================
+  private enfocarSlotSeleccionado(): void {
+    setTimeout(() => {
+      if (!this.selectedSlot || this.gameFinished) return;
 
+      const slot = this.selectedSlot;
+
+      const exercise = this.exercises.find((e) => e.id === slot.exerciseId);
+
+      if (!exercise || exercise.completed) return;
+
+      const filas = Array.from(
+        document.querySelectorAll<HTMLElement>('.exercise-pair'),
+      );
+
+      const indiceVisible =
+        this.pages[this.currentPage]?.indexOf(exercise) ?? -1;
+      const fila = filas[indiceVisible];
+
+      const inputs = fila?.querySelectorAll<HTMLInputElement>(
+        `.${slot.side}-word .letter-input`,
+      );
+
+      const cells =
+        slot.side === 'left' ? exercise.leftCells : exercise.rightCells;
+
+      const indiceInput = cells
+        .slice(0, slot.index)
+        .filter((c) => c.hidden && !c.isSpace).length;
+
+      const input = inputs?.[indiceInput];
+
+      if (input && !input.disabled) {
+        input.focus({ preventScroll: true });
+        input.select();
+      }
+    }, 0);
+  }
+
+  // =========================================================
+  // ENFOCAR LA SIGUIENTE LETRA PENDIENTE DEL JUEGO
+  // =========================================================
+  private enfocarSiguientePendiente(
+    actual?: ExercisePair,
+    ladoActual?: 'left' | 'right',
+    indiceActual = -1,
+  ): void {
+    if (this.gameFinished || this.changingPage || this.showHints) return;
+
+    const visibles = this.pages[this.currentPage] ?? [];
+    if (!visibles.length) return;
+
+    const seleccionar = (ejercicio: ExercisePair, lado: 'left' | 'right', desde = 0): boolean => {
+      if (ejercicio.completed) return false;
+      const celdas = lado === 'left' ? ejercicio.leftCells : ejercicio.rightCells;
+      const indice = celdas.findIndex((celda, i) =>
+        i >= desde && celda.hidden && !celda.isSpace && celda.correct !== true,
+      );
+      if (indice < 0) return false;
+      this.selectedSlot = { exerciseId: ejercicio.id, side: lado, index: indice };
+      this.enfocarSlotSeleccionado();
+      return true;
+    };
+
+    // Mientras una pareja esté pendiente, permanecer en ella.
+    if (actual && !actual.completed) {
+      if (ladoActual) {
+        if (seleccionar(actual, ladoActual, indiceActual + 1)) return;
+        if (seleccionar(actual, ladoActual, 0)) return;
+        if (seleccionar(actual, ladoActual === 'left' ? 'right' : 'left')) return;
+      } else {
+        if (seleccionar(actual, 'left') || seleccionar(actual, 'right')) return;
+      }
+    }
+
+    // Al terminar, avanzar desde la pareja actual, no desde la primera fila.
+    const inicio = actual ? Math.max(0, visibles.indexOf(actual) + 1) : 0;
+    const orden = [...visibles.slice(inicio), ...visibles.slice(0, inicio)];
+    for (const ejercicio of orden) {
+      if (seleccionar(ejercicio, 'left') || seleccionar(ejercicio, 'right')) return;
+    }
+    this.selectedSlot = null;
+  }
+
+  chooseBankLetter(
+    exercise: ExercisePair,
+    side: 'left' | 'right',
+    bankIndex: number,
+  ): void {
+    if (
+      this.gameFinished ||
+      exercise.completed ||
+      this.showHints ||
+      this.changingPage
+    )
+      return;
+    const cells = side === 'left' ? exercise.leftCells : exercise.rightCells;
+    const bank = side === 'left' ? exercise.leftBank : exercise.rightBank;
+    const tile = bank[bankIndex];
+    if (!tile || tile.used) return;
+    let index =
+      this.selectedSlot?.exerciseId === exercise.id &&
+      this.selectedSlot.side === side
+        ? this.selectedSlot.index
+        : -1;
+    if (index < 0 || cells[index]?.correct === true) {
+      index = cells.findIndex(
+        (c) => c.hidden && !c.isSpace && c.correct !== true,
+      );
+    }
+    if (index < 0) return;
+    const cell = cells[index];
+    cell.value = tile.letter;
+    if (tile.letter === cell.letter.toLowerCase()) {
+      cell.correct = true;
+      cell.bankIndex = bankIndex;
+      tile.used = true;
+      this.selectedSlot = null;
+      this.checkExerciseComplete(exercise);
+
+      if (!exercise.completed) {
+        // Avanzar automáticamente entre los campos pendientes.
+        this.enfocarSiguientePendiente(exercise, side, index);
+      }
+    } else {
+      cell.correct = false;
+      this.errors++;
+      exercise.errorCount++;
+
+      this.selectedSlot = {
+        exerciseId: exercise.id,
+        side,
+        index,
+      };
+
+      setTimeout(() => {
+        if (cell.correct === false) {
+          cell.value = '';
+          cell.correct = null;
+
+          // Mantener seleccionado el mismo campo
+          this.selectedSlot = {
+            exerciseId: exercise.id,
+            side,
+            index,
+          };
+
+          // Recuperar el foco después de limpiar la letra
+          this.enfocarSlotSeleccionado();
+        }
+      }, 500);
+
+      if (this.errors >= this.maxErrors) {
+        setTimeout(() => {
+          this.gameFinished = true;
+          this.gameWon = false;
+          this.finalizarTiempo();
+        }, 500);
+      }
+    }
+  }
+
+  getExerciseImage(id: string): string {
+    return this.allPairs.find((pair) => pair.id === id)?.image ?? '';
+  }
+
+  showExerciseImage(exercise: ExercisePair): void {
+    const src = this.getExerciseImage(exercise.id);
+    if (!src) return;
+    this.selectedImage = src;
+    this.selectedImageWord = exercise.leftOriginal;
+    this.selectedImageMeaning = exercise.meaning;
+  }
+
+  closeExerciseImage(): void {
+    this.selectedImage = null;
+  }
+
+  // =========================================================
+  // CUANDO EL ESTUDIANTE ESCRIBE
+  // =========================================================
+  onLetterInput(
+    cell: LetterCell,
+
+    event: Event,
+
+    exercise: ExercisePair,
+  ): void {
+    if (
+      this.gameFinished ||
+      exercise.completed ||
+      this.changingPage ||
+      this.showHints ||
+      cell.isSpace
+    ) {
+      return;
+    }
+
+    const input = event.target as HTMLInputElement;
+
+    let value = input.value
+
+      .slice(-1)
+
+      .toLowerCase();
+
+    value = value.replace(
+      /[^a-záéíóúü]/gi,
+
+      '',
+    );
+
+    cell.value = value;
+
+    input.value = value;
+
+    if (!value) {
+      cell.correct = null;
+      return;
+    }
+
+    // =========================================================
+    // LETRA CORRECTA
+    // =========================================================
+    if (value === cell.letter.toLowerCase()) {
+      cell.correct = true;
+      // Marcar una ficha equivalente al escribir con teclado.
+      const side = exercise.leftCells.includes(cell) ? 'left' : 'right';
+      const bank = side === 'left' ? exercise.leftBank : exercise.rightBank;
+      const matchIndex = bank.findIndex(
+        (tile) => !tile.used && tile.letter === value,
+      );
+      if (matchIndex >= 0) {
+        bank[matchIndex].used = true;
+        cell.bankIndex = matchIndex;
+      }
+
+      // =======================================================
+      // VERIFICAR SI LA PAREJA YA ESTÁ COMPLETA
+      // =======================================================
+      this.checkExerciseComplete(exercise);
+
+      // =======================================================
+      // ESPERAR A QUE ANGULAR ACTUALICE LOS INPUTS
+      // =======================================================
+      const indiceCelda = (side === 'left' ? exercise.leftCells : exercise.rightCells).indexOf(cell);
+      setTimeout(() => {
+        if (!this.gameFinished && !this.changingPage && !exercise.completed) {
+          this.enfocarSiguientePendiente(exercise, side, indiceCelda);
+        }
+      }, 50);
+
+      return;
+    }
+
+    // =====================================================
+    // INCORRECTA
+    // =====================================================
+    cell.correct = false;
+
+    this.errors++;
+
+    exercise.errorCount++;
+
+    setTimeout(() => {
+      if (cell.correct === false) {
+        cell.value = '';
+        cell.correct = null;
+        input.value = '';
+        input.focus();
+        input.select();
+      }
+    }, 500);
+
+    // =====================================================
+    // PERDIÓ POR ERRORES
+    // =====================================================
+
+    if (this.errors >= this.maxErrors) {
+      setTimeout(() => {
+        this.gameFinished = true;
+
+        this.gameWon = false;
+
+        // ===============================================
+        // DETENER TIEMPO
+        // ===============================================
+
+        this.finalizarTiempo();
+      }, 500);
+    }
+  }
+
+  // =========================================================
+  // FOCO AUTOMÁTICO EN LA SIGUIENTE LETRA PENDIENTE
+  // =========================================================
+  focusNextLetter(currentInput: HTMLInputElement): void {
+    // =======================================================
+    // NO CAMBIAR FOCO SI EL JUEGO TERMINÓ O CAMBIA DE PÁGINA
+    // =======================================================
+    if (this.gameFinished || this.changingPage || this.showHints) {
+      return;
+    }
+
+    // =======================================================
+    // OBTENER TODOS LOS INPUTS EN ORDEN VISUAL
+    // INCLUYE LOS DESHABILITADOS PARA CONSERVAR LA POSICIÓN
+    // =======================================================
+    const inputs = Array.from(
+      document.querySelectorAll<HTMLInputElement>(
+        '.exercise-list .letter-input',
+      ),
+    );
+
+    const currentIndex = inputs.indexOf(currentInput);
+
+    // =======================================================
+    // BUSCAR LA SIGUIENTE LETRA PENDIENTE
+    // =======================================================
+    const isPending = (input: HTMLInputElement): boolean => {
+      return !input.disabled && !input.classList.contains('correct-letter');
+    };
+
+    let nextInput: HTMLInputElement | undefined;
+
+    // =======================================================
+    // PRIMERO BUSCAR HACIA ADELANTE
+    // =======================================================
+    if (currentIndex !== -1) {
+      nextInput = inputs.slice(currentIndex + 1).find(isPending);
+    }
+
+    // =======================================================
+    // SI NO HAY MÁS ADELANTE, BUSCAR UNA LETRA PENDIENTE
+    // EN LA PANTALLA ACTUAL
+    // =======================================================
+    if (!nextInput) {
+      nextInput = inputs.find(isPending);
+    }
+
+    // =======================================================
+    // COLOCAR FOCO EN LA SIGUIENTE LETRA
+    // =======================================================
+    if (nextInput) {
+      nextInput.focus();
+      nextInput.select();
+
+      return;
+    }
+
+    // =======================================================
+    // SI NO QUEDAN LETRAS PENDIENTES
+    // =======================================================
+    currentInput.blur();
+  }
+
+  // =========================================================
+  // COMPROBAR EJERCICIO
+  // =========================================================
+  checkExerciseComplete(exercise: ExercisePair): void {
+    const leftComplete = exercise.leftCells.every(
+      (cell) => cell.isSpace || !cell.hidden || cell.correct === true,
+    );
+
+    const rightComplete = exercise.rightCells.every(
+      (cell) => cell.isSpace || !cell.hidden || cell.correct === true,
+    );
+
+    exercise.completed = leftComplete && rightComplete;
+
+    if (exercise.completed) {
+      this.selectedSlot = null;
+
+      this.checkPageComplete();
+
+      // Enfocar la siguiente pareja si continúa la misma pantalla.
+      setTimeout(() => {
+        if (!this.gameFinished && !this.changingPage) {
+          this.enfocarSiguientePendiente(exercise);
+        }
+      }, 100);
+    }
+  }
+
+  // =========================================================
+  // PALABRAS COMPLETADAS SIN ERRORES
+  // =========================================================
+  get correctWords(): ExercisePair[] {
+    return this.exercises.filter(
+      (exercise) => exercise.completed && exercise.errorCount === 0,
+    );
+  }
+
+  // =========================================================
+  // PALABRAS CON ERRORES
+  // =========================================================
+  get wordsWithErrors(): ExercisePair[] {
+    return this.exercises.filter((exercise) => exercise.errorCount > 0);
+  }
+
+  // =========================================================
+  // TOTAL CORRECTAS
+  // =========================================================
+  get totalCorrectWords(): number {
+    return this.correctWords.length;
+  }
+
+  // =========================================================
   // PERMITIR GUARDAR PUNTAJE
-
+  // El botón solamente se mostrará cuando:
+  // - El juego haya terminado.
+  // - El jugador haya ganado.
+  // - Existan ejercicios.
+  // - Las palabras correctas sean MAYORES que los errores.
   // =========================================================
 
   get puedeGuardarPuntaje(): boolean {
@@ -352,120 +1252,333 @@ export class OrdenarPalabrasComponent implements OnInit, OnDestroy {
       this.gameFinished &&
       this.gameWon &&
       this.exercises.length > 0 &&
-      this.correctExercises.length > this.errors
+      this.totalCorrectWords > this.errors
     );
   }
 
-  normalize(value: string | undefined): string {
-    return (value || '')
-
-      .normalize('NFD')
-
-      .replace(/[\u0300-\u036f]/g, '')
-
-      .toLocaleLowerCase()
-
-      .trim();
+  // =========================================================
+  // TOTAL CON ERRORES
+  // =========================================================
+  get totalWordsWithErrors(): number {
+    return this.wordsWithErrors.length;
   }
 
-  toggleCategory(category: string, checked: boolean): void {
-    this.selectedCategories = checked
-      ? [...new Set([...this.selectedCategories, category])]
-      : this.selectedCategories.filter((c) => c !== category);
-
-    this.categorySelected = this.selectedCategories.length > 0;
-
-    this.categoryWarning = false;
-
-    this.adjustCount();
+  // =========================================================
+  // MOSTRAR CORRECTAS
+  // =========================================================
+  showCorrectWords(): void {
+    this.resultsView = 'correct';
+    this.showResultsDetail = true;
   }
 
-  toggleAllCategories(checked: boolean): void {
-    this.selectedCategories = checked ? [...this.categories] : [];
-
-    this.categorySelected = this.selectedCategories.length > 0;
-
-    if (checked) this.categoryMenuOpen = false;
-
-    this.categoryWarning = false;
-
-    this.adjustCount();
+  // =========================================================
+  // MOSTRAR ERRORES
+  // =========================================================
+  showErrorWords(): void {
+    this.resultsView = 'errors';
+    this.showResultsDetail = true;
   }
 
-  adjustCount(): void {
-    const totalDisponibles = this.availableWords.length;
+  // =========================================================
+  // CERRAR RESULTADOS
+  // =========================================================
+  closeResultsDetail(): void {
+    this.showResultsDetail = false;
+    this.resultsView = null;
+  }
 
-    // Ninguna categoría seleccionada
+  get showingCorrectWords(): boolean {
+    return this.resultsView === 'correct';
+  }
 
-    if (this.selectedCategories.length === 0 || totalDisponibles === 0) {
-      this.selectedPairCount = 0;
+  get showingErrorWords(): boolean {
+    return this.resultsView === 'errors';
+  }
 
+  // =========================================================
+  // PRACTICAR ERRORES
+  // =========================================================
+  practiceErrorWords(): void {
+    if (this.wordsWithErrors.length === 0) {
       return;
     }
 
-    // Todas las categorías seleccionadas
+    const errorIds = new Set(
+      this.wordsWithErrors.map((exercise) => exercise.id),
+    );
 
-    if (this.allCategoriesSelected) {
-      this.selectedPairCount = totalDisponibles;
+    this.practicingOnlyErrors = true;
 
-      return;
-    }
+    this.pairs = this.allPairs.filter((pair) => errorIds.has(pair.id));
 
-    this.selectedPairCount = Math.min(12, this.availableWords.length);
-  }
+    this.selectedPairCount = this.pairs.length;
 
-  // ======================================================
-
-  // VALIDAR CATEGORÍAS Y MOSTRAR CONFIGURACIÓN
-
-  // ======================================================
-
-  selectCategoryAndContinue(): void {
-    // Solo validar que haya categorías seleccionadas
-
-    if (this.selectedCategories.length === 0) {
-      this.categoryWarning = true;
-
-      this.categorySelected = false;
-
-      return;
-    }
-
-    // Ocultar advertencia
-
-    this.categoryWarning = false;
-
-    // Cerrar el selector desplegable
-
-    this.categoryMenuOpen = false;
-
-    // Mostrar el formulario de configuración
+    this.closeResultsDetail();
 
     this.categorySelected = true;
 
-    // Actualizar cantidad de parejas disponibles
-
-    this.adjustCount();
+    this.startGame();
   }
 
-  changeCategory(): void {
-    this.stopAudio();
+  // =========================================================
+  // RESTAURAR JUEGO NORMAL
+  // RESPETANDO LAS CATEGORÍAS SELECCIONADAS
+  // =========================================================
+  restoreNormalGame(): void {
+    const selected = new Set(
+      this.selectedCategories.map((category) => category.trim().toLowerCase()),
+    );
 
-    this.gameStarted = false;
+    this.pairs = this.allCategoriesSelected
+      ? [...this.allPairs]
+      : this.allPairs.filter((pair) =>
+          selected.has((pair.categoriaPalabra ?? '').trim().toLowerCase()),
+        );
 
-    this.gameFinished = false;
+    this.selectedPairCount = this.pairs.length;
 
-    this.categorySelected = false;
-
-    this.categoryWarning = false;
-
-    this.closeHints();
-
-    this.message = '';
+    this.practicingOnlyErrors = false;
   }
 
-  private shuffle<T>(items: T[]): T[] {
-    const result = [...items];
+  // =========================================================
+  // MOSTRAR PISTAS
+  // =========================================================
+  showHintsPanel(): void {
+    if (this.gameFinished || this.changingPage) {
+      return;
+    }
+
+    if (this.hintTimer) {
+      clearTimeout(this.hintTimer);
+    }
+
+    const currentExercises = this.pages[this.currentPage] ?? [];
+
+    const pendingExercises = currentExercises.filter(
+      (exercise) => !exercise.completed,
+    );
+
+    this.hints = pendingExercises
+
+      .map((exercise) => {
+        const pair = this.pairs.find((pair) => pair.id === exercise.id);
+
+        if (!pair) {
+          return null;
+        }
+
+        return {
+          ...pair,
+          id: exercise.id,
+          left: exercise.leftOriginal,
+          right: exercise.rightOriginal,
+        };
+      })
+
+      .filter((pair): pair is GamePair => pair !== null)
+      .slice(0, 6);
+
+    if (this.hints.length === 0) {
+      return;
+    }
+
+    this.showHints = true;
+
+    this.hintTimer = setTimeout(() => {
+      this.showHints = false;
+
+      this.hints = [];
+
+      this.hintTimer = null;
+    }, 5000);
+  }
+
+  // =========================================================
+  // CERRAR PISTAS
+  // =========================================================
+  closeHints(): void {
+    this.showHints = false;
+
+    this.hints = [];
+
+    if (this.hintTimer) {
+      clearTimeout(this.hintTimer);
+
+      this.hintTimer = null;
+    }
+  }
+
+  // =========================================================
+  // COMPROBAR PÁGINA
+  // =========================================================
+  checkPageComplete(): void {
+    const page = this.pages[this.currentPage];
+
+    if (!page) {
+      return;
+    }
+
+    const complete = page.every((exercise) => exercise.completed);
+
+    if (!complete) {
+      return;
+    }
+
+    // =====================================================
+    // ÚLTIMA PÁGINA
+    // =====================================================
+    if (this.currentPage === this.pages.length - 1) {
+      this.gameFinished = true;
+
+      this.gameWon = true;
+
+      // ===================================================
+      // DETENER CRONÓMETRO
+      // ===================================================
+      this.finalizarTiempo();
+
+      if (this.practicingOnlyErrors && this.errors === 0) {
+        this.restoreNormalGame();
+      }
+
+      return;
+    }
+
+    // =====================================================
+    // SIGUIENTE PÁGINA
+    // =====================================================
+    this.changingPage = true;
+
+    setTimeout(() => {
+      this.currentPage++;
+
+      this.changingPage = false;
+
+      setTimeout(() => {
+        const firstInput = document.querySelector<HTMLInputElement>(
+          '.letter-input:not(:disabled)',
+        );
+
+        if (firstInput) {
+          firstInput.focus();
+          firstInput.select();
+        }
+      }, 150);
+    }, 800);
+  }
+
+  // =========================================================
+  // TOTAL PÁGINAS
+  // =========================================================
+  get totalPages(): number {
+    return this.pages.length;
+  }
+
+  // =========================================================
+  // INTENTOS RESTANTES
+  // =========================================================
+  get remainingAttempts(): number {
+    return Math.max(this.maxErrors - this.errors, 0);
+  }
+
+  // =========================================================
+  // PAREJAS COMPLETADAS
+  // =========================================================
+  get completedPairs(): number {
+    return this.exercises.filter((exercise) => exercise.completed).length;
+  }
+
+  // =========================================================
+  // COMPLETADAS PÁGINA ACTUAL
+  // =========================================================
+  get currentPageCompleted(): number {
+    const page = this.pages[this.currentPage];
+
+    if (!page) {
+      return 0;
+    }
+
+    return page.filter((exercise) => exercise.completed).length;
+  }
+
+  // =========================================================
+  // BUSCADOR
+  // =========================================================
+  get filteredPairs(): GamePair[] {
+    const term = this.searchTerm.trim().toLowerCase();
+
+    if (!term) {
+      return this.pairs;
+    }
+
+    return this.pairs.filter(
+      (pair) =>
+        pair.left.toLowerCase().includes(term) ||
+        pair.right.toLowerCase().includes(term) ||
+        pair.meaning.toLowerCase().includes(term) ||
+        (pair.categoriaPalabra || '').toLowerCase().includes(term),
+    );
+  }
+
+  // =========================================================
+  // COMPROBAR SI ESTÁN SELECCIONADAS TODAS
+  // =========================================================
+  get allCategoriesSelected(): boolean {
+    return (
+      this.categories.length > 0 &&
+      this.selectedCategories.length === this.categories.length
+    );
+  }
+
+  // =========================================================
+  // TEXTO MOSTRADO EN EL SELECTOR
+  // =========================================================
+  get selectedCategoriesLabel(): string {
+    if (this.selectedCategories.length === 0) {
+      return 'Selecciona una categoría';
+    }
+
+    if (this.allCategoriesSelected) {
+      return 'Todas las palabras';
+    }
+
+    return this.selectedCategories
+      .map((category) => category.charAt(0).toUpperCase() + category.slice(1))
+      .join(', ');
+  }
+
+  // =========================================================
+  // MOSTRAR CATEGORÍAS ORDENADAS ALFABÉTICAMENTE
+  // =========================================================
+  get categoryDisplayName(): string {
+    if (this.selectedCategories.length === 0) {
+      return 'Sin categoría';
+    }
+
+    // =========================================================
+    // TODAS LAS CATEGORÍAS SELECCIONADAS
+    // =========================================================
+    if (this.allCategoriesSelected) {
+      return 'Todas las palabras';
+    }
+
+    // =========================================================
+    // ORDENAR ALFABÉTICAMENTE
+    // =========================================================
+    return [...this.selectedCategories]
+      .sort((a, b) =>
+        a.localeCompare(b, 'es', {
+          sensitivity: 'base',
+        }),
+      )
+      .join(', ');
+  }
+
+  // =========================================================
+  // MEZCLAR ARRAY
+  // =========================================================
+  shuffle<T>(array: T[]): T[] {
+    const result = [...array];
 
     for (let i = result.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
@@ -476,454 +1589,61 @@ export class OrdenarPalabrasComponent implements OnInit, OnDestroy {
     return result;
   }
 
-  private hiddenCount(length: number): number {
-    if (length <= 1) return length;
+  // =========================================================
+  // DIVIDIR EN PÁGINAS
+  // =========================================================
+  chunk<T>(
+    array: T[],
 
-    if (length <= 3) return Math.min(length - 1, 2);
+    size: number,
+  ): T[][] {
+    const result: T[][] = [];
 
-    const maximum = length <= 5 ? 3 : length <= 8 ? 4 : length <= 10 ? 5 : 6;
+    for (let i = 0; i < array.length; i += size) {
+      result.push(array.slice(i, i + size));
+    }
 
-    const minimum = Math.min(3, maximum, length - 1);
-
-    return Math.min(
-      length - 1,
-
-      minimum + Math.floor(Math.random() * (maximum - minimum + 1)),
-    );
+    return result;
   }
 
-  private makeBoard(word: string): Tablero {
-    const chars = Array.from(word);
-
-    const eligible = chars
-
-      .map((char, i) => (/\p{L}/u.test(char) ? i : -1))
-
-      .filter((i) => i >= 0);
-
-    const count = this.hiddenCount(eligible.length);
-
-    const hidden = new Set(this.shuffle(eligible).slice(0, count));
-
-    const cells: Casilla[] = chars.map((letter, i) => {
-      const isSpace = /\s/.test(letter);
-
-      const fixed = !hidden.has(i);
-
-      return {
-        letter,
-
-        fixed,
-
-        isSpace,
-
-        value: fixed ? letter : '',
-
-        bankId: null,
-
-        correct: null,
-      };
-    });
-
-    const bank = this.shuffle(
-      cells
-
-        .filter((c) => !c.fixed)
-
-        .map((c, i) => ({ id: i, letter: c.letter, used: false })),
-    );
-
-    return { original: word, cells, bank, completed: bank.length === 0 };
-  }
-
-  startGame(): void {
-    const available = [...this.availableWords];
-
-    if (!available.length) {
-      this.message = 'No hay palabras disponibles para esta configuración.';
+  // =========================================================
+  // FINALIZAR TIEMPO
+  // =========================================================
+  private finalizarTiempo(): void {
+    if (this.tiempoInicio <= 0) {
+      this.tiempoSegundos = 0;
 
       return;
     }
 
-    const count = Math.min(
-      Math.max(1, Math.floor(Number(this.selectedPairCount) || 1)),
-
-      available.length,
-    );
-
-    const ordered =
-      this.wordOrder === 'random'
-        ? this.shuffle(available)
-        : available.sort((a, b) =>
-            this.wordOrder === 'ascending'
-              ? a.text.localeCompare(b.text)
-              : b.text.localeCompare(a.text),
-          );
-
-    this.startWithWords(ordered.slice(0, count));
-  }
-
-  private startWithWords(words: PalabraOrdenar[]): void {
-    // Reiniciar el control de pronunciación en cada partida.
-    this.tablerosPronunciados = new WeakSet<Tablero>();
-
-    this.closeHints();
-
-    this.resultModal = null;
-
-    this.exercises = words.map((word, id) => {
-      const left = this.makeBoard(word.text);
-
-      const right = this.makeBoard(
-        this.reviewType === 'meaning' ? word.meaning : word.right,
-      );
-
-      return {
-        id,
-
-        image: word.image,
-
-        meaning: word.meaning,
-
-        left,
-
-        right,
-
-        completed: left.completed && right.completed,
-
-        errors: 0,
-
-        source: word,
-      };
-    });
-
-    this.pages = [];
-
-    for (let i = 0; i < this.exercises.length; i += this.wordsPerPage) {
-      this.pages.push(this.exercises.slice(i, i + this.wordsPerPage));
-    }
-
-    this.currentPage = 0;
-
-    this.errors = 0;
-
-    this.message = '';
-
-    this.closeHints();
-
-    this.gameFinished = false;
-
-    this.gameStarted = true;
-
-    // =========================================================
-
-    // INICIAR TIEMPO
-
-    // =========================================================
-
-    this.tiempoInicio = Date.now();
-
-    this.tiempoFin = 0;
-
-    this.tiempoSegundos = 0;
-
-    this.checkGameEnd();
-
-    // Enfocar la primera casilla al comenzar
-
-    this.enfocarSiguientePareja();
-  }
-
-  nextEmptyIndex(board: Tablero): number {
-    return board.cells.findIndex((cell) => !cell.fixed && !cell.value);
-  }
-
-  placeLetter(board: Tablero, letter: LetraBanco, exercise: Ejercicio): void {
-    if (
-      this.gameFinished ||
-      exercise.completed ||
-      board.completed ||
-      letter.used
-    )
-      return;
-
-    // Un error se muestra en rojo hasta que el alumno vuelve a elegir.
-
-    const wrong = board.cells.find((c) => !c.fixed && c.correct === false);
-
-    if (wrong) {
-      wrong.value = '';
-
-      wrong.correct = null;
-    }
-
-    const index = this.nextEmptyIndex(board);
-
-    if (index < 0) return;
-
-    const target = board.cells[index];
-
-    if (this.normalize(letter.letter) !== this.normalize(target.letter)) {
-      this.errors++;
-
-      exercise.errors++;
-
-      target.value = letter.letter;
-
-      target.correct = false;
-
-      this.message = 'Letra incorrecta. Inténtalo de nuevo.';
-
-      this.checkGameEnd();
-
-      if (!this.gameFinished) {
-        this.enfocarSiguientePareja();
-      }
-
+    // Evitar recalcular el tiempo si ya terminó
+    if (this.tiempoFin > 0) {
       return;
     }
 
-    target.value = letter.letter;
+    this.tiempoFin = Date.now();
 
-    target.correct = true;
-
-    target.bankId = letter.id;
-
-    letter.used = true;
-
-    this.message = '';
-
-    board.completed = this.nextEmptyIndex(board) === -1;
-
-    if (exercise.left.completed && exercise.right.completed) {
-      exercise.completed = true;
-
-      this.message = '¡Pareja completada correctamente!';
-    }
-
-    this.checkGameEnd();
-
-    // =========================================================
-
-    // AVANCE AUTOMÁTICO DE PANTALLA
-
-    // =========================================================
-
-    if (
-      !this.gameFinished &&
-      this.currentPage < this.totalPages - 1 &&
-      this.currentPageCompleted === this.pages[this.currentPage].length
-    ) {
-      this.currentPage++;
-
-      this.message = '';
-    }
-
-    // =========================================================
-
-    // ENFOCAR LA SIGUIENTE CASILLA O PAREJA
-
-    // =========================================================
-
-    this.enfocarSiguientePareja();
-  }
-
-  removeLetter(board: Tablero, cell: Casilla, exercise: Ejercicio): void {
-    if (this.gameFinished || exercise.completed || cell.fixed || !cell.value)
-      return;
-
-    const letter = board.bank.find((l) => l.id === cell.bankId);
-
-    if (letter) letter.used = false;
-
-    cell.value = '';
-
-    cell.bankId = null;
-
-    cell.correct = null;
-
-    board.completed = false;
-  }
-
-  private languageFor(board: Tablero, exercise: Ejercicio): 'en-US' | 'es-ES' {
-    return board === exercise.right && this.reviewType === 'meaning'
-      ? 'es-ES'
-      : 'en-US';
-  }
-
-  // Cada tablero pronuncia una sola vez su palabra durante la partida.
-  private tablerosPronunciados = new WeakSet<Tablero>();
-
-  activateSlot(board: Tablero, cell: Casilla, exercise: Ejercicio): void {
-    if (!this.voiceEnabled || exercise.completed || this.gameFinished) return;
-
-    // Solo la primera casilla oculta de la palabra puede activar la voz.
-    const primeraCasilla = board.cells.find((c) => !c.isSpace && !c.fixed);
-    if (primeraCasilla !== cell) return;
-
-    // El foco automático puede regresar a la misma casilla: no repetir audio.
-    if (this.tablerosPronunciados.has(board)) return;
-
-    this.tablerosPronunciados.add(board);
-    this.playAudio(board.original, this.languageFor(board, exercise));
-  }
-
-  // =========================================================
-  // REPRODUCIR AUDIO AL HACER CLIC
-  // SOLO EN LA PRIMERA CASILLA OCULTA DE CADA PALABRA
-  // =========================================================
-
-  activarAudioPrimerCampo(
-    board: Tablero,
-    cell: Casilla,
-    exercise: Ejercicio,
-  ): void {
-    if (!this.voiceEnabled || exercise.completed || this.gameFinished) {
-      return;
-    }
-
-    const primerIndice = board.cells.findIndex((c) => !c.isSpace && !c.fixed);
-
-    if (primerIndice === -1 || board.cells[primerIndice] !== cell) {
-      return;
-    }
-
-    this.playAudio(board.original, this.languageFor(board, exercise));
-  }
-
-  speakBoard(board: Tablero, exercise: Ejercicio): void {
-    this.playAudio(board.original, this.languageFor(board, exercise));
-  }
-
-  playAudio(text: string, language: 'en-US' | 'es-ES' = 'en-US'): void {
-    if (!this.voiceEnabled || !('speechSynthesis' in window)) return;
-
-    const clean = text.trim();
-
-    if (!clean) return;
-
-    window.speechSynthesis.cancel();
-
-    const utterance = new SpeechSynthesisUtterance(clean);
-
-    utterance.lang = language;
-
-    utterance.rate = Number(this.voiceRate) || 1;
-
-    window.speechSynthesis.speak(utterance);
-  }
-
-  stopAudio(): void {
-    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
-  }
-
-  // =========================================================
-
-  // COMPROBAR FINALIZACIÓN DEL JUEGO
-
-  // =========================================================
-
-  private checkGameEnd(): void {
-    if (
-      this.errors >= this.maxErrors ||
-      (this.exercises.length > 0 &&
-        this.completedPairs === this.exercises.length)
-    ) {
-      this.gameFinished = true;
-
-      this.finalizarTiempo();
-
-      this.closeHints();
-
-      this.stopAudio();
-    }
-  }
-
-  // =========================================================
-
-  // PRACTICAR EXCLUSIVAMENTE LAS PAREJAS CON ERRORES
-
-  // =========================================================
-
-  practiceErrors(): void {
-    const words = this.errorExercises.map((exercise) => exercise.source);
-
-    if (!words.length) return;
-
-    this.startWithWords(words);
-  }
-
-  get pendingHintExercises(): Ejercicio[] {
-    return (this.pages[this.currentPage] || []).filter(
-      (exercise) => !exercise.completed,
+    this.tiempoSegundos = Math.max(
+      0,
+      Math.floor((this.tiempoFin - this.tiempoInicio) / 1000),
     );
   }
 
   // =========================================================
-
-  // PISTAS: MODAL DE SOLO LECTURA DURANTE 5 SEGUNDOS
-
-  // =========================================================
-
-  openHints(): void {
-    if (!this.gameStarted || this.gameFinished) return;
-
-    this.closeHints();
-
-    this.hintsSecondsRemaining = 5;
-
-    this.hintsVisible = true;
-
-    this.hintsTimer = setInterval(() => {
-      this.hintsSecondsRemaining--;
-
-      if (this.hintsSecondsRemaining <= 0) this.closeHints();
-    }, 1000);
-  }
-
-  closeHints(): void {
-    if (this.hintsTimer !== null) {
-      clearInterval(this.hintsTimer);
-
-      this.hintsTimer = null;
-    }
-
-    this.hintsVisible = false;
-  }
-
-  get correctExercises(): Ejercicio[] {
-    return this.exercises.filter((e) => e.completed && e.errors === 0);
-  }
-
-  get errorExercises(): Ejercicio[] {
-    return this.exercises.filter((e) => e.errors > 0);
-  }
-
-  openResultsModal(kind: 'errors' | 'correct'): void {
-    this.resultModal = kind;
-  }
-
-  closeResultsModal(): void {
-    this.resultModal = null;
-  }
-
-  // =========================================================
-
   // GUARDAR PUNTAJE
-
   // =========================================================
 
   guardarPuntaje(): void {
     // =====================================================
-
-    // VALIDAR SI SE PUEDE GUARDAR
-
+    // SOLO PERMITIR GUARDAR CUANDO:
+    // - EL JUEGO TERMINÓ
+    // - EL JUGADOR GANÓ
+    // - EXISTEN EJERCICIOS
+    // - CORRECTAS > ERRORES
     // =====================================================
-
     if (!this.puedeGuardarPuntaje) {
       console.warn('No se puede guardar el puntaje.', {
-        correctas: this.correctExercises.length,
-
+        correctas: this.totalCorrectWords,
         errores: this.errors,
       });
 
@@ -931,263 +1651,333 @@ export class OrdenarPalabrasComponent implements OnInit, OnDestroy {
     }
 
     // =====================================================
-
     // ASEGURAR TIEMPO FINAL
-
     // =====================================================
-
     if (this.tiempoFin === 0 && this.tiempoInicio > 0) {
       this.finalizarTiempo();
     }
 
     // =====================================================
-
-    // CATEGORÍAS ORDENADAS
-
+    // CATEGORÍA
     // =====================================================
-
     const categoriasOrdenadas = this.categoryDisplayName;
-
-    // =====================================================
-
-    // TIPO DE REPASO
-
-    // =====================================================
 
     const repasoParaPuntuacion =
       this.reviewType === 'meaning' ? 'Verbo → Significado' : 'Verbo → Pareja';
 
     // =====================================================
-
-    // NAVEGAR AL COMPONENTE PUNTUACIÓN
-
+    // IR A PUNTUACIÓN
     // =====================================================
+    this.router.navigate(
+      ['/puntuacion'],
 
-    this.router.navigate(['/puntuacion'], {
-      state: {
-        juego: 'completar-palabra',
-
-        categoria: categoriasOrdenadas,
-
-        correctas: this.correctExercises.length,
-
-        total: this.exercises.length,
-
-        errores: this.errors,
-
-        repaso: repasoParaPuntuacion,
-
-        tiempoSegundos: this.tiempoSegundos,
+      {
+        state: {
+          juego: 'completar-palabra',
+          categoria: categoriasOrdenadas,
+          // ===============================================
+          // ACIERTOS SIN ERRORES
+          // ===============================================
+          correctas: this.totalCorrectWords,
+          // ===============================================
+          // TOTAL JUGADO
+          // ===============================================
+          total: this.exercises.length,
+          // ===============================================
+          // ERRORES TOTALES
+          // ===============================================
+          errores: this.errors,
+          // ===============================================
+          // REPASO
+          // ===============================================
+          repaso: repasoParaPuntuacion,
+          // ===============================================
+          // TIEMPO EMPLEADO
+          // ===============================================
+          tiempoSegundos: this.tiempoSegundos,
+        },
       },
-    });
-  }
-
-  openImage(image: string, word: string, meaning: string): void {
-    this.selectedImage = image;
-
-    this.selectedImageWord = word;
-
-    this.selectedImageMeaning = meaning;
-  }
-
-  closeImage(): void {
-    this.selectedImage = null;
-  }
-
-  // =========================================================
-
-  // FINALIZAR TIEMPO
-
-  // =========================================================
-
-  finalizarTiempo(): void {
-    if (this.tiempoInicio === 0 || this.tiempoFin !== 0) {
-      return;
-    }
-
-    this.tiempoFin = Date.now();
-
-    this.tiempoSegundos = Math.floor(
-      (this.tiempoFin - this.tiempoInicio) / 1000,
     );
-  }
-
-  esCasillaActiva(exercise: Ejercicio, board: Tablero, cell: Casilla): boolean {
-    if (this.gameFinished || exercise.completed) return false;
-
-    const lado = board === exercise.left ? 'left' : 'right';
-
-    return (
-      exercise.id === this.parejaActivaId &&
-      lado === this.tableroActivo &&
-      board.cells.indexOf(cell) === this.casillaActivaIndex
-    );
-  }
-
-  // =========================================================
-
-  // BUSCAR Y ENFOCAR LA SIGUIENTE CASILLA PENDIENTE
-
-  // =========================================================
-
-  // =========================================================
-
-  // FOCO REAL EN LA PRIMERA CASILLA PENDIENTE
-
-  // - Al iniciar la partida
-
-  // - Después de colocar cada letra
-
-  // - Al completar una pareja o cambiar de pantalla
-
-  // =========================================================
-
-  private focusRequestId = 0;
-
-  enfocarSiguientePareja(): void {
-    const requestId = ++this.focusRequestId;
-
-    if (!this.gameStarted || this.gameFinished) {
-      this.parejaActivaId = null;
-
-      this.casillaActivaIndex = -1;
-
-      return;
-    }
-
-    const pendientes = this.pages[this.currentPage] || [];
-
-    for (const exercise of pendientes) {
-      if (exercise.completed) continue;
-
-      for (const lado of ['left', 'right'] as const) {
-        const board = exercise[lado];
-
-        const index = this.nextEmptyIndex(board);
-
-        if (index < 0) continue;
-
-        this.parejaActivaId = exercise.id;
-
-        this.tableroActivo = lado;
-
-        this.casillaActivaIndex = index;
-
-        // Actualiza las clases dinámicas antes de buscar el botón.
-
-        this.cdr.detectChanges();
-
-        // El DOM debe existir después de *ngIf / *ngFor.
-
-        setTimeout(() => {
-          if (requestId !== this.focusRequestId || this.gameFinished) return;
-
-          const boton =
-            this.host.nativeElement.querySelector<HTMLButtonElement>(
-              '.exercise-pair.pareja-activa .letter-slot.casilla-activa',
-            );
-
-          if (!boton || boton.disabled) return;
-
-          boton.focus({ preventScroll: true });
-
-          boton.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        }, 0);
-
-        return;
-      }
-    }
-
-    this.parejaActivaId = null;
-
-    this.casillaActivaIndex = -1;
   }
 
   printVocabulary(): void {
-    const escapeHtml = (value: string): string =>
-      String(value ?? '')
-        .replace(/&/g, '&amp;')
-
-        .replace(/</g, '&lt;')
-
-        .replace(/>/g, '&gt;')
-
-        .replace(/"/g, '&quot;')
-
-        .replace(/'/g, '&#39;');
-
-    let words = [...this.availableWords];
-
-    if (this.wordOrder === 'random') words = this.shuffle(words);
-
-    if (this.wordOrder === 'ascending')
-      words.sort((a, b) => a.text.localeCompare(b.text, 'es'));
-
-    if (this.wordOrder === 'descending')
-      words.sort((a, b) => b.text.localeCompare(a.text, 'es'));
-
-    const count = Math.min(
-      Math.max(1, Math.floor(Number(this.selectedPairCount) || 1)),
-
-      words.length,
-    );
-
-    const selected = words.slice(0, count);
-
-    if (!selected.length) {
-      this.message = 'No hay palabras para imprimir.';
-
+    if (!this.pairs || this.pairs.length === 0) {
       return;
     }
 
-    const rows = selected
+    const category = this.categoryDisplayName;
 
-      .map((word, index) => {
-        const safeImage =
-          /^https?:\/\//i.test(word.image || '') ||
-          /^data:image\/(png|jpeg|gif|webp);base64,/i.test(word.image || '')
-            ? `<img src="${escapeHtml(word.image || '')}" alt="Imagen" />`
-            : '';
+    const vocabularyRows = this.pairs
+      .map((pair, index) => {
+        const imageHtml = pair.image
+          ? `
+          <img
+            src="${pair.image}"
+            alt="${pair.left}"
+            class="vocabulary-image"
+          >
+        `
+          : '';
 
-        return `<tr><td>${index + 1}</td><td>${safeImage}</td><td>${escapeHtml(word.text)}</td><td>${escapeHtml(word.right)}</td><td>${escapeHtml(word.meaning)}</td><td>${escapeHtml(word.category)}</td></tr>`;
+        return `
+        <tr>
+          <td>${index + 1}</td>
+
+          <td class="image-cell">
+            ${imageHtml}
+          </td>
+
+          <td class="english-word">
+            ${this.escapeHtml(pair.left)}
+          </td>
+
+          <td>
+            ${this.escapeHtml(pair.right)}
+          </td>
+
+          <td>
+            ${this.escapeHtml(pair.meaning)}
+          </td>
+
+          <td>
+            ${this.escapeHtml(pair.categoriaPalabra)}
+          </td>
+        </tr>
+      `;
       })
-
       .join('');
 
-    const printWindow = window.open('', '_blank');
+    const printWindow = window.open('', '_blank', 'width=1000,height=800');
 
     if (!printWindow) {
-      this.message =
-        'Permite las ventanas emergentes para imprimir el vocabulario.';
-
+      alert(
+        'El navegador bloqueó la ventana de impresión. Permite las ventanas emergentes e inténtalo nuevamente.',
+      );
       return;
     }
 
     printWindow.document.open();
 
-    printWindow.document
-      .write(`<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Vocabulario</title>
+    printWindow.document.write(`
+    <!DOCTYPE html>
 
-      <style>body{font-family:Arial,sans-serif;margin:20px}h1{text-align:center;font-size:24px}
+    <html lang="es">
 
-      p{text-align:center}table{width:100%;border-collapse:collapse;font-size:12px}th,td{border:1px solid #bbb;padding:9px;text-align:center}
+    <head>
 
-      th{background:#5076ba;color:white}td img{max-width:65px;max-height:65px;object-fit:contain}
+      <meta charset="UTF-8">
 
-      @media print{@page{size:A4 landscape;margin:12mm}thead{display:table-header-group}tr{break-inside:avoid}}</style></head><body>
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+      >
 
-      <h1>📚 Vocabulario</h1><p>Categoría Palabra: ${escapeHtml(this.categoryDisplayName)}</p>
+      <title>Vocabulario - ${this.escapeHtml(category)}</title>
 
-      <table><thead><tr><th>N.º</th><th>Imagen</th><th>Palabra</th><th>Pareja</th><th>Significado</th><th>Categoría</th></tr></thead><tbody>${rows}</tbody></table>
+      <style>
 
-      </body></html>`);
+        @page {
+          size: A4;
+          margin: 15mm;
+        }
+
+        * {
+          box-sizing: border-box;
+        }
+
+        body {
+          margin: 0;
+          font-family: Arial, sans-serif;
+          color: #222;
+          background: white;
+        }
+
+        .print-container {
+          width: 100%;
+        }
+
+        h1 {
+          margin: 0 0 8px;
+          text-align: center;
+          font-size: 26px;
+        }
+
+        .category {
+          margin: 0 0 22px;
+          text-align: center;
+          font-size: 18px;
+        }
+
+        .category strong {
+          color: #2f8f00;
+        }
+
+        table {
+          width: 100%;
+          border-collapse: collapse;
+          table-layout: fixed;
+        }
+
+        th {
+          background: #4f72b8;
+          color: black;
+          font-size: 15px;
+          padding: 10px 6px;
+          border: 1px solid #d5d5d5;
+        }
+
+        td {
+          padding: 8px 6px;
+          border: 1px solid #d5d5d5;
+          text-align: center;
+          vertical-align: middle;
+          font-size: 15px;
+          text-transform: capitalize;
+        }
+
+        th:nth-child(1),
+        td:nth-child(1) {
+          width: 6%;
+        }
+
+        th:nth-child(2),
+        td:nth-child(2) {
+          width: 12%;
+        }
+
+        th:nth-child(3),
+        td:nth-child(3) {
+          width: 20%;
+        }
+
+        th:nth-child(4),
+        td:nth-child(4) {
+          width: 20%;
+        }
+
+        th:nth-child(5),
+        td:nth-child(5) {
+          width: 24%;
+        }
+
+        th:nth-child(6),
+        td:nth-child(6) {
+          width: 18%;
+        }
+
+        .vocabulary-image {
+          width: 55px;
+          height: 55px;
+          object-fit: contain;
+          display: block;
+          margin: auto;
+        }
+
+        .english-word {
+          font-weight: bold;
+        }
+
+        tr {
+          page-break-inside: avoid;
+        }
+
+        .print-footer {
+          margin-top: 15px;
+          text-align: center;
+          font-size: 12px;
+          color: #666;
+        }
+
+      </style>
+
+    </head>
+
+    <body>
+
+      <div class="print-container">
+
+        <h1>📚 Vocabulario</h1>
+
+        <p class="category">
+          Categoria Palabra:
+          <strong>
+            ${this.escapeHtml(category)}
+          </strong>
+        </p>
+
+        <table>
+
+          <thead>
+            <tr>
+              <th>N.º</th>
+              <th>Imagen</th>
+              <th>Palabra</th>
+              <th>Pareja</th>
+              <th>Significado</th>
+              <th>Categoria</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            ${vocabularyRows}
+          </tbody>
+
+        </table>
+
+      </div>
+
+      <script>
+
+        window.addEventListener('load', function () {
+
+          const images = Array.from(
+            document.querySelectorAll('img')
+          );
+
+          if (images.length === 0) {
+            window.print();
+            return;
+          }
+
+          Promise.all(
+            images.map(function (img) {
+
+              if (img.complete) {
+                return Promise.resolve();
+              }
+
+              return new Promise(function (resolve) {
+                img.onload = resolve;
+                img.onerror = resolve;
+              });
+
+            })
+          ).then(function () {
+
+            setTimeout(function () {
+              window.print();
+            }, 300);
+
+          });
+
+        });
+
+      <\/script>
+
+    </body>
+
+    </html>
+  `);
 
     printWindow.document.close();
+  }
 
-    printWindow.focus();
-
-    printWindow.addEventListener('load', () => printWindow.print(), {
-      once: true,
-    });
+  private escapeHtml(value: string | null | undefined): string {
+    return String(value ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
   }
 }

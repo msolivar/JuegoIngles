@@ -1,1125 +1,632 @@
-:host {
-   display: block;
-   width: 100%;
-}
-* {
-   box-sizing: border-box;
-}
 /* ======================================================
-   MENSAJE DE VALIDACIÓN
-\====================================================== */
-.category-warning {
-   margin: 20px 0;
-   padding: 18px;
-   border-radius: 12px;
-   background: #fde8e8;
-   color: #b91c1c;
-   font-size: 20px;
-   font-weight: bold;
-   text-align: center;
-}
-/* ======================================================
-   BOTÓN CONTINUAR
-\====================================================== */
-.continue-button {
-   display: block;
-   width: 100%;
-   margin-top: 25px;
-   padding: 17px 20px;
-   border: none;
-   border-radius: 35px;
-   background: #ffebcd;
-   color: #000;
-   font-size: 21px;
-   font-weight: bold;
-   cursor: pointer;
-   box-shadow: 0 5px 12px rgba(0, 0, 0, 0.12);
-}
-.continue-button:hover {
-   background: #ffe0ae;
-}
-/* ======================================================
-   FORMULARIO DE CONFIGURACIÓN
-\====================================================== */
-.game-settings {
-   margin-top: 25px;
-}
-.game-container {
-   max-width: 1300px;
-   width: 100%;
-   margin: auto;
-   padding: 12px;
-   font-family: Arial, Helvetica, sans-serif;
-   color: #222;
-}
-button,
-select,
-input {
-   font: inherit;
-}
-button {
-   cursor: pointer;
-}
-button:disabled {
-   cursor: not-allowed;
-   opacity: .48;
-}
-/* ======================================================
-   CATEGORÍAS
-\====================================================== */
-.category-selector {
-   max-width: 780px;
-   margin: 12px auto;
-   padding: 20px;
-   background: white;
-   border-radius: 22px;
-}
-.category-selector h1 {
-   margin: 0 0 12px;
-   text-align: center;
-   font-size: clamp(25px, 4vw, 40px);
-}
-.category-selector h2 {
-   margin: 0 0 26px;
-   text-align: center;
-   font-size: clamp(20px, 3vw, 27px);
-}
-.section-label,
-.field label {
-   display: block;
-   margin-bottom: 8px;
-   font-size: 20px;
-   font-weight: 700;
-}
-.dropdown-wrap {
-   position: relative;
-}
-.category-trigger {
-   width: 100%;
-   min-height: 65px;
-   padding: 14px 20px;
-   display: flex;
-   justify-content: space-between;
-   align-items: center;
-   gap: 12px;
-   text-align: left;
-   border: 1px solid #aec2ce;
-   border-radius: 15px;
-   background: white;
-}
-.category-trigger span:first-child {
-   overflow-wrap: anywhere;
-}
-.category-menu {
-   position: absolute;
-   z-index: 20;
-   top: calc(100% + 5px);
-   left: 0;
-   right: 0;
-   max-height: 300px;
-   overflow-y: auto;
-   padding: 10px;
-   border: 1px solid #aec2ce;
-   border-radius: 14px;
-   background: white;
-   box-shadow: 0 8px 22px #0002;
-}
-.category-option {
-   display: flex;
-   align-items: center;
-   gap: 12px;
-   padding: 12px;
-   border-radius: 10px;
-   cursor: pointer;
-}
-.category-option:hover,
-.all-option {
-   background: #eef8e7;
-}
-.category-option input {
-   width: 19px;
-   height: 19px;
-   accent-color: #1976d2;
-}
-.done-button {
-   display: block;
-   width: 100%;
-   padding: 12px;
-   border: 0;
-   border-radius: 10px;
-   background: #1976d2;
-   color: white;
-   font-weight: bold;
-}
-.category-count {
-   margin: 18px 0 26px;
-   text-align: center;
-   font-weight: bold;
-}
-.notice {
-   color: #a00;
-}
-/* ======================================================
-   CONFIGURACIÓN
-\====================================================== */
-.setup-card {
-   max-width: 780px;
-   margin: 20px auto;
-   padding: 24px;
-   border: 1px solid #d5e4f2;
-   border-radius: 20px;
-   background: #f8fbff;
-}
-.setup-grid {
-   display: grid;
-   grid-template-columns: repeat(2, minmax(0, 1fr));
-   gap: 22px;
-}
-.field {
-   min-width: 0;
-   margin-bottom: 20px;
-}
-.field select,
-.field input {
-   width: 100%;
-   height: 56px;
-   padding: 10px 16px;
-   border: 1px solid #aec2ce;
-   border-radius: 13px;
-   background: white;
-}
-.field small {
-   display: block;
-   margin-top: 8px;
-   color: #0047b0;
-   font-size: 14px;
-   font-weight: 600;
-}
-.start-button,
-.print-button,
-.change-button,
-.secondary-button {
-   display: block;
-   width: 100%;
-   min-height: 54px;
-   margin: 8px 0;
-   padding: 12px;
-   border: 0;
-   border-radius: 30px;
-   font-weight: bold;
-}
-.start-button {
-   background: #ffebcd;
-   color: #111;
-}
-.print-button {
-   background: #4e75b9;
-   color: white;
-}
-.change-button {
-   background: #1976d2;
-   color: white;
-}
-.secondary-button {
-   background: #e9eff6;
-}
-/* ======================================================
-   INFORMACIÓN DEL JUEGO
-\====================================================== */
-.game-info {
-   max-width: 900px;
-   margin: 10px auto;
-   padding: 16px;
-   border-radius: 22px;
-   background: white;
-   box-shadow: 0 2px 12px #0001;
-}
-.game-info-line {
-   display: flex;
-   justify-content: space-around;
-   flex-wrap: wrap;
-   gap: 12px;
-   margin-bottom: 10px;
-   font-size: 18px;
-}
-.game-stats {
-   display: flex;
-   flex-wrap: wrap;
-   justify-content: center;
-   gap: 14px;
-   margin: 20px 0;
-   font-size: 17px;
-}
-.page-progress {
-   text-align: center;
-   font-size: 18px;
-}
-.feedback {
-   padding: 10px;
-   text-align: center;
-   color: #a22;
-   font-weight: bold;
-}
-/* ======================================================
-   FILAS
-\====================================================== */
-.exercise-list {
-   width: 100%;
-   min-width: 0;
-}
-.exercise-pair {
-   display: grid;
-   grid-template-columns: 44px 72px minmax(0, 1fr) 35px minmax(0, 1.2fr) 38px;
-   align-items: center;
-   gap: 10px;
-   width: 100%;
-   min-width: 0;
-   margin-bottom: 14px;
-   padding: 15px;
-   border: 2px solid #dce8d0;
-   border-radius: 18px;
-   background: white;
-}
-.exercise-number {
-   display: flex;
-   align-items: center;
-   justify-content: center;
-   width: 38px;
-   height: 38px;
-   border-radius: 50%;
-   background: #67b70f;
-   color: #111;
-   font-weight: bold;
-}
-.pair-image {
-   display: flex;
-   justify-content: center;
-   min-width: 0;
-}
-.image-thumbnail {
-   width: 70px;
-   height: 70px;
-   padding: 3px;
-   border: 1px solid #ddd;
-   border-radius: 10px;
-   background: white;
-   cursor: zoom-in;
-}
-.image-thumbnail img {
-   width: 100%;
-   height: 100%;
-   object-fit: contain;
-}
-.word-section {
-   display: flex;
-   flex-direction: column;
-   gap: 12px;
-   min-width: 0;
-   width: 100%;
-}
-.letter-row {
-   display: grid;
-   grid-template-columns: repeat(var(--cell-count), minmax(0, 1fr));
-   align-items: center;
-   gap: 2px;
-   width: 100%;
-   min-width: 0;
-}
-.visible-letter,
-.visible-letter1,
-.letter-slot {
-   display: flex;
-   align-items: center;
-   justify-content: center;
-   width: 100%;
-   min-width: 0;
-   height: 48px;
-   padding: 0;
-   text-align: center;
-   font-size: clamp(10px, 1.7vw, 23px);
-   font-weight: bold;
-}
-.visible-letter1 {
-   color: #222;
-}
-.letter-slot {
-   border: 0;
-   border-bottom: 3px solid #555;
-   border-radius: 6px 6px 0 0;
-   background: #f5f5f5;
-   color: #222;
-}
-.letter-slot.filled {
-   background: #e2f2ff;
-   border-bottom-color: #1976d2;
-}
-.letter-slot:focus-visible,
-.bank-letter:focus-visible {
-   outline: 2px solid #1976d2;
-   outline-offset: 2px;
-}
-.letter-bank {
-   display: flex;
-   flex-wrap: wrap;
-   justify-content: center;
-   gap: 5px;
-   min-width: 0;
-}
-.bank-letter {
-   display: flex;
-   align-items: center;
-   justify-content: center;
-   min-width: 67px;
-   height: 39px;
-   padding: 5px 8px;
-   border: 1px solid #cce4bb;
-   border-radius: 9px;
-   background: #f4faef;
-   color: #48733b;
-   font-size: 19px;
-   font-weight: bold;
-}
-.bank-letter:hover:not(:disabled) {
-   background: #d8efc8;
-}
-.bank-letter.used {
-   opacity: .2;
-}
-.hint-text {
-   text-align: center;
-   padding: 7px;
-   border-radius: 8px;
-   background: #fff7dc;
-   font-weight: bold;
-}
-/* ======================================================
-   LETRAS DISPONIBLES PARA SELECCIONAR
-\====================================================== */
-.letter-bank,
-.letter-options,
-.letter-tiles {
-   position: relative;
-   z-index: 2;
-}
-.letter-bank button,
-.letter-options button,
-.letter-tiles button {
-   pointer-events: auto;
-   cursor: pointer;
-}
-/* ======================================================
-   FLECHA CENTRAL
-   NO BLOQUEA LA SELECCIÓN DE LETRAS
-\====================================================== */
-.pair-arrow {
-   text-align: center;
-   font-size: 40px;
-   font-weight: bold;
-   color: #398900;
-   pointer-events: none;
-   user-select: none;
-   position: relative;
-   z-index: 0;
-}
-.pair-status {
-   display: flex;
-   flex-direction: column;
-   align-items: center;
-   gap: 5px;
-}
-.pair-status small {
-   font-size: 11px;
-   text-align: center;
-   color: #b22;
-}
-.success-icon {
-   font-size: 30px;
-   color: #2e7d32;
-   font-weight: bold;
-}
-.completed-pair {
-   background: #f1f8e9;
-   border-color: #67b70f;
-}
-/* ======================================================
-   NAVEGACIÓN Y RESULTADOS
-\====================================================== */
-.page-navigation {
-   display: flex;
-   align-items: center;
-   justify-content: center;
-   gap: 12px;
-   margin: 20px 0;
-}
-.page-navigation button {
-   padding: 10px 15px;
-   border: 0;
-   border-radius: 20px;
-   background: #67b70f;
-   font-weight: bold;
-}
-.result-box {
-   max-width: 700px;
-   margin: 25px auto;
-   padding: 24px;
-   border-radius: 20px;
-   background: white;
-   text-align: center;
-}
-.result-box h2 {
-   font-size: 28px;
-}
-.hints-button {
-   position: fixed;
-   z-index: 30;
-   right: 20px;
-   bottom: 20px;
-   padding: 16px 26px;
-   border: 0;
-   border-radius: 30px;
-   background: #ffd12b;
-   font-weight: bold;
-   box-shadow: 0 4px 15px #0002;
-}
-/* ======================================================
-   IMAGEN AMPLIADA
-\====================================================== */
-.image-overlay {
-   position: fixed;
-   inset: 0;
-   z-index: 10000;
-   display: flex;
-   align-items: center;
-   justify-content: center;
-   padding: 18px;
-   background: #000a;
-}
-.image-modal {
-   position: relative;
-   width: min(900px, 100%);
-   max-height: 95vh;
-   overflow-y: auto;
-   padding: 60px 16px 16px;
-   border-radius: 18px;
-   background: white;
-   text-align: center;
-}
-.image-modal h2 {
-   margin: 0 0 12px;
-}
-.image-close {
-   position: absolute;
-   right: 12px;
-   top: 8px;
-   width: 48px;
-   height: 48px;
-   border: 0;
-   border-radius: 50%;
-   background: #e33;
-   color: white;
-   font-size: 34px;
-}
-.large-image {
-   width: 100%;
-   max-height: 70vh;
-   object-fit: contain;
-   border-radius: 10px;
-}
-/* ======================================================
-   AJUSTES DE INTEGRACIÓN FIREBASE Y CASILLAS
-\====================================================== */
-.letter-slot:focus-visible,
-.bank-letter:focus-visible {
-   outline: 3px solid #1976d2;
-   outline-offset: 2px;
-}
-.letter-slot:not(:disabled) {
-   touch-action: manipulation;
-}
-.notice {
-   padding: 10px;
-}
-/* ======================================================
-   CORRECCIONES: VALIDACIÓN Y CONTROLES DEL JUEGO
-\====================================================== */
-.exercise-pair .letter-slot.correct-letter,
-.exercise-pair .letter-slot.correct-letter:disabled {
-   background: #e8f5e9;
-   border-bottom: 3px solid #43a047;
-   color: #2e7d32;
-   opacity: 1;
-}
-.exercise-pair .letter-slot.wrong-letter {
-   background: #ffebee;
-   border-bottom: 3px solid #e53935;
-   color: #c62828;
-   opacity: 1;
-}
-.exercise-pair.completed-pair {
-   background: #f1f8e9;
-   border: 2px solid #67b70f;
-}
-.top-game-controls {
-   display: block !important;
-   position: relative;
-   z-index: 2;
-   visibility: visible !important;
-}
-.top-game-controls .change-button {
-   display: block !important;
-   width: 100%;
-   min-height: 58px;
-   background: #1976d2;
-   color: #fff;
-   border-radius: 32px;
-   font-weight: 700;
-}
-.floating-hints-button {
-   display: block !important;
-   position: fixed !important;
-   z-index: 9999 !important;
-   right: 18px;
-   bottom: 18px;
-   background: #ffd12b;
-   color: #111;
-   border-radius: 32px;
-   box-shadow: 0 4px 15px #0003;
-}
-/* ======================================================
-   ESTADO AUTOMÁTICO Y BOTONES SIEMPRE ACCESIBLES
-\====================================================== */
-.exercise-pair.completed-pair {
-   background-color: #e8f5e9 !important;
-   border-color: #59b929 !important;
-}
-.exercise-pair .letter-slot.correct-letter {
-   background-color: #e2f3e4 !important;
-   color: #167b09 !important;
-   border-bottom-color: #43a047 !important;
-}
-.exercise-pair .letter-slot.wrong-letter {
-   background-color: #ffebee !important;
-   color: #c62828 !important;
-   border-bottom-color: #e53935 !important;
-}
-.top-game-controls {
-   display: block !important;
-   width: 100%;
-}
-.top-game-controls .change-button {
-   display: block !important;
-   width: 100%;
-}
-.floating-hints-button {
-   display: inline-flex !important;
-   align-items: center;
-   justify-content: center;
-}
-/* RESULTADOS Y TRAZABILIDAD */
-.result-summary {
-   display: flex;
-   gap: 12px;
-   flex-wrap: wrap;
-   justify-content: center;
-   margin: 20px 0
-}
-.result-stat {
-   flex: 1 1 230px;
-   border-radius: 30px;
-   padding: 13px 16px;
-   font-weight: 700;
-   font-size: 16px;
-   cursor: pointer
-}
-.errors-stat {
-   background: #ffebee;
-   border: 2px solid #ef5350;
-   color: #b71c1c
-}
-.correct-stat {
-   background: #e9f8df;
-   border: 2px solid #59b929;
-   color: #216d19
-}
-.result-action {
-   display: block;
-   width: min(100%, 380px);
-   min-height: 54px;
-   margin: 12px auto;
-   padding: 12px;
-   border: 0;
-   border-radius: 35px;
-   font-size: 18px;
-   font-weight: 800;
-   cursor: pointer
-}
-.save-score {
-   background: #ffc107;
-   color: #111
-}
-.play-again {
-   background: #50c900;
-   color: #111
-}
-.choose-category {
-   background: #1976d2;
-   color: white
-}
-.results-overlay {
-   position: fixed;
-   inset: 0;
-   z-index: 10001;
-   display: flex;
-   align-items: center;
-   justify-content: center;
-   padding: 15px;
-   background: #0009
-}
-.results-modal {
-   position: relative;
-   width: min(540px, 100%);
-   max-height: 85vh;
-   overflow-y: auto;
-   padding: 38px 20px 20px;
-   border-radius: 20px;
-   background: white;
-   text-align: center
-}
-.results-close {
-   position: absolute;
-   top: 8px;
-   right: 12px;
-   border: 0;
-   border-radius: 50%;
-   background: #e53935;
-   color: white;
-   width: 35px;
-   height: 35px;
-   font-size: 27px;
-   cursor: pointer
-}
-.result-word {
-   display: flex;
-   flex-wrap: wrap;
-   justify-content: space-between;
-   gap: 8px;
-   padding: 12px;
-   margin: 7px 0;
-   border-radius: 12px;
-   font-weight: 600
-}
-.error-word {
-   background: #ffebee;
-   border: 1px solid #ffcdd2
-}
-.correct-word {
-   background: #e3f2fd;
-   border: 1px solid #90caf9
-}
-.modal-back {
-   display: block;
-   width: min(100%, 220px);
-   margin: 16px auto 0;
-   padding: 12px;
-   border: 0;
-   border-radius: 25px;
-   background: #7425d8;
-   color: white;
-   font-weight: bold;
-   cursor: pointer
-}
-/* =========================================================
-   PRACTICAR MIS ERRORES
-\========================================================= */
-.practice-errors-button {
-   display: block;
-   width: 100%;
-   margin: 14px auto 0;
-   padding: 13px 18px;
-   border: 0;
-   border-radius: 26px;
-   background: #fb8500;
-   color: #111;
-   font-weight: 800;
-   cursor: pointer;
-}
-/* =========================================================
-   MODAL DE PISTAS - 5 SEGUNDOS, SOLO LECTURA
-\========================================================= */
-.hints-overlay {
-   position: fixed;
-   inset: 0;
-   z-index: 3000;
-   background: rgba(0, 0, 0, .55);
-   display: flex;
-   align-items: center;
-   justify-content: center;
-   padding: 16px;
-}
-.hints-modal {
-   position: relative;
-   width: min(600px, 100%);
-   max-height: 85vh;
-   overflow-y: auto;
-   padding: 32px 20px 22px;
-   border-radius: 20px;
-   background: white;
-   text-align: center;
-}
-.hints-modal h2 {
-   color: #4b9000;
-   margin: 0 0 12px;
-}
-.hints-modal p {
-   margin: 12px 0;
-}
-.hints-close {
-   position: absolute;
-   top: 10px;
-   right: 12px;
-   border: 0;
-   border-radius: 50%;
-   background: #ef4444;
-   color: white;
-   width: 35px;
-   height: 35px;
-   font-size: 22px;
-   cursor: pointer;
-}
-.hint-pair {
-   display: flex;
-   flex-wrap: wrap;
-   align-items: center;
-   justify-content: center;
-   gap: 12px;
-   margin: 10px 0;
-   padding: 12px;
-   border: 1px solid #83c441;
-   border-radius: 14px;
-   background: #f0f8e9;
-}
-.hint-pair span {
-   color: #5ba800;
-   font-size: 22px;
-}
-.hint-countdown {
-   color: #666;
-}
-.hints-back {
-   min-width: 160px;
-   padding: 12px 24px;
-   border: 0;
-   border-radius: 24px;
-   background: #7425d8;
-   color: white;
-   font-weight: 800;
-   cursor: pointer;
-}
-/* ======================================================
-   AJUSTES DEL PANEL Y VALIDACIÓN DE CATEGORÍAS
-\====================================================== */
-.category-warning {
-   background: #ffebeb;
-   color: #b32020;
-   border-radius: 12px;
-   padding: 14px 18px;
-   font-weight: 700;
-}
-/* ======================================================
-   RESULTADOS DE BÚSQUEDA
-\====================================================== */
-.search-results {
-   display: grid;
-   grid-template-columns: repeat(2, minmax(0, 1fr));
-   gap: 12px;
-   margin-top: 15px;
-}
-.search-result {
-   min-width: 0;
-   overflow-wrap: anywhere;
-   font-size: 20px;
-}
-.search-result-right {
-   color: #55b900;
-}
-/* ======================================================
-   RESPONSIVE - TABLET Y PANTALLAS MEDIANAS
-   HASTA 1200px: PAREJAS EN VERTICAL
-\====================================================== */
-@media (max-width: 1200px) {
-   .exercise-pair {
-      grid-template-columns: 55px minmax(0, 1fr) 55px;
-      grid-template-areas:
-         "number image status"
-         ". left ."
-         ". arrow ."
-         ". right .";
-      align-items: center;
-      width: 100%;
-      min-width: 0;
-      gap: 12px;
-      padding: 15px 10px;
-      margin-bottom: 15px;
-   }
-   .pair-number {
-      grid-area: number;
-      align-self: start;
-      justify-self: center;
-   }
-   .pair-image {
-      grid-area: image;
-      justify-self: center;
-      align-items: center;
-   }
-   .left-word {
-      grid-area: left;
-   }
-   .right-word {
-      grid-area: right;
-   }
-   .pair-status {
-      grid-area: status;
-      align-self: start;
-      justify-self: center;
-   }
-   .image-thumbnail {
-      width: 75px;
-      height: 75px;
-   }
-   .word-section {
-      display: flex;
-      flex-direction: column;
-      width: 100%;
-      min-width: 0;
-      gap: 12px;
-   }
-   .letter-row {
-      display: grid;
-      grid-template-columns: repeat(var(--cell-count), minmax(0, 1fr));
-      align-items: center;
-      width: 100%;
-      min-width: 0;
-      gap: 3px;
-   }
-   .letter-slot,
-   .visible-letter,
-   .visible-letter1 {
-      width: 100%;
-      min-width: 0;
-      height: 55px;
-      font-size: clamp(12px, 2vw, 24px);
-      text-align: center;
-   }
-   .pair-arrow {
-      grid-area: arrow;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 28px;
-      line-height: 1;
-      transform: rotate(90deg);
-      margin: 0;
-      pointer-events: none;
-      user-select: none;
-      z-index: 0;
-   }
-   .letter-bank {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      align-items: center;
-      width: 100%;
-      min-width: 0;
-      gap: 5px;
-      position: relative;
-      z-index: 2;
-   }
-   .bank-letter {
-      min-width: 95px;
-      height: 42px;
-      font-size: 18px;
-      pointer-events: auto;
-      cursor: pointer;
-   }
-}
-/* ======================================================
-   RESPONSIVE - TABLET PEQUEÑA
-   HASTA 800px
-\====================================================== */
-@media (max-width: 800px) {
-   .exercise-pair {
-      grid-template-columns: 40px minmax(0, 1fr) 40px;
-      gap: 10px;
-      padding: 12px 8px;
-   }
-   .exercise-number {
-      width: 36px;
-      height: 36px;
-   }
-   .image-thumbnail {
-      width: 70px;
-      height: 70px;
-   }
-   .word-section {
-      gap: 10px;
-   }
-   .letter-row {
-      gap: 2px;
-   }
-   .letter-slot,
-   .visible-letter,
-   .visible-letter1 {
-      height: 48px;
-      font-size: clamp(11px, 2.5vw, 20px);
-   }
-   /* .visible-letter,.visible-letter1 {
-      width: 4px;
-   } */
-   .bank-letter {
-      min-width: 94px;
-      height: 40px;
-      font-size: 17px;
-   }
-   .pair-arrow {
-      font-size: 26px;
-   }
-}
-/* ======================================================
-   RESPONSIVE - CELULARES
-   HASTA 600px
-\====================================================== */
-@media (max-width: 600px) {
-   .game-container {
-      padding: 6px;
-   }
-   .category-selector,
-   .setup-card {
-      padding: 14px;
-   }
-   .setup-grid {
-      gap: 12px;
-   }
-   .field label {
-      font-size: 16px;
-   }
-   .field small {
-      font-size: 12px;
-   }
-   .exercise-pair {
-      grid-template-columns: 32px minmax(0, 1fr) 32px;
-      gap: 8px;
-      padding: 12px 6px;
-   }
-   .exercise-number {
-      width: 30px;
-      height: 30px;
-      font-size: 14px;
-   }
-   .image-thumbnail {
-      width: 65px;
-      height: 65px;
-   }
-   .word-section {
-      gap: 8px;
-   }
-   .letter-row {
-      gap: 2px;
-   }
-   .letter-slot,
-   .visible-letter,
-   .visible-letter1 {
-      height: 43px;
-      font-size: clamp(10px, 3vw, 17px);
-   }
-   .letter-bank {
-      gap: 4px;
-   }
-   .bank-letter {
-      min-width: 80px;
-      height: 38px;
-      padding: 3px 5px;
-      font-size: 16px;
-   }
-   .pair-arrow {
-      font-size: 25px;
-   }
-   .search-results {
-      grid-template-columns: 1fr;
-   }
-   .floating-hints-button,
-   .hints-button {
-      right: 10px;
-      bottom: 10px;
-   }
-   .floating-hints-button {
-      padding: 12px 18px;
-   }
-}
-/* ======================================================
-   RESPONSIVE - CELULARES MUY PEQUEÑOS
-   HASTA 390px
-\====================================================== */
-@media (max-width: 390px) {
-   .exercise-pair {
-      grid-template-columns: 28px minmax(0, 1fr) 28px;
-      gap: 5px;
-      padding: 10px 4px;
-   }
-   .exercise-number {
-      width: 27px;
-      height: 27px;
-      font-size: 12px;
-   }
-   .image-thumbnail {
-      width: 55px;
-      height: 55px;
-   }
-   .letter-row {
-      gap: 1px;
-   }
-   .letter-slot,
-   .visible-letter,
-   .visible-letter1 {
-      height: 38px;
-      font-size: 10px;
-   }
-   .letter-bank {
-      gap: 3px;
-   }
-   .bank-letter {
-      min-width: 65px;
-      height: 36px;
-      font-size: 14px;
-   }
-   .pair-arrow {
-      font-size: 23px;
-   }
-}
-@media print {
-   .category-selector,
-   .setup-card,
-   .hints-button,
-   .page-navigation,
-   .change-button,
-   .letter-bank,
-   .image-overlay {
-      display: none !important;
-   }
-   .exercise-pair {
-      break-inside: avoid;
-   }
-}
-/* ======================================================
-   FOCO AUTOMÁTICO Y VISUAL DE LA CASILLA ACTIVA
+   ENCABEZADO DE COLUMNAS
 ====================================================== */
-.exercise-pair .letter-slot.casilla-activa:not(:disabled) {
-   outline: 3px solid #e53935;
-   outline-offset: 2px;
-   position: relative;
-   z-index: 3;
+.exercise-header {
+  display: grid;
+  grid-template-columns: 55px minmax(0, 1fr) 70px minmax(0, 1fr) 55px;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 12px;
+  padding: 12px 20px;
+  font-weight: bold;
+  font-size: 20px;
 }
 
-.exercise-pair .letter-slot.casilla-activa:focus:not(:disabled) {
-   outline: 3px solid #e53935;
-   outline-offset: 2px;
+.column-header {
+  text-align: center;
+  color: #398900;
+}
+
+.exercise-list {
+  width: 100%;
+}
+
+/* ======================================================
+   CADA FILA
+====================================================== */
+.exercise-pair {
+  display: grid;
+  grid-template-columns: 55px minmax(0, 1fr) 70px minmax(0, 1fr) 55px;
+  align-items: center;
+  gap: 15px;
+  min-height: 85px;
+  margin-bottom: 12px;
+  padding: 12px 20px;
+  border: 2px solid #dce8d0;
+  border-radius: 18px;
+  background: white;
+}
+
+/* ======================================================
+   NÚMERO
+====================================================== */
+.exercise-number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #67b70f;
+  color: black;
+  font-weight: bold;
+}
+
+/* ======================================================
+   COLUMNA DE PALABRA
+====================================================== */
+.word-section {
+  display: flex;
+  justify-content: center;
+  min-width: 0;
+}
+
+.letter-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: nowrap;
+}
+
+/* ======================================================
+   LETRAS VISIBLES
+====================================================== */
+.visible-letter,
+.visible-letter1 {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  /* width: 38px; */
+  height: 45px;
+  font-size: 24px;
+  font-weight: bold;
+  text-transform: lowercase;
+}
+
+/* ======================================================
+   ESPACIOS PARA ESCRIBIR
+   OPTIMIZADO PARA PC, TABLET Y CELULAR
+====================================================== */
+.letter-input {
+  width: 60px;
+  height: 50px;
+
+  min-height: 48px;
+  flex-shrink: 0;
+  box-sizing: border-box;
+
+  display: inline-block;
+  padding: 0;
+  margin: 0;
+
+  text-align: center;
+  font-size: 23px;
+  font-weight: bold;
+  line-height: normal;
+
+  border: none;
+  border-bottom: 3px solid #555;
+  outline: none;
+
+  background: #f5f5f5;
+  border-radius: 5px 5px 0 0;
+
+  cursor: text;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+
+  position: relative;
+  z-index: 2;
+
+  pointer-events: auto;
+  cursor: text;
+}
+
+/* ======================================================
+   INPUT SELECCIONADO
+====================================================== */
+.letter-input:focus {
+  border-bottom-color: #1976d2;
+  background: #e3f2fd;
+}
+
+/* ======================================================
+   FLECHA CENTRAL
+   NO BLOQUEAR LOS INPUTS
+====================================================== */
+.pair-arrow {
+  text-align: center;
+  font-size: 40px;
+  font-weight: bold;
+  color: #398900;
+
+  pointer-events: none;
+  user-select: none;
+
+  position: relative;
+  z-index: 0;
+}
+
+/* ======================================================
+   RESPUESTAS
+====================================================== */
+.letter-input.correct-letter {
+  background: #e8f5e9;
+  border-bottom-color: #4caf50;
+  color: #2e7d32;
+}
+
+.letter-input.wrong-letter {
+  background: #ffebee;
+  border-bottom-color: #e53935;
+  color: #c62828;
+}
+
+/* ======================================================
+   PAREJA COMPLETADA
+====================================================== */
+.completed-pair {
+  background: #f1f8e9;
+  border-color: #67b70f;
+}
+
+.completed-icon {
+  text-align: center;
+  font-size: 25px;
+}
+
+/* =========================================================
+   RESPONSIVE - TABLET
+   ========================================================= */
+@media (max-width: 1200px) {
+
+  .exercise-header {
+    grid-template-columns: 45px minmax(0, 1fr) 60px minmax(0, 1fr) 45px;
+    gap: 10px;
+  }
+
+  /* ---------------------------------------------------------
+     CADA PAREJA SE ORGANIZA VERTICALMENTE
+     --------------------------------------------------------- */
+  .exercise-pair {
+    display: grid;
+    grid-template-columns: 35px minmax(0, 1fr) 35px;
+    grid-template-areas:
+      "number left status"
+      ". arrow ."
+      ". right .";
+    width: 100%;
+    min-height: auto;
+    padding: 14px 8px;
+    margin-bottom: 14px;
+    gap: 7px;
+    border-radius: 18px;
+  }
+
+  /* ======================================================
+   FLECHA VERTICAL
+   NO INTERFIERE CON LOS CAMPOS
+====================================================== */
+  .pair-arrow {
+    grid-area: arrow;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 100%;
+    height: 24px;
+
+    font-size: 25px;
+    line-height: 1;
+
+    transform: rotate(90deg);
+    margin: 0;
+
+    pointer-events: none;
+    user-select: none;
+
+    position: relative;
+    z-index: 0;
+  }
+
+  /* PAREJA */
+  .right-word {
+    grid-area: right;
+  }
+
+  .letter-input {
+    font-size: 25px;
+  }
+
+  .visible-letter,
+  .visible-letter1 {
+    height: 40px;
+    width: 18px;
+  }
+}
+
+@media (max-width: 900px) {
+
+  .exercise-header {
+    grid-template-columns: 40px minmax(0, 1fr) 45px minmax(0, 1fr) 40px;
+    gap: 8px;
+  }
+
+  .letter-row {
+    gap: 3px;
+  }
+
+  .pair-arrow {
+    font-size: 30px;
+  }
+
+  .visible-letter,
+  .visible-letter1 {
+    height: 38px;
+    width: 15px;
+  }
+}
+
+/* ======================================================
+   PANTALLAS PEQUEÑAS
+====================================================== */
+@media (max-width: 800px) {
+  .exercise-header {
+    grid-template-columns: 30px minmax(0, 1fr) 35px minmax(0, 1fr) 30px;
+    gap: 5px;
+    padding-left: 5px;
+    padding-right: 5px;
+  }
+
+  .result-statistics {
+    flex-direction: column;
+  }
+
+  /* Número */
+  .pair-number {
+    grid-area: number;
+    align-self: start;
+    text-align: center;
+    font-size: 16px;
+    font-weight: bold;
+  }
+
+  /* VERBO */
+  .left-word {
+    grid-area: left;
+  }
+
+  /* Estado correcto */
+  .pair-status {
+    grid-area: status;
+    align-self: start;
+    text-align: center;
+  }
+
+  /* ---------------------------------------------------------
+     PALABRAS
+     --------------------------------------------------------- */
+  .word-section {
+    width: 100%;
+    min-width: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .letter-row {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1px;
+    flex-wrap: nowrap;
+  }
+}
+
+/* =========================================================
+   RESPONSIVE - CELULAR
+   ========================================================= */
+@media (max-width: 600px) {
+
+  /* ---------------------------------------------------------
+     LETRAS
+     --------------------------------------------------------- */
+  .visible-letter {
+    width: 5px;
+  }
+
+  .visible-letter1 {
+    width: 15px;
+    height: 45px;
+  }
+
+  .letter-input {
+    width: 43px;
+    height: 50px;
+    min-height: 50px;
+
+    padding: 0;
+    text-align: center;
+
+    font-size: 23px;
+    touch-action: manipulation;
+  }
+}
+
+/* =========================================================
+   CELULARES MUY PEQUEÑOS
+========================================================= */
+@media (max-width: 350px) {
+
+  .exercise-pair {
+    grid-template-columns: 28px minmax(0, 1fr) 28px;
+    padding: 12px 4px;
+  }
+
+  .letter-row {
+    gap: 1px;
+  }
+
+  .visible-letter,
+  .visible-letter1 {
+    width: 18px;
+    height: 42px;
+  }
+
+  .letter-input {
+    width: 48px;
+    height: 48px;
+    min-height: 48px;
+
+    padding: 0;
+    font-size: 22px;
+    text-align: center;
+  }
+}
+
+/* =========================================================
+   ESTADO / ESTADÍSTICAS DEL JUEGO
+========================================================= */
+
+/* =========================================================
+   MENSAJE CAMBIO DE PANTALLA
+========================================================= */
+.changing-page-message {
+  width: fit-content;
+  margin: 15px auto;
+  padding: 10px 18px;
+  background: #f1f8e9;
+  border: 1px solid #cde5ba;
+  border-radius: 20px;
+  color: black;
+  font-size: 15px;
+  font-weight: 600;
+  text-align: center;
+}
+
+/* =========================================================
+   ESTADÍSTICAS DEL RESULTADO
+========================================================= */
+.result-statistics {
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin: 22px 0;
+}
+
+/* ======================================================
+   EVITAR QUE LA FLECHA BLOQUEE LOS INPUTS
+   PC - TABLET - CELULAR
+====================================================== */
+
+.exercise-pair .pair-arrow {
+  pointer-events: none !important;
+}
+
+.exercise-pair .word-section {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+}
+
+.exercise-pair .letter-input {
+  position: relative;
+  z-index: 2;
+  pointer-events: auto;
+}
+
+/* La flecha es visual y no intercepta clics en las letras. */
+.exercise-pair .pair-arrow {
+  pointer-events: none !important;
+}
+
+.exercise-pair .word-section {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+}
+
+.exercise-pair .letter-input {
+  position: relative;
+  z-index: 2;
+  pointer-events: auto;
+}
+
+/* =========================================================
+   UIX ORDENAR PALABRAS: IMAGEN, BANCO DE LETRAS Y MODAL
+   Añadido sin reemplazar los estilos anteriores.
+========================================================= */
+.exercise-pair .exercise-image-button {
+  grid-column: 1 / -1;
+  justify-self: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  background: #fff;
+  cursor: zoom-in;
+  width: 186px;
+  height: 86px;
+}
+
+.exercise-pair .exercise-thumbnail {
+  width: 100%;
+  height: 65px;
+  object-fit: cover; /* Llena el ancho y alto del cajón */
+  object-position: center;
+  display: block;
+  border-radius: inherit;
+}
+
+.exercise-pair .word-section {
+  flex-direction: column;
+  gap: 10px;
+}
+
+.exercise-pair .letter-bank {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 5px;
+  width: 100%;
+}
+
+.exercise-pair .letter-bank-tile {
+  min-width: 60px;
+  min-height: 40px;
+  padding: 6px 10px;
+  border: 1px solid black;
+  border-radius: 10px;
+  background: #f3f9ee;
+  color: #386b20;
+  font-size: 24px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.exercise-pair .letter-bank-tile.used {
+  opacity: .3;
+  cursor: default;
+}
+
+.exercise-pair .letter-input.selected-slot {
+  outline: 2px solid #1976d2;
+  outline-offset: 1px;
+}
+
+.exercise-image-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 12000;
+  background: rgba(0, 0, 0, .7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.exercise-image-modal {
+  position: relative;
+  background: white;
+  border-radius: 16px;
+  padding: 36px 18px 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  max-width: min(92vw, 750px);
+  max-height: 90vh;
+}
+
+.exercise-image-modal img {
+  max-width: 100%;
+  max-height: 70vh;
+  object-fit: contain;
+}
+
+.exercise-image-close {
+  position: absolute;
+  top: 4px;
+  right: 8px;
+  border: 0;
+  background: #e53935;
+  color: white;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+}
+
+@media (min-width: 1201px) {
+  .exercise-pair .exercise-image-button {
+    grid-column: auto;
+    grid-row: auto;
+    width: 175px;
+    height: 75px;
+  }
+
+  /* En escritorio, la imagen ocupa una fila propia para preservar columnas de palabras. */
+  .exercise-pair .exercise-image-button {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 900px) {
+  .exercise-pair .exercise-image-button {
+    width: 170px;
+    height: 70px;
+  }
+
+  .exercise-pair .letter-bank-tile {
+    min-width: 54px;
+    /* min-height: 36px; */
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 600px) {
+  .exercise-pair .exercise-image-button {
+    width: 154px;
+    height: 54px;
+  }
+
+  .exercise-pair .letter-bank-tile {
+    min-width: 40px;
+    /* min-height: 34px; */
+    padding: 5px 7px;
+    font-size: 15px;
+  }
+}
+
+/* La imagen se posiciona sin ocupar una celda del grid del ejercicio. */
+.exercise-pair {
+  position: relative;
+  padding-top: 100px;
+}
+
+.exercise-pair .exercise-image-button {
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  grid-column: auto;
+}
+
+@media (max-width: 900px) {
+  .exercise-pair {
+    padding-top: 84px;
+  }
+}
+
+@media (max-width: 600px) {
+  .exercise-pair {
+    padding-top: 68px;
+  }
 }

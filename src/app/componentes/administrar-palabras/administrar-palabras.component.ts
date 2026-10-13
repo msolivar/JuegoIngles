@@ -457,14 +457,15 @@ export class AdministrarPalabrasComponent {
     // =====================================================
     this.loadForEdit(pair);
   }
-  
+
   // =========================================================
   // ELIMINAR TILDES DE UN TEXTO
   // =========================================================
   private quitarTildes(texto: string): string {
     return texto
       .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '');
+      .replace(/(?!\u0303)[\u0300-\u036f]/g, '')
+      .normalize('NFC');
   }
 
   // =========================================================
@@ -509,28 +510,36 @@ export class AdministrarPalabrasComponent {
     // NORMALIZAR VERBO - SIN TILDES
     // =========================================================
     const left = this.quitarTildes(
-      String(formValue.left || '').trim().toLowerCase()
+      String(formValue.left || '')
+        .trim()
+        .toLowerCase(),
     );
 
     // =========================================================
     // NORMALIZAR PAREJA - SIN TILDES
     // =========================================================
     const right = this.quitarTildes(
-      String(formValue.right || '').trim().toLowerCase()
+      String(formValue.right || '')
+        .trim()
+        .toLowerCase(),
     );
 
     // =========================================================
     // NORMALIZAR SIGNIFICADO - SIN TILDES
     // =========================================================
     const meaning = this.quitarTildes(
-      String(formValue.meaning || '').trim().toLowerCase()
+      String(formValue.meaning || '')
+        .trim()
+        .toLowerCase(),
     );
 
     // =========================================================
     // NORMALIZAR CATEGORÍA - SIN TILDES
     // =========================================================
     const categoriaPalabra = this.quitarTildes(
-      String(formValue.categoriaPalabra || '').trim().toLowerCase()
+      String(formValue.categoriaPalabra || '')
+        .trim()
+        .toLowerCase(),
     );
 
     // =====================================================
