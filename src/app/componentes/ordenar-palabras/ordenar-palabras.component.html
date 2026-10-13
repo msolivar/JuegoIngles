@@ -363,8 +363,8 @@
                     changingPage ||
                     gameFinished ||
                     showHints" [(ngModel)]="cell.value" (focus)="isFirstHiddenCellIndex(exercise.leftCells, cellIndex) 
-                  && playAudio(exercise.leftOriginal, 'en-US')" (input)="onLetterInput(cell, $event, exercise)"
-                  autocomplete="off" />
+                  && playAudio(exercise.leftOriginal, 'en-US')" 
+                  autocomplete="off" readonly inputmode="none" />
               </ng-container>
             </div>
             <div class="letter-bank" aria-label="Letras disponibles">
@@ -406,7 +406,7 @@
                     gameFinished ||
                     showHints" [(ngModel)]="cell.value" (focus)="isFirstHiddenCellIndex(exercise.rightCells, cellIndex) 
                   && playAudio(exercise.rightOriginal, reviewType === 'meaning'? 'es-ES' : 'en-US')"
-                  (input)="onLetterInput(cell, $event, exercise)" autocomplete="off" />
+                   autocomplete="off" readonly inputmode="none" />
               </ng-container>
             </div>
             <div class="letter-bank" aria-label="Letras disponibles">
