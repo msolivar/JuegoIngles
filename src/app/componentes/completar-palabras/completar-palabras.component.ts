@@ -634,7 +634,6 @@ export class CompletarPalabrasComponent {
     this.pages = this.chunk(this.exercises, this.wordsPerPage);
 
     // =====================================================
-
     // FOCO AUTOMÁTICO
     // =====================================================
     setTimeout(() => {
