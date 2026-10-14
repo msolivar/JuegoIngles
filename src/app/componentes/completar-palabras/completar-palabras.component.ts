@@ -677,7 +677,7 @@ export class CompletarPalabrasComponent {
       );
 
       if (firstInput) {
-        firstInput.focus();
+        this.focusNextLetter(firstInput);
         firstInput.select();
       }
     }, 150);
@@ -1228,7 +1228,7 @@ export class CompletarPalabrasComponent {
         );
 
         if (firstInput) {
-          firstInput.focus();
+          this.focusNextLetter(firstInput);
           firstInput.select();
         }
       }, 150);

@@ -52,37 +52,37 @@ interface ExercisePair {
 })
 export class OrdenarPalabrasComponent {
 
-  // =========================================================
-  // MANTENER VER PISTAS VISIBLE CON TECLADO MÓVIL
-  // =========================================================
-  private readonly actualizarPosicionPistas = (): void => {
-    const viewport = window.visualViewport;
-    if (!viewport) return;
+  // // =========================================================
+  // // MANTENER VER PISTAS VISIBLE CON TECLADO MÓVIL
+  // // =========================================================
+  // private readonly actualizarPosicionPistas = (): void => {
+  //   const viewport = window.visualViewport;
+  //   if (!viewport) return;
 
-    // Distancia cubierta por el teclado respecto al viewport de diseño.
-    const espacioCubierto = Math.max(
-      0,
-      window.innerHeight - viewport.height - viewport.offsetTop,
-    );
-    document.documentElement.style.setProperty(
-      '--pistas-teclado-offset',
-      `${Math.round(espacioCubierto)}px`,
-    );
-  };
+  //   // Distancia cubierta por el teclado respecto al viewport de diseño.
+  //   const espacioCubierto = Math.max(
+  //     0,
+  //     window.innerHeight - viewport.height - viewport.offsetTop,
+  //   );
+  //   document.documentElement.style.setProperty(
+  //     '--pistas-teclado-offset',
+  //     `${Math.round(espacioCubierto)}px`,
+  //   );
+  // };
 
-  ngOnInit(): void {
-    window.visualViewport?.addEventListener('resize', this.actualizarPosicionPistas);
-    window.visualViewport?.addEventListener('scroll', this.actualizarPosicionPistas);
-    window.addEventListener('resize', this.actualizarPosicionPistas);
-    this.actualizarPosicionPistas();
-  }
+  // ngOnInit(): void {
+  //   window.visualViewport?.addEventListener('resize', this.actualizarPosicionPistas);
+  //   window.visualViewport?.addEventListener('scroll', this.actualizarPosicionPistas);
+  //   window.addEventListener('resize', this.actualizarPosicionPistas);
+  //   this.actualizarPosicionPistas();
+  // }
 
-  ngOnDestroy(): void {
-    window.visualViewport?.removeEventListener('resize', this.actualizarPosicionPistas);
-    window.visualViewport?.removeEventListener('scroll', this.actualizarPosicionPistas);
-    window.removeEventListener('resize', this.actualizarPosicionPistas);
-    document.documentElement.style.removeProperty('--pistas-teclado-offset');
-  }
+  // ngOnDestroy(): void {
+  //   window.visualViewport?.removeEventListener('resize', this.actualizarPosicionPistas);
+  //   window.visualViewport?.removeEventListener('scroll', this.actualizarPosicionPistas);
+  //   window.removeEventListener('resize', this.actualizarPosicionPistas);
+  //   document.documentElement.style.removeProperty('--pistas-teclado-offset');
+  // }
 
   // =========================================================
   // TODAS LAS PALABRAS DE FIREBASE
@@ -682,17 +682,14 @@ export class OrdenarPalabrasComponent {
     // FOCO INICIAL: PRIMERA PALABRA DE LA PRIMERA PAREJA
     // =========================================================
     this.selectedSlot = null;
-    // =========================================================
-    // FOCO INICIAL: PRIMERA PALABRA DE LA PRIMERA PAREJA
-    // =========================================================
-    this.selectedSlot = null;
+
     setTimeout(() => {
       const firstInput = document.querySelector<HTMLInputElement>(
         '.letter-input:not(:disabled)',
       );
 
       if (firstInput) {
-        firstInput.focus();
+        this.focusNextLetter(firstInput);
         firstInput.select();
       }
     }, 150);
@@ -1260,7 +1257,7 @@ export class OrdenarPalabrasComponent {
           );
 
           if (firstInput) {
-            firstInput.focus();
+            this.focusNextLetter(firstInput);
             firstInput.select();
           }
         }
@@ -1513,7 +1510,7 @@ export class OrdenarPalabrasComponent {
         );
 
         if (firstInput) {
-          firstInput.focus();
+          this.focusNextLetter(firstInput);
           firstInput.select();
         }
       }, 150);

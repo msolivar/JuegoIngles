@@ -1,0 +1,6 @@
+/* ======================================================
+   BOTÓN DE PISTAS ALTO
+====================================================== */
+.hint-button-container {
+    bottom: calc(235px + var(--pistas-teclado-offset, 0px));
+}
