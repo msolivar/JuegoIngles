@@ -51,6 +51,39 @@ interface ExercisePair {
   styleUrls: ['./ordenar-palabras.component.css'],
 })
 export class OrdenarPalabrasComponent {
+
+  // =========================================================
+  // MANTENER VER PISTAS VISIBLE CON TECLADO MÓVIL
+  // =========================================================
+  private readonly actualizarPosicionPistas = (): void => {
+    const viewport = window.visualViewport;
+    if (!viewport) return;
+
+    // Distancia cubierta por el teclado respecto al viewport de diseño.
+    const espacioCubierto = Math.max(
+      0,
+      window.innerHeight - viewport.height - viewport.offsetTop,
+    );
+    document.documentElement.style.setProperty(
+      '--pistas-teclado-offset',
+      `${Math.round(espacioCubierto)}px`,
+    );
+  };
+
+  ngOnInit(): void {
+    window.visualViewport?.addEventListener('resize', this.actualizarPosicionPistas);
+    window.visualViewport?.addEventListener('scroll', this.actualizarPosicionPistas);
+    window.addEventListener('resize', this.actualizarPosicionPistas);
+    this.actualizarPosicionPistas();
+  }
+
+  ngOnDestroy(): void {
+    window.visualViewport?.removeEventListener('resize', this.actualizarPosicionPistas);
+    window.visualViewport?.removeEventListener('scroll', this.actualizarPosicionPistas);
+    window.removeEventListener('resize', this.actualizarPosicionPistas);
+    document.documentElement.style.removeProperty('--pistas-teclado-offset');
+  }
+
   // =========================================================
   // TODAS LAS PALABRAS DE FIREBASE
   // =========================================================
@@ -649,23 +682,19 @@ export class OrdenarPalabrasComponent {
     // FOCO INICIAL: PRIMERA PALABRA DE LA PRIMERA PAREJA
     // =========================================================
     this.selectedSlot = null;
+    // =========================================================
+    // FOCO INICIAL: PRIMERA PALABRA DE LA PRIMERA PAREJA
+    // =========================================================
+    this.selectedSlot = null;
     setTimeout(() => {
-      if (!this.gameStarted || this.gameFinished || this.changingPage || this.showHints) return;
-
-      const primeraPareja = this.pages[0]?.[0];
-      if (!primeraPareja || primeraPareja.completed || this.currentPage !== 0) return;
-
-      const primerIndice = primeraPareja.leftCells.findIndex(
-        (cell) => cell.hidden && !cell.isSpace && cell.correct !== true,
+      const firstInput = document.querySelector<HTMLInputElement>(
+        '.letter-input:not(:disabled)',
       );
-      if (primerIndice < 0) return;
 
-      this.selectedSlot = {
-        exerciseId: primeraPareja.id,
-        side: 'left',
-        index: primerIndice,
-      };
-      this.enfocarSlotSeleccionado();
+      if (firstInput) {
+        firstInput.focus();
+        firstInput.select();
+      }
     }, 150);
   }
 
@@ -883,14 +912,27 @@ export class OrdenarPalabrasComponent {
     const visibles = this.pages[this.currentPage] ?? [];
     if (!visibles.length) return;
 
-    const seleccionar = (ejercicio: ExercisePair, lado: 'left' | 'right', desde = 0): boolean => {
+    const seleccionar = (
+      ejercicio: ExercisePair,
+      lado: 'left' | 'right',
+      desde = 0,
+    ): boolean => {
       if (ejercicio.completed) return false;
-      const celdas = lado === 'left' ? ejercicio.leftCells : ejercicio.rightCells;
-      const indice = celdas.findIndex((celda, i) =>
-        i >= desde && celda.hidden && !celda.isSpace && celda.correct !== true,
+      const celdas =
+        lado === 'left' ? ejercicio.leftCells : ejercicio.rightCells;
+      const indice = celdas.findIndex(
+        (celda, i) =>
+          i >= desde &&
+          celda.hidden &&
+          !celda.isSpace &&
+          celda.correct !== true,
       );
       if (indice < 0) return false;
-      this.selectedSlot = { exerciseId: ejercicio.id, side: lado, index: indice };
+      this.selectedSlot = {
+        exerciseId: ejercicio.id,
+        side: lado,
+        index: indice,
+      };
       this.enfocarSlotSeleccionado();
       return true;
     };
@@ -900,7 +942,8 @@ export class OrdenarPalabrasComponent {
       if (ladoActual) {
         if (seleccionar(actual, ladoActual, indiceActual + 1)) return;
         if (seleccionar(actual, ladoActual, 0)) return;
-        if (seleccionar(actual, ladoActual === 'left' ? 'right' : 'left')) return;
+        if (seleccionar(actual, ladoActual === 'left' ? 'right' : 'left'))
+          return;
       } else {
         if (seleccionar(actual, 'left') || seleccionar(actual, 'right')) return;
       }
@@ -910,7 +953,8 @@ export class OrdenarPalabrasComponent {
     const inicio = actual ? Math.max(0, visibles.indexOf(actual) + 1) : 0;
     const orden = [...visibles.slice(inicio), ...visibles.slice(0, inicio)];
     for (const ejercicio of orden) {
-      if (seleccionar(ejercicio, 'left') || seleccionar(ejercicio, 'right')) return;
+      if (seleccionar(ejercicio, 'left') || seleccionar(ejercicio, 'right'))
+        return;
     }
     this.selectedSlot = null;
   }
@@ -1076,7 +1120,9 @@ export class OrdenarPalabrasComponent {
       // =======================================================
       // ESPERAR A QUE ANGULAR ACTUALICE LOS INPUTS
       // =======================================================
-      const indiceCelda = (side === 'left' ? exercise.leftCells : exercise.rightCells).indexOf(cell);
+      const indiceCelda = (
+        side === 'left' ? exercise.leftCells : exercise.rightCells
+      ).indexOf(cell);
       setTimeout(() => {
         if (!this.gameFinished && !this.changingPage && !exercise.completed) {
           this.enfocarSiguientePendiente(exercise, side, indiceCelda);
@@ -1209,7 +1255,14 @@ export class OrdenarPalabrasComponent {
       // Enfocar la siguiente pareja si continúa la misma pantalla.
       setTimeout(() => {
         if (!this.gameFinished && !this.changingPage) {
-          this.enfocarSiguientePendiente(exercise);
+          const firstInput = document.querySelector<HTMLInputElement>(
+            '.letter-input:not(:disabled)',
+          );
+
+          if (firstInput) {
+            firstInput.focus();
+            firstInput.select();
+          }
         }
       }, 100);
     }

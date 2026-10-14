@@ -277,7 +277,7 @@
 .hint-button-container {
   position: fixed;
   right: 25px;
-  bottom: 25px;
+  bottom: calc(25px + var(--pistas-teclado-offset, 0px));
   z-index: 9999;
   margin: 0;
 }
