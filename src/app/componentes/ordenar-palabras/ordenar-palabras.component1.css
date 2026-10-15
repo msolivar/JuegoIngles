@@ -1,0 +1,54 @@
+/* =========================================================
+   UIX ORDENAR PALABRAS: IMAGEN, BANCO DE LETRAS Y MODAL
+   Añadido sin reemplazar los estilos anteriores.
+========================================================= */
+.exercise-pair .word-section {
+  flex-direction: column;
+  gap: 10px;
+}
+
+.exercise-pair .letter-bank {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 5px;
+  width: 100%;
+}
+
+.exercise-pair .letter-bank-tile {
+  min-width: 60px;
+  min-height: 40px;
+  padding: 6px 10px;
+  border: 1px solid black;
+  border-radius: 10px;
+  background: #f3f9ee;
+  color: #386b20;
+  font-size: 24px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.exercise-pair .letter-bank-tile.used {
+  opacity: .3;
+  cursor: default;
+}
+
+.exercise-pair .letter-input.selected-slot {
+  outline: 2px solid #1976d2;
+  outline-offset: 1px;
+}
+
+@media (max-width: 900px) {
+  .exercise-pair .letter-bank-tile {
+    min-width: 54px;
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 600px) {
+  .exercise-pair .letter-bank-tile {
+    min-width: 40px;
+    padding: 5px 7px;
+    font-size: 24px;
+  }
+}

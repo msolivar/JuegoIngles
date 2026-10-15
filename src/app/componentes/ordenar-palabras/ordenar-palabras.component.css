@@ -2,31 +2,6 @@
    UIX ORDENAR PALABRAS: IMAGEN, BANCO DE LETRAS Y MODAL
    Añadido sin reemplazar los estilos anteriores.
 ========================================================= */
-.exercise-pair .exercise-image-button {
-  grid-column: 1 / -1;
-  justify-self: center;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 4px;
-  border: 1px solid #ddd;
-  border-radius: 12px;
-  background: #fff;
-  cursor: zoom-in;
-  width: 186px;
-  height: 86px;
-}
-
-.exercise-pair .exercise-thumbnail {
-  width: 100%;
-  height: 65px;
-  object-fit: cover;
-  /* Llena el ancho y alto del cajón */
-  object-position: center;
-  display: block;
-  border-radius: inherit;
-}
-
 .exercise-pair .word-section {
   flex-direction: column;
   gap: 10px;
@@ -63,113 +38,17 @@
   outline-offset: 1px;
 }
 
-.exercise-image-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 12000;
-  background: rgba(0, 0, 0, .7);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-}
-
-.exercise-image-modal {
-  position: relative;
-  background: white;
-  border-radius: 16px;
-  padding: 36px 18px 18px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  max-width: min(92vw, 750px);
-  max-height: 90vh;
-}
-
-.exercise-image-modal img {
-  max-width: 100%;
-  max-height: 70vh;
-  object-fit: contain;
-}
-
-.exercise-image-modal strong{
-  text-transform: capitalize;
-}
-
-.exercise-image-close {
-  position: absolute;
-  top: 4px;
-  right: 8px;
-  border: 0;
-  background: #e53935;
-  color: white;
-  border-radius: 50%;
-  width: 30px;
-  height: 30px;
-  cursor: pointer;
-}
-
-@media (min-width: 1201px) {
-  .exercise-pair .exercise-image-button {
-    grid-column: auto;
-    grid-row: auto;
-    width: 175px;
-    height: 75px;
-  }
-
-  /* En escritorio, la imagen ocupa una fila propia para preservar columnas de palabras. */
-  .exercise-pair .exercise-image-button {
-    grid-column: 1 / -1;
-  }
-}
-
 @media (max-width: 900px) {
-
-  .exercise-pair {
-    padding-top: 84px;
-  }
-
-  .exercise-pair .exercise-image-button {
-    width: 170px;
-    height: 70px;
-  }
-
   .exercise-pair .letter-bank-tile {
     min-width: 54px;
-    /* min-height: 36px; */
     font-size: 16px;
   }
 }
 
 @media (max-width: 600px) {
-  .exercise-pair {
-    padding-top: 68px;
-  }
-
-  .exercise-pair .exercise-image-button {
-    width: 154px;
-    height: 54px;
-  }
-
   .exercise-pair .letter-bank-tile {
     min-width: 40px;
-    /* min-height: 34px; */
     padding: 5px 7px;
     font-size: 24px;
   }
-}
-
-/* La imagen se posiciona sin ocupar una celda del grid del ejercicio. */
-.exercise-pair {
-  position: relative;
-  padding-top: 100px;
-}
-
-.exercise-pair .exercise-image-button {
-  position: absolute;
-  top: 8px;
-  left: 50%;
-  transform: translateX(-50%);
-  grid-column: auto;
 }
