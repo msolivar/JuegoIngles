@@ -334,6 +334,12 @@
           <div class="exercise-number pair-number">
             {{ currentPage * wordsPerPage + i + 1 }}
           </div>
+          <!-- IMAGEN PEQUEÑA; CLIC PARA AMPLIAR -->
+          <button *ngIf="getExerciseImage(exercise.id)" type="button" class="exercise-image-button"
+            (click)="showExerciseImage(exercise)" [attr.aria-label]="'Ampliar imagen de ' + exercise.leftOriginal">
+            <img class="exercise-thumbnail" [src]="getExerciseImage(exercise.id)" [alt]="exercise.leftOriginal+ ' ' +exercise.meaning"
+              loading="lazy" />
+          </button>
           <!-- ===============================================
                PALABRA IZQUIERDA
           ================================================ -->
@@ -732,4 +738,16 @@
       </div>
     </div>
   </ng-container>
+
+  <!-- IMAGEN AMPLIADA DEL EJERCICIO -->
+  <div *ngIf="selectedImage" class="exercise-image-overlay" (click)="closeExerciseImage()" role="presentation">
+    <div class="exercise-image-modal" (click)="$event.stopPropagation()" role="dialog" aria-modal="true"
+      aria-label="Imagen ampliada">
+      <strong>{{selectedImageMeaning }}</strong>
+      <button type="button" class="exercise-image-close" (click)="closeExerciseImage()"
+        aria-label="Cerrar imagen">×</button>
+      <img [src]="selectedImage" [alt]="selectedImageWord" />
+      <strong>{{ selectedImageWord }}</strong>
+    </div>
+  </div>
 </div>

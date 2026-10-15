@@ -1468,6 +1468,22 @@ export class CompletarPalabrasComponent {
     );
   }
 
+  getExerciseImage(id: string): string {
+    return this.allPairs.find((pair) => pair.id === id)?.image ?? '';
+  }
+
+  showExerciseImage(exercise: ExercisePair): void {
+    const src = this.getExerciseImage(exercise.id);
+    if (!src) return;
+    this.selectedImage = src;
+    this.selectedImageWord = exercise.leftOriginal;
+    this.selectedImageMeaning = exercise.meaning;
+  }
+
+  closeExerciseImage(): void {
+    this.selectedImage = null;
+  }
+
   printVocabulary(): void {
     if (!this.pairs || this.pairs.length === 0) {
       return;
