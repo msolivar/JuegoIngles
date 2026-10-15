@@ -4,17 +4,27 @@
   "configurations": [
     {
       "name": "ng serve",
-      "type": "chrome",
+      "type": "pwa-chrome",
       "request": "launch",
       "preLaunchTask": "npm: start",
-      "url": "http://localhost:4200/"
+      "url": "http://localhost:4200/",
+      "resolveSourceMapLocations": [
+        "${workspaceFolder}/**",
+        "!**/node_modules/**",
+        "!**/angular:script/**"
+      ]
     },
     {
       "name": "ng test",
-      "type": "chrome",
+      "type": "pwa-chrome",
       "request": "launch",
       "preLaunchTask": "npm: test",
-      "url": "http://localhost:9876/debug.html"
+      "url": "http://localhost:9876/debug.html",
+      "resolveSourceMapLocations": [
+        "${workspaceFolder}/**",
+        "!**/node_modules/**",
+        "!**/angular:script/**"
+      ]
     }
   ]
 }
