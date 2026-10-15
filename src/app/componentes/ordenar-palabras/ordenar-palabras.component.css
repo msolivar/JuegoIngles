@@ -93,6 +93,10 @@
   object-fit: contain;
 }
 
+.exercise-image-modal strong{
+  text-transform: capitalize;
+}
+
 .exercise-image-close {
   position: absolute;
   top: 4px;
