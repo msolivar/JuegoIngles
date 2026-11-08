@@ -2140,11 +2140,9 @@ button:active:not(:disabled) {
   cursor: pointer;
 }
 
-@media (min-width: 1201px) {
-  .exercise-pair .exercise-image-button {
-    width: 175px;
-    height: 75px;
-  }
+/* Evita que la tarjeta de imagen se desplace al hacer clic. */
+.exercise-pair .exercise-image-button:active:not(:disabled) {
+  transform: translateX(-50%);
 }
 
 /* =========================================================
@@ -2166,6 +2164,11 @@ button:active:not(:disabled) {
    ========================================================= */
 @media (max-width: 1200px) {
 
+  .exercise-pair .exercise-image-button {
+    width: 175px;
+    height: 75px;
+  }
+  
   .visible-letter,
   .visible-letter1 {
     height: 40px;
@@ -2229,6 +2232,7 @@ button:active:not(:disabled) {
     margin-bottom: 14px;
     gap: 7px;
     border-radius: 18px;
+    padding-top: 100px;
   }
 }
 
