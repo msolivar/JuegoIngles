@@ -700,8 +700,15 @@ export class RelationGameComponent implements AfterViewInit {
       // ORDEN ORIGINAL
       // -------------------------------------------------------
       case 'original':
-        // No hacemos nada.
-        // Conserva exactamente el orden recibido de Firebase.
+        // Respetar el orden de creación guardado en Firebase.
+        // No depender del orden de entrega del servicio.
+        preparedPairs.sort((a, b) => {
+          const fechaA = Number(a.fechaYHoraDeCreacion);
+          const fechaB = Number(b.fechaYHoraDeCreacion);
+          const ordenA = Number.isFinite(fechaA) ? fechaA : 0;
+          const ordenB = Number.isFinite(fechaB) ? fechaB : 0;
+          return ordenA - ordenB;
+        });
         break;
 
       // -------------------------------------------------------

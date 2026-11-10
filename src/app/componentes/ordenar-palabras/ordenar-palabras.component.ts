@@ -610,7 +610,15 @@ export class OrdenarPalabrasComponent {
       // ORDEN ORIGINAL
       // ===================================================
       case 'original':
-        // Conserva el orden original recibido.
+        // Respetar el orden de creación guardado en Firebase.
+        // No depender del orden de entrega del servicio.
+        orderedPairs.sort((a, b) => {
+          const fechaA = Number(a.fechaYHoraDeCreacion);
+          const fechaB = Number(b.fechaYHoraDeCreacion);
+          const ordenA = Number.isFinite(fechaA) ? fechaA : 0;
+          const ordenB = Number.isFinite(fechaB) ? fechaB : 0;
+          return ordenA - ordenB;
+        });
         break;
 
       // ===================================================
