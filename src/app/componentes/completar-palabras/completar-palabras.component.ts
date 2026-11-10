@@ -820,15 +820,11 @@ export class CompletarPalabrasComponent {
     const input = event.target as HTMLInputElement;
 
     let value = input.value
-
       .slice(-1)
-
       .toLowerCase();
 
     value = value.replace(
-      /[^a-záéíóúü]/gi,
-
-      '',
+      /[^a-zñ]/gi,'',
     );
 
     cell.value = value;
